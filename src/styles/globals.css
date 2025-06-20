@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #C2281E;
+  --primary-dark: #8B0000;
+  --accent-yellow: #FFCC00;
+  --accent-blue: #4A90E2;
+  --text-dark: #333333;
+  --text-light: #666666;
+}
+
+@layer base {
+  body {
+    @apply text-base bg-white font-normal;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Noto Serif JP', serif;
+  }
+}
