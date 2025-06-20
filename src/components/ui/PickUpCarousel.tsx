@@ -3,16 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import BotCard from './BotCard';
 
-interface Bot {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  pointCost: number;
-  imageUrl?: string;
-  isNew?: boolean;
-  isPopular?: boolean;
-}
+import { Bot } from '@/types/types';
 
 interface PickUpCarouselProps {
   title?: string;
@@ -97,7 +88,7 @@ export default function PickUpCarousel({ title = 'ピックアップBot', bots }
         {/* カルーセルアイテム */}
         {bots.map(bot => (
           <div key={bot.id} className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-start">
-            <BotCard {...bot} />
+            <BotCard bot={bot} />
           </div>
         ))}
       </div>
