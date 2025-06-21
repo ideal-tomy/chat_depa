@@ -9,6 +9,8 @@ export interface Bot {
   imageUrl: string;
   isNew?: boolean;
   isPopular?: boolean;
+  useCases?: string[];
+  instructions?: string;
 }
 
 export interface FaqItem {

@@ -27,18 +27,18 @@ const pointRanges: PointRangeOption[] = [
 ];
 
 const pickupBots: Bot[] = [
-  { id: 'p1', name: 'ビジネスメール作成Bot', description: '丁寧なビジネスメールを瞬時に作成します。', category: 'ビジネス', author: 'AI Dev Inc.', authorIcon: '/icons/author1.png', points: 100, imageUrl: '/images/bot1.jpg' },
-  { id: 'p2', name: 'SNS投稿アイデアBot', description: 'バズる投稿のアイデアを無限に生成。', category: 'マーケティング', author: 'Creative AI', authorIcon: '/icons/author2.png', points: 150, imageUrl: '/images/bot2.jpg' },
-  { id: 'p3', name: '献立提案Bot', description: '冷蔵庫の中身から今夜の献立を提案します。', category: 'ライフスタイル', author: 'Home Helper', authorIcon: '/icons/author3.png', points: 50, imageUrl: '/images/bot3.jpg' },
-  { id: 'p4', name: 'Pythonコードデバッガー', description: 'Pythonコードのエラーを特定し修正案を提示。', category: 'プログラミング', author: 'Code Master', authorIcon: '/icons/author4.png', points: 200, imageUrl: '/images/bot4.jpg' },
+  { id: 'p1', name: 'ビジネスメール作成Bot', description: '丁寧なビジネスメールを瞬時に作成します。', category: 'ビジネス', author: 'AI Dev Inc.', authorIcon: '/icons/author1.png', points: 100, imageUrl: '/images/sumple01.png' },
+  { id: 'p2', name: 'SNS投稿アイデアBot', description: 'バズる投稿のアイデアを無限に生成。', category: 'マーケティング', author: 'Creative AI', authorIcon: '/icons/author2.png', points: 150, imageUrl: '/images/sumple01.png' },
+  { id: 'p3', name: '献立提案Bot', description: '冷蔵庫の中身から今夜の献立を提案します。', category: 'ライフスタイル', author: 'Home Helper', authorIcon: '/icons/author3.png', points: 50, imageUrl: '/images/sumple01.png' },
+  { id: 'p4', name: 'Pythonコードデバッガー', description: 'Pythonコードのエラーを特定し修正案を提示。', category: 'プログラミング', author: 'Code Master', authorIcon: '/icons/author4.png', points: 200, imageUrl: '/images/sumple01.png' },
 ];
 
 const allBots: Bot[] = [
   ...pickupBots,
-  { id: 'a5', name: '旅行プランナーBot', description: '予算と日数から最適な旅行プランを作成。', category: '旅行', author: 'Travel AI', authorIcon: '/icons/author5.png', points: 120, imageUrl: '/images/bot5.jpg' },
-  { id: 'a6', name: 'ロゴデザインBot', description: '簡単なキーワードからロゴデザインを複数提案。', category: 'デザイン', author: 'Design AI', authorIcon: '/icons/author6.png', points: 300, imageUrl: '/images/bot6.jpg' },
-  { id: 'a7', name: '英語学習チューター', description: '英会話の練習相手や文法チェックをします。', category: '学習', author: 'Edu AI', authorIcon: '/icons/author7.png', points: 80, imageUrl: '/images/bot7.jpg' },
-  { id: 'a8', name: '筋トレメニュー作成Bot', description: 'あなたの目標に合わせた筋トレメニューを作成。', category: 'フィットネス', author: 'Fit AI', authorIcon: '/icons/author8.png', points: 90, imageUrl: '/images/bot8.jpg' },
+  { id: 'a5', name: '旅行プランナーBot', description: '予算と日数から最適な旅行プランを作成。', category: '旅行', author: 'Travel AI', authorIcon: '/icons/author5.png', points: 120, imageUrl: '/images/sumple01.png' },
+  { id: 'a6', name: 'ロゴデザインBot', description: '簡単なキーワードからロゴデザインを複数提案。', category: 'デザイン', author: 'Design AI', authorIcon: '/icons/author6.png', points: 300, imageUrl: '/images/sumple01.png' },
+  { id: 'a7', name: '英語学習チューター', description: '英会話の練習相手や文法チェックをします。', category: '学習', author: 'Edu AI', authorIcon: '/icons/author7.png', points: 80, imageUrl: '/images/sumple01.png' },
+  { id: 'a8', name: '筋トレメニュー作成Bot', description: 'あなたの目標に合わせた筋トレメニューを作成。', category: 'フィットネス', author: 'Fit AI', authorIcon: '/icons/author8.png', points: 90, imageUrl: '/images/sumple01.png' },
 ];
 
 const faqItems: FaqItem[] = [

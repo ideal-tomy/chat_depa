@@ -1,4 +1,3 @@
-import BotDetailHeader from '@/components/bots/BotDetailHeader';
 import BotInfoCard from '@/components/bots/BotInfoCard';
 import ChatInterface from '@/components/bots/ChatInterface';
 import ExportPanel from '@/components/bots/ExportPanel';
@@ -16,10 +15,12 @@ interface BotDetailPageProps {
 const dummyBot: Bot = {
   id: "bot1",
   name: "ビジネスメール作成Bot",
+  author: "AI Dev Inc.",
+  authorIcon: "/icons/author1.png",
   description: "簡単に丁寧なビジネスメールを作成します。挨拶から結びまで、ビジネスシーンに適したメールを各種シチュエーション別に作成できます。",
   category: "ビジネス",
-  costPoints: 100,
-  imageUrl: "/images/bots/business-mail.png",
+  points: 100,
+  imageUrl: "/images/sumple01.png",
   useCases: [
     "取引先へのアポイント依頼",
     "納品遅延の謝罪メール",
@@ -36,26 +37,32 @@ const relatedBots: Bot[] = [
   {
     id: "bot2",
     name: "議事録作成Bot",
+    author: "AI Dev Inc.",
+    authorIcon: "/icons/author1.png",
     description: "会議の音声や箇条書きメモから整形された議事録を作成します。",
     category: "ビジネス",
-    costPoints: 120,
-    imageUrl: "/images/bots/minutes.png"
+    points: 120,
+    imageUrl: "/images/sumple01.png"
   },
   {
     id: "bot3",
     name: "プレゼン資料作成Bot",
+    author: "AI Dev Inc.",
+    authorIcon: "/icons/author1.png",
     description: "キーポイントから美しいプレゼンテーション資料の構成を提案します。",
     category: "ビジネス",
-    costPoints: 150,
-    imageUrl: "/images/bots/presentation.png"
+    points: 150,
+    imageUrl: "/images/sumple01.png"
   },
   {
     id: "bot4",
     name: "ビジネス企画書Bot",
+    author: "AI Dev Inc.",
+    authorIcon: "/icons/author1.png",
     description: "新規事業や企画のアイディアを整理して企画書形式にまとめます。",
     category: "ビジネス",
-    costPoints: 200,
-    imageUrl: "/images/bots/business-plan.png"
+    points: 200,
+    imageUrl: "/images/sumple01.png"
   }
 ];
 
@@ -78,7 +85,7 @@ export default function BotDetailPage({ params }: BotDetailPageProps) {
 
   return (
     <main className="bg-gray-50 min-h-screen pb-16">
-      <BotDetailHeader bot={bot} />
+      <BotInfoCard bot={dummyBot} />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
