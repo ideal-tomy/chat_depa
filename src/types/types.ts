@@ -7,6 +7,8 @@ export interface Bot {
   authorIcon: string;
   points: number;
   imageUrl: string;
+  isNew?: boolean;
+  isPopular?: boolean;
 }
 
 export interface FaqItem {
@@ -21,4 +23,15 @@ export interface Post {
   category: string;
   date: string;
   imageUrl: string;
+}
+
+export interface CategoryOption {
+  id: string;
+  name: string;
+}
+
+export interface PointRangeOption {
+  id: string;
+  name: string;
+  range: [number, number];
 }
