@@ -1,3 +1,4 @@
+// tsconfig.json
 {
   "compilerOptions": {
     "target": "es5",
@@ -14,14 +15,24 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
-      {
-        "name": "next"
-      }
+      { "name": "next" }
     ],
+
+    // ★ ここから下を追加 ★
+    "baseUrl": ".",         // プロジェクトルートを基準にする
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]      // @/～ が src/～ にマップされる
     }
+    // ★ ここまで ★
+
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
