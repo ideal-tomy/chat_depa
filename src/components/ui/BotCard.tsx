@@ -7,8 +7,15 @@ interface BotCardProps {
 
 const BotCard: React.FC<BotCardProps> = ({ bot }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out">
-      <div className="relative h-48 w-full">
+    <div className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out">
+              <Image
+          src="/images/sumple04.png"
+          alt="icon"
+          width={40}
+          height={40}
+          className="absolute top-2 left-2 z-10"
+        />
+        <div className="relative h-48 w-full">
         <Image
           src={bot.imageUrl}
           alt={bot.name}
