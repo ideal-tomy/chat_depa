@@ -1,6 +1,7 @@
 import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
 import BotCard from '@/components/ui/BotCard';
 import { Bot } from '@/types/types';
+import { supabase } from '@/lib/supabase/client';
 
 export const metadata = {
   title: 'Bot一覧 | Chatbot Department',
@@ -27,35 +28,23 @@ const pointRanges: PointRangeOption[] = [
   { id: '200+', name: '200P〜', range: [200, 100000] },
 ];
 
-// データ生成用ヘルパー関数
-function generateBots(): Bot[] {
-  const botData: Bot[] = [
-    { id: 'b1', name: 'ビジネスメール作成Bot', description: '丁寧なビジネスメールを瞬時に作成します。', category: 'ビジネス', author: 'AI Dev Inc.', authorIcon: '/icons/author1.png', points: 100, imageUrl: '/images/sumple01.png', isPopular: true },
-    { id: 'b2', name: 'SNS投稿アイデアBot', description: 'バズる投稿のアイデアを無限に生成。', category: 'マーケティング', author: 'Creative AI', authorIcon: '/icons/author2.png', points: 150, imageUrl: '/images/sumple01.png' },
-    { id: 'b3', name: '献立提案Bot', description: '冷蔵庫の中身から今夜の献立を提案します。', category: 'ライフスタイル', author: 'Home Helper', authorIcon: '/icons/author3.png', points: 50, imageUrl: '/images/sumple01.png', isNew: true },
-    { id: 'b4', name: 'Pythonコードデバッガー', description: 'Pythonコードのエラーを特定し修正案を提示。', category: 'プログラミング', author: 'Code Master', authorIcon: '/icons/author4.png', points: 200, imageUrl: '/images/sumple01.png', isPopular: true },
-    { id: 'b5', name: '旅行プランナーBot', description: '予算と日数から最適な旅行プランを作成。', category: '旅行', author: 'Travel AI', authorIcon: '/icons/author5.png', points: 120, imageUrl: '/images/sumple01.png' },
-    { id: 'b6', name: 'ロゴデザインBot', description: '簡単なキーワードからロゴデザインを複数提案。', category: 'デザイン', author: 'Design AI', authorIcon: '/icons/author6.png', points: 300, imageUrl: '/images/sumple01.png', isNew: true },
-    { id: 'b7', name: '英語学習チューター', description: '英会話の練習相手や文法チェックをします。', category: '学習', author: 'Edu AI', authorIcon: '/icons/author7.png', points: 80, imageUrl: '/images/sumple01.png' },
-    { id: 'b8', name: '筋トレメニュー作成Bot', description: 'あなたの目標に合わせた筋トレメニューを作成。', category: 'フィットネス', author: 'Fit AI', authorIcon: '/icons/author8.png', points: 90, imageUrl: '/images/sumple01.png' },
-    // ダミーデータ追加（ページネーション表示用）
-    { id: 'b9', name: 'ビジネス分析Bot', description: '会社データを分析しインサイトを抽出します。', category: 'ビジネス', author: 'Analytics Inc', authorIcon: '/icons/author1.png', points: 180, imageUrl: '/images/sumple01.png', isNew: true },
-    { id: 'b10', name: 'インスタポストBot', description: 'インスタ映えする投稿文とハッシュタグ生成。', category: 'マーケティング', author: 'Social Media Pro', authorIcon: '/icons/author2.png', points: 120, imageUrl: '/images/sumple01.png' },
-    { id: 'b11', name: '家計簿アドバイザー', description: '支出を分析して節約アドバイスを提供。', category: 'ライフスタイル', author: 'Finance Helper', authorIcon: '/icons/author3.png', points: 70, imageUrl: '/images/sumple01.png' },
-    { id: 'b12', name: 'JavaScriptヘルパー', description: 'JavaScriptコードの最適化とデバッグを支援。', category: 'プログラミング', author: 'JS Expert', authorIcon: '/icons/author4.png', points: 150, imageUrl: '/images/sumple01.png' },
-    { id: 'b13', name: 'ローカル体験ガイド', description: '観光地の穴場スポットを現地人目線で紹介。', category: '旅行', author: 'Local Guide AI', authorIcon: '/icons/author5.png', points: 110, imageUrl: '/images/sumple01.png', isPopular: true },
-    { id: 'b14', name: 'UIデザイン評価Bot', description: 'UIデザインの使いやすさを評価し改善案を提示。', category: 'デザイン', author: 'UX Master', authorIcon: '/icons/author6.png', points: 200, imageUrl: '/images/sumple01.png' },
-    { id: 'b15', name: '数学問題解決Bot', description: '数学の問題を解き方とともに解説します。', category: '学習', author: 'Math Tutor', authorIcon: '/icons/author7.png', points: 90, imageUrl: '/images/sumple01.png', isPopular: true },
-    { id: 'b16', name: '食事アドバイザー', description: '目標に合わせた食事メニューとアドバイス提供。', category: 'フィットネス', author: 'Nutrition Pro', authorIcon: '/icons/author8.png', points: 85, imageUrl: '/images/sumple01.png' },
-  ];
-  
-  return botData;
-}
+export default async function BotsPage() {
+  const { data: botsData, error } = await supabase
+    .from('bots')
+    .select('*')
+    .order('created_at', { ascending: true });
 
-export default function BotsPage() {
-  // サーバーコンポーネントなのでここでは静的にボットを生成
-  // 実際はDBから取得する
-  const bots = generateBots();
+  if (error || !botsData) {
+    console.error('Error fetching bots:', error);
+    return <div className="text-center py-10">ボットの読み込みに失敗しました。</div>;
+  }
+
+  const bots: Bot[] = botsData.map(bot => ({
+    ...bot,
+    authorIcon: bot.author_icon,
+    imageUrl: bot.image_url,
+    useCases: bot.use_cases,
+  })) as Bot[];
   
   // カテゴリーごとにボットをグループ化
   const botsByCategory: Record<string, Bot[]> = {};
