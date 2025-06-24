@@ -51,11 +51,11 @@ const BotCard: React.FC<BotCardProps> = ({
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* キャラクターアイコン - 左上に飛び出して配置 */}
-      <div className="absolute top-0 left-0 z-20 -translate-y-3 -translate-x-3">
+      <div className="absolute top-1 left-1 z-30 -translate-y-1/3 -translate-x-1/3">
         <CharacterIcon 
           type={characterType} 
           complexity={bot.complexity || 'medium'} 
-          size={size === 'large' ? 'large' : 'medium'} 
+          size={size === 'large' ? 'large' : 'large'} 
         />
       </div>
       
@@ -78,8 +78,13 @@ const BotCard: React.FC<BotCardProps> = ({
         )}
       </div>
       
+      {/* タイトル - アイコンの横に配置し、画像に重なるように */}
+      <div className="absolute top-3 left-20 z-10">
+        <h3 className="text-lg font-bold text-white mb-1 drop-shadow-lg shadow-black">{bot.name}</h3>
+      </div>
+      
       {/* メイン画像 */}
-      <div className={`relative w-full ${imageAspectRatioClass} overflow-hidden mt-3`}>
+      <div className={`relative w-full ${imageAspectRatioClass} overflow-hidden`}>
         <Image
           src={bot.imageUrl}
           alt={bot.name}
@@ -89,27 +94,50 @@ const BotCard: React.FC<BotCardProps> = ({
         />
       </div>
       
-      {/* ボット情報 */}
+      {/* チャット入力欄 */}
       <div className="p-3">
-        <h3 className="text-lg font-bold text-gray-800 mb-1 pl-4">{bot.name}</h3>
-        <p className="text-sm text-gray-600 mb-2 h-10 overflow-hidden">{bot.description}</p>
-        
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-          <span className="bg-gray-200 rounded-full px-2 py-1">{bot.category}</span>
-          <div className="flex items-center">
-            <Image
-              src={bot.authorIcon}
-              alt={bot.author}
-              width={20}
-              height={20}
-              className="rounded-full mr-1"
-            />
-            <span>{bot.author}</span>
-          </div>
+        {/* 入力欄と送信ボタン */}
+        <div className="relative mt-2">
+          <input 
+            type="text" 
+            placeholder="メッセージを入力..."
+            className="w-full border border-gray-300 rounded-full py-2 pl-4 pr-16 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            onChange={(e) => {
+              // 入力値をローカルストレージなどに保存することも可能
+              try {
+                if (bot.id) {
+                  localStorage.setItem(`chat_input_${bot.id}`, e.target.value);
+                }
+              } catch (e) {
+                console.error('LocalStorage error:', e);
+              }
+            }}
+          />
+          <button
+            className="absolute right-0 top-0 h-full bg-indigo-600 text-white px-4 rounded-r-full hover:bg-indigo-700 transition-colors"
+            onClick={() => {
+              try {
+                // ポップアップを開く前に現在の入力値を保存
+                const inputValue = bot.id ? (localStorage.getItem(`chat_input_${bot.id}`) || '') : '';
+                
+                // チャットボットの詳細ページにURLパラメータとして入力値を渡す
+                if (bot.id) {
+                  window.location.href = `/bots/${bot.id}?message=${encodeURIComponent(inputValue)}`;
+                } else {
+                  console.error('Bot ID is missing');
+                }
+              } catch (e) {
+                console.error('Navigation error:', e);
+              };
+            }}
+          >
+            送信
+          </button>
         </div>
         
-        <div className="text-right font-bold text-indigo-600">
-          {bot.points.toLocaleString()} P
+        {/* ポイント表示 - 右下に配置 */}
+        <div className="text-right font-bold text-indigo-600 mt-2">
+          {bot.points !== undefined ? `${bot.points} P` : '0 P'}
         </div>
       </div>
       

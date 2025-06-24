@@ -65,9 +65,9 @@ const iconMapping: Record<CharacterType, Record<ComplexityLevel, string>> = {
 
 // サイズごとの幅と高さのマッピング
 const sizeMapping = {
-  small: { width: 32, height: 32 },
-  medium: { width: 40, height: 40 },
-  large: { width: 48, height: 48 },
+  small: { width: 40, height: 40 },
+  medium: { width: 56, height: 56 },
+  large: { width: 72, height: 72 },
 };
 
 // 複雑さに応じた色のマッピング

@@ -90,6 +90,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             <div key={bot.id} className={`flex-shrink-0 ${slideSizeClass}`}>
               <BotCard 
                 bot={bot} 
+                size="large"
                 showPreview={showPreview} 
                 isNew={bot.isNew}
                 isPopular={bot.isPopular}

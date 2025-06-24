@@ -144,19 +144,10 @@ export default async function BotsPage() {
             variant="standard"
             bgColorClass="bg-white"
           >
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {bots
-                .slice(0, 12)
-                .map((bot) => (
-                  <BotCard 
-                    key={bot.id} 
-                    bot={bot} 
-                    showPreview={false}
-                    isNew={bot.isNew}
-                    isPopular={bot.isPopular}
-                  />
-                ))}
-            </div>
+            <CategoryCarousel 
+              bots={bots.slice(0, 12)}
+              showPreview={true}
+            />
           </CategorySection>
           
           {/* ページネーションコントロール - よりモダンに */}
