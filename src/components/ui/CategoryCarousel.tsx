@@ -84,7 +84,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       {/* カルーセルのヘッダーは親コンポーネントで管理 */}
       
       {/* カルーセルのメインコンテナ */}
-      <div className="overflow-hidden" ref={emblaRef}>
+      {/* overflow-hiddenがアイコンを切り取るのを防ぐため、pt-12でアイコンのスペースを確保 */}
+      <div className="overflow-hidden pt-12" ref={emblaRef}>
         <div className={`flex ${gapClass}`}>
           {bots.map((bot) => (
             <div key={bot.id} className={`flex-shrink-0 ${slideSizeClass}`}>

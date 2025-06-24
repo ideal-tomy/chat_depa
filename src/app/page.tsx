@@ -50,43 +50,54 @@ export default function Home() {
   const [pickupBots, setPickupBots] = useState<Bot[]>([]);
   const [allBots, setAllBots] = useState<Bot[]>([]);
   const [categoryBots, setCategoryBots] = useState<Record<string, Bot[]>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBots = async () => {
-      const { data, error } = await supabase
-        .from('bots')
-        .select('*')
-        .order('created_at', { ascending: true });
+      setLoading(true);
+      setError(null);
+      let formattedData: Bot[] = [];
+      try {
+        const { data, error } = await supabase
+          .from('bots')
+          .select('*')
+          .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching bots:', error);
-      } else if (data) {
-        const formattedData = data.map(bot => ({
-          ...bot,
-          authorIcon: bot.author_icon,
-          imageUrl: bot.image_url,
-          // 複雑さを追加
-          complexity: ['simple', 'medium', 'advanced'][Math.floor(Math.random() * 3)] as 'simple' | 'medium' | 'advanced',
-          // 新規とポピュラーのフラグ
-          isNew: new Date(bot.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
-          isPopular: bot.point_value > 150,
-          // UGCフラグ (現在はサンプル)
-          isUGC: bot.id % 5 === 0
-        })) as Bot[];
-        
-        setAllBots(formattedData);
-        setPickupBots(formattedData.slice(0, 6));
-        
-        // カテゴリー別にボットを分類
-        const botsByCategory: Record<string, Bot[]> = {};
-        formattedData.forEach(bot => {
-          if (!botsByCategory[bot.category]) {
-            botsByCategory[bot.category] = [];
-          }
-          botsByCategory[bot.category].push(bot);
-        });
-        
-        setCategoryBots(botsByCategory);
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          formattedData = data.map((bot: any) => ({
+            ...bot,
+            authorIcon: bot.author_icon,
+            imageUrl: bot.image_url,
+            complexity: ['simple', 'medium', 'advanced'][Math.floor(Math.random() * 3)] as 'simple' | 'medium' | 'advanced',
+            isNew: new Date(bot.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
+            isPopular: bot.points > 150,
+            isUGC: bot.id % 5 === 0
+          }));
+          
+          setAllBots(formattedData);
+          setPickupBots(formattedData.slice(0, 6));
+          
+          const botsByCategory: Record<string, Bot[]> = {};
+          formattedData.forEach((bot: Bot) => {
+            const category = bot.category || 'その他';
+            if (!botsByCategory[category]) {
+              botsByCategory[category] = [];
+            }
+            botsByCategory[category].push(bot);
+          });
+          
+          setCategoryBots(botsByCategory);
+        }
+      } catch (err) {
+        console.error('Error fetching bots:', err);
+        setError('データの取得に失敗しました。');
+      } finally {
+        setLoading(false);
       }
     };
 

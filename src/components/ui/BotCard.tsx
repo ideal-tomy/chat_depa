@@ -27,7 +27,7 @@ const categoryToCharacterType: Record<string, CharacterType> = {
 };
 
 const BotCard: React.FC<BotCardProps> = ({ 
-  bot, 
+  bot,
   size = 'standard',
   showPreview = false,
   isNew = false,
@@ -35,120 +35,106 @@ const BotCard: React.FC<BotCardProps> = ({
   isUGC = false
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  
-  // カテゴリーからキャラクタータイプを取得
-  const characterType = categoryToCharacterType[bot.category] || categoryToCharacterType.default;
-  
-  // サイズに応じてカードのスタイルを変更
+
+  if (!bot || !bot.id) {
+    return null;
+  }
+
+  const characterType = categoryToCharacterType[bot.category || ''] || categoryToCharacterType.default;
+  const botName = bot.name || '無名のボット';
+  const botDescription = bot.description || '説明がありません。';
+  const botImageUrl = bot.imageUrl || '/images/placeholder.png';
+
   const cardSizeClass = size === 'large' ? 'w-full' : 'w-full';
-  const imageAspectRatioClass = 'aspect-[16/9]'; // 16:9のアスペクト比
-  
+  const imageAspectRatioClass = 'aspect-[16/9]';
+
+  const handleSendClick = () => {
+    try {
+      const inputValue = localStorage.getItem(`chat_input_${bot.id}`) || '';
+      window.location.href = `/bots/${bot.id}?message=${encodeURIComponent(inputValue)}`;
+    } catch (e) {
+      console.error('Navigation or LocalStorage error:', e);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      localStorage.setItem(`chat_input_${bot.id}`, e.target.value);
+    } catch (e) {
+      console.error('LocalStorage error:', e);
+    }
+  };
+
   return (
     <div 
-      className={`relative bg-white rounded-lg shadow-md transition-all duration-300 ease-in-out ${cardSizeClass}
-      ${isHovered ? 'shadow-xl scale-[1.03] z-10' : ''}`}
+      className={`relative bg-white rounded-lg shadow-md transition-all duration-300 ease-in-out ${cardSizeClass} ${isHovered ? 'shadow-xl scale-[1.03] z-20' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* キャラクターアイコン - 左上に飛び出して配置 */}
+      {/* キャラクターアイコン: z-30 */}
       <div className="absolute top-1 left-1 z-30 -translate-y-1/3 -translate-x-1/3">
         <CharacterIcon 
           type={characterType} 
           complexity={bot.complexity || 'medium'} 
-          size={size === 'large' ? 'large' : 'large'} 
+          size={'large'} 
         />
       </div>
       
-      {/* バッジ - 右上に配置 */}
+      {/* バッジ: z-20 */}
       <div className="absolute top-2 right-2 flex flex-col gap-1 z-20">
-        {isNew && (
-          <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
-            NEW
-          </span>
-        )}
-        {isPopular && (
-          <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
-            人気
-          </span>
-        )}
-        {isUGC && (
-          <span className="bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
-            クリエイター
-          </span>
-        )}
+        {isNew && <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">NEW</span>}
+        {isPopular && <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">人気</span>}
+        {isUGC && <span className="bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">クリエイター</span>}
       </div>
       
-      {/* タイトル - アイコンの横に配置し、画像に重なるように */}
+      {/* タイトル: z-10 */}
       <div className="absolute top-3 left-20 z-10">
-        <h3 className="text-lg font-bold text-white mb-1 drop-shadow-lg shadow-black">{bot.name}</h3>
+        <h3 className="text-lg font-bold text-white mb-1 drop-shadow-lg shadow-black">{botName}</h3>
       </div>
       
       {/* メイン画像 */}
-      <div className={`relative w-full ${imageAspectRatioClass} overflow-hidden`}>
+      <div className={`relative w-full ${imageAspectRatioClass} overflow-hidden rounded-t-lg`}>
         <Image
-          src={bot.imageUrl}
-          alt={bot.name}
-          layout="fill"
-          objectFit="cover"
+          src={botImageUrl}
+          alt={botName}
+          fill={true}
+          style={{ objectFit: 'cover' }}
           className={`transition-transform duration-500 ${isHovered ? 'scale-110' : ''}`}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            if (!target.src.includes('placeholder.png')) {
+              target.src = '/images/placeholder.png';
+            }
+          }}
         />
       </div>
       
-      {/* チャット入力欄 */}
+      {/* カード下部コンテンツ */}
       <div className="p-3">
-        {/* 入力欄と送信ボタン */}
         <div className="relative mt-2">
           <input 
             type="text" 
             placeholder="メッセージを入力..."
             className="w-full border border-gray-300 rounded-full py-2 pl-4 pr-16 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            onChange={(e) => {
-              // 入力値をローカルストレージなどに保存することも可能
-              try {
-                if (bot.id) {
-                  localStorage.setItem(`chat_input_${bot.id}`, e.target.value);
-                }
-              } catch (e) {
-                console.error('LocalStorage error:', e);
-              }
-            }}
+            onChange={handleInputChange}
           />
           <button
             className="absolute right-0 top-0 h-full bg-indigo-600 text-white px-4 rounded-r-full hover:bg-indigo-700 transition-colors"
-            onClick={() => {
-              try {
-                // ポップアップを開く前に現在の入力値を保存
-                const inputValue = bot.id ? (localStorage.getItem(`chat_input_${bot.id}`) || '') : '';
-                
-                // チャットボットの詳細ページにURLパラメータとして入力値を渡す
-                if (bot.id) {
-                  window.location.href = `/bots/${bot.id}?message=${encodeURIComponent(inputValue)}`;
-                } else {
-                  console.error('Bot ID is missing');
-                }
-              } catch (e) {
-                console.error('Navigation error:', e);
-              };
-            }}
+            onClick={handleSendClick}
           >
             送信
           </button>
         </div>
         
-        {/* ポイント表示 - 右下に配置 */}
         <div className="text-right font-bold text-indigo-600 mt-2">
           {bot.points !== undefined ? `${bot.points} P` : '0 P'}
         </div>
       </div>
       
-      {/* ホバー時のプレビュー表示 - showPreviewがtrueの場合のみ表示 */}
+      {/* ホバー時のプレビュー表示: z-40 */}
       {showPreview && isHovered && (
-        <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 transition-opacity duration-300">
-          <div className="text-white">
-            <h4 className="text-lg font-bold mb-2">{bot.name}</h4>
-            <p className="text-sm mb-2">{bot.description}</p>
-            <p className="text-xs">使用例: {bot.useCases?.[0]}</p>
-          </div>
+        <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 rounded-lg transition-opacity duration-300 z-40">
+          <p className="text-white text-center">{botDescription}</p>
         </div>
       )}
     </div>
