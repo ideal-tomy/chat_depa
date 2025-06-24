@@ -16,12 +16,14 @@ interface BotCardProps {
 
 // カテゴリーからキャラクタータイプへのマッピング
 const categoryToCharacterType: Record<string, CharacterType> = {
-  'business': 'business',
-  'creative': 'creative',
-  'entertainment': 'entertainment',
-  'technical': 'technical',
-  'lifestyle': 'lifestyle',
-  'fortune': 'fortune',
+  'ビジネス': 'business',
+  'マーケティング': 'entertainment', // businessと同じアイコンを割り当て
+  'プログラミング': 'technical',
+  '学習': 'fortune', // technicalと同じアイコンを割り当て
+  'ライフスタイル': 'lifestyle',
+  '旅行': 'lifestyle',
+  'デザイン': 'creative',
+  'フィットネス': 'lifestyle',
   // デフォルトマッピング
   'default': 'other'
 };
@@ -29,12 +31,11 @@ const categoryToCharacterType: Record<string, CharacterType> = {
 const BotCard: React.FC<BotCardProps> = ({ 
   bot,
   size = 'standard',
-  showPreview = false,
+  showPreview = false, // このプロパティはもう使用しません
   isNew = false,
   isPopular = false,
   isUGC = false
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
 
   if (!bot || !bot.id) {
     return null;
@@ -42,7 +43,6 @@ const BotCard: React.FC<BotCardProps> = ({
 
   const characterType = categoryToCharacterType[bot.category || ''] || categoryToCharacterType.default;
   const botName = bot.name || '無名のボット';
-  const botDescription = bot.description || '説明がありません。';
   const botImageUrl = bot.imageUrl || '/images/placeholder.png';
 
   const cardSizeClass = size === 'large' ? 'w-full' : 'w-full';
@@ -66,11 +66,7 @@ const BotCard: React.FC<BotCardProps> = ({
   };
 
   return (
-    <div 
-      className={`relative bg-white rounded-lg shadow-md transition-all duration-300 ease-in-out ${cardSizeClass} ${isHovered ? 'shadow-xl scale-[1.03] z-20' : ''}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className={`relative bg-white rounded-lg shadow-md ${cardSizeClass}`}>
       {/* キャラクターアイコン: z-30 */}
       <div className="absolute top-1 left-1 z-30 -translate-y-1/3 -translate-x-1/3">
         <CharacterIcon 
@@ -80,16 +76,9 @@ const BotCard: React.FC<BotCardProps> = ({
         />
       </div>
       
-      {/* バッジ: z-20 */}
-      <div className="absolute top-2 right-2 flex flex-col gap-1 z-20">
-        {isNew && <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">NEW</span>}
-        {isPopular && <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">人気</span>}
-        {isUGC && <span className="bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">クリエイター</span>}
-      </div>
-      
       {/* タイトル: z-10 */}
       <div className="absolute top-3 left-20 z-10">
-        <h3 className="text-lg font-bold text-white mb-1 drop-shadow-lg shadow-black">{botName}</h3>
+        <h3 className="text-lg font-bold text-white mb-1" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>{botName}</h3>
       </div>
       
       {/* メイン画像 */}
@@ -99,7 +88,6 @@ const BotCard: React.FC<BotCardProps> = ({
           alt={botName}
           fill={true}
           style={{ objectFit: 'cover' }}
-          className={`transition-transform duration-500 ${isHovered ? 'scale-110' : ''}`}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             if (!target.src.includes('placeholder.png')) {
@@ -126,17 +114,17 @@ const BotCard: React.FC<BotCardProps> = ({
           </button>
         </div>
         
-        <div className="text-right font-bold text-indigo-600 mt-2">
-          {bot.points !== undefined ? `${bot.points} P` : '0 P'}
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex gap-2">
+            {isNew && <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">NEW</span>}
+            {isPopular && <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">人気</span>}
+            {isUGC && <span className="bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">クリエイター</span>}
+          </div>
+          <div className="font-bold text-indigo-600">
+            {bot.points !== undefined ? `${bot.points} P` : '0 P'}
+          </div>
         </div>
       </div>
-      
-      {/* ホバー時のプレビュー表示: z-40 */}
-      {showPreview && isHovered && (
-        <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 rounded-lg transition-opacity duration-300 z-40">
-          <p className="text-white text-center">{botDescription}</p>
-        </div>
-      )}
     </div>
   );
 };
