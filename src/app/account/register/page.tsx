@@ -14,8 +14,8 @@ export default function RegisterPage() {
       <HeroSection 
         title="今すぐ無料トライアル！"
         description="会員登録で100ポイントプレゼント"
-        buttonText="無料登録する"
-        buttonLink="#signup-form"
+        primaryButtonText="無料登録する"
+        primaryButtonLink="#signup-form"
       />
       
       <div className="container mx-auto px-4 py-10 max-w-5xl">

@@ -6,11 +6,14 @@ export interface Bot {
   author: string;
   authorIcon: string;
   points: number;
+  costPoints?: number;
   imageUrl: string;
   isNew?: boolean;
   isPopular?: boolean;
+  isUGC?: boolean;
   useCases?: string[];
   instructions?: string;
+  complexity?: 'simple' | 'medium' | 'advanced'; // ボットの複雑さレベル
 }
 
 export interface FaqItem {

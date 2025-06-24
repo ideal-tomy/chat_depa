@@ -5,6 +5,8 @@ import HeroSection from '@/components/ui/HeroSection';
 import PickUpCarousel from '@/components/ui/PickUpCarousel';
 import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
 import BotCard from '@/components/ui/BotCard';
+import CategoryCarousel from '@/components/ui/CategoryCarousel';
+import CategorySection from '@/components/ui/CategorySection';
 import FAQAccordion from '@/components/ui/FAQAccordion';
 import BlogCard from '@/components/ui/BlogCard';
 import { Bot, FaqItem, Post } from '@/types/types';
@@ -47,6 +49,7 @@ const blogPosts: Post[] = [
 export default function Home() {
   const [pickupBots, setPickupBots] = useState<Bot[]>([]);
   const [allBots, setAllBots] = useState<Bot[]>([]);
+  const [categoryBots, setCategoryBots] = useState<Record<string, Bot[]>>({});
 
   useEffect(() => {
     const fetchBots = async () => {
@@ -62,9 +65,28 @@ export default function Home() {
           ...bot,
           authorIcon: bot.author_icon,
           imageUrl: bot.image_url,
+          // 複雑さを追加
+          complexity: ['simple', 'medium', 'advanced'][Math.floor(Math.random() * 3)] as 'simple' | 'medium' | 'advanced',
+          // 新規とポピュラーのフラグ
+          isNew: new Date(bot.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
+          isPopular: bot.point_value > 150,
+          // UGCフラグ (現在はサンプル)
+          isUGC: bot.id % 5 === 0
         })) as Bot[];
+        
         setAllBots(formattedData);
-        setPickupBots(formattedData.slice(0, 4));
+        setPickupBots(formattedData.slice(0, 6));
+        
+        // カテゴリー別にボットを分類
+        const botsByCategory: Record<string, Bot[]> = {};
+        formattedData.forEach(bot => {
+          if (!botsByCategory[bot.category]) {
+            botsByCategory[bot.category] = [];
+          }
+          botsByCategory[bot.category].push(bot);
+        });
+        
+        setCategoryBots(botsByCategory);
       }
     };
 
@@ -87,13 +109,55 @@ export default function Home() {
           <PickUpCarousel bots={pickupBots} />
         </section>
 
-        <section id="bot-store" className="mb-20">
-          <h2 className="text-3xl font-bold text-center mb-10">Botストア</h2>
+        <section id="bot-store" className="mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold">Botストア</h2>
+            <a href="/bots" className="text-indigo-600 hover:underline">すべて見る →</a>
+          </div>
           <FilterBarWrapper categories={categories} pointRanges={pointRanges} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-10">
-            {allBots.map((bot) => (
-              <BotCard key={bot.id} bot={bot} />
-            ))}
+          
+          {/* 新着ボット */}
+          <div className="mt-6 mb-12">
+            <CategorySection 
+              title="新着のBot" 
+              viewAllLink="/bots?category=new"
+              variant="standard"
+            >
+              <CategoryCarousel 
+                bots={allBots.filter(bot => bot.isNew).slice(0, 10)} 
+                variant="standard" 
+              />
+            </CategorySection>
+          </div>
+          
+          {/* カテゴリー別ボット */}
+          {Object.entries(categoryBots).slice(0, 3).map(([category, bots], index) => (
+            <div key={category} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+              <CategorySection 
+                title={category} 
+                viewAllLink={`/bots?category=${category}`}
+                variant="standard"
+              >
+                <CategoryCarousel 
+                  bots={bots.slice(0, 8)} 
+                  variant="standard" 
+                />
+              </CategorySection>
+            </div>
+          ))}
+          
+          {/* 人気のボット */}
+          <div className="mt-10 mb-12">
+            <CategorySection 
+              title="人気のBot" 
+              viewAllLink="/bots?category=popular"
+              variant="standard"
+            >
+              <CategoryCarousel 
+                bots={allBots.filter(bot => bot.isPopular).slice(0, 10)} 
+                variant="standard" 
+              />
+            </CategorySection>
           </div>
         </section>
 
