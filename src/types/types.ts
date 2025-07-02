@@ -40,3 +40,10 @@ export interface PointRangeOption {
   name: string;
   range: [number, number];
 }
+
+export interface Message {
+  id: string;
+  text: string;
+  role: 'user' | 'assistant' | 'bot' | 'system';
+  timestamp: Date;
+}

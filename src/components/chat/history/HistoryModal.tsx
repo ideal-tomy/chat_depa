@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
-import { useChatService } from './ChatProvider';
+import React, { useState, useEffect, Fragment } from 'react';
+import { useChatService } from '../ChatProvider';
 import { Message } from '@/types/types';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';

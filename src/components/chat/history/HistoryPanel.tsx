@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useChatService } from './ChatProvider';
-import { Message } from '@/types/types';
+import React, { useEffect, useState } from 'react';
+import { useChatService } from '../ChatProvider';
+import { Message } from '../../../types/types';
 
 interface HistoryPanelProps {
   sessionId: string;
@@ -19,7 +19,7 @@ export default function HistoryPanel({ sessionId }: HistoryPanelProps) {
     setIsLoading(true);
     chatService.fetchHistory(sessionId)
       .then(setHistory)
-      .catch(err => {
+      .catch((err: unknown) => {
         console.error('Failed to fetch history:', err);
         // ここでエラーメッセージをUIに表示することも可能
       })

@@ -1,0 +1,34 @@
+'use client';
+
+import { useState } from 'react';
+import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
+import { CategoryOption as CategoryType, PointRangeOption } from '@/types/types';
+import BotList from '@/components/bots/BotList';
+
+interface BotPageClientProps {
+  categories: CategoryType[];
+  pointRanges: PointRangeOption[];
+}
+
+export default function BotPageClient({ categories, pointRanges }: BotPageClientProps) {
+  const [filters, setFilters] = useState({
+    category: null as string | null,
+    search: '',
+    pointRange: null as [number, number] | null,
+  });
+
+  return (
+    <>
+      {/* フィルターバー */}
+      <div className="mb-6 sticky top-0 z-30 bg-white rounded-lg shadow-md p-3">
+        <FilterBarWrapper 
+          categories={categories} 
+          pointRanges={pointRanges} 
+          filters={filters}
+          onFilterChange={setFilters}
+        />
+      </div>
+      <BotList filters={filters} />
+    </>
+  );
+}

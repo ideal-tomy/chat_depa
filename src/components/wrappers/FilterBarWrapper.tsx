@@ -1,29 +1,27 @@
 'use client';
 
-import { useState } from 'react';
 import FilterBar from '@/components/ui/FilterBar';
 import type { CategoryOption, PointRangeOption } from '@/types/types';
 
 interface FilterBarWrapperProps {
   categories: CategoryOption[];
   pointRanges: PointRangeOption[];
+  filters: any; // 型は後でより具体的に定義
+  onFilterChange: (filters: any) => void;
 }
 
-export default function FilterBarWrapper({ categories, pointRanges }: FilterBarWrapperProps) {
-  // フィルタ状態はラッパー内部だけで管理
-  const [filters, setFilters] = useState({
-    category: null as string | null,
-    search: '',
-    pointRange: null as [number, number] | null,
-  });
-
-  // ここで filters が変わったら Router.push() や API コール等を行うことも可能
-
+export default function FilterBarWrapper({ 
+  categories, 
+  pointRanges, 
+  filters, 
+  onFilterChange 
+}: FilterBarWrapperProps) {
   return (
     <FilterBar
       categories={categories}
       pointRanges={pointRanges}
-      onFilterChange={setFilters}
+      onFilterChange={onFilterChange}
+      filters={filters}
     />
   );
 }

@@ -52,6 +52,11 @@ export default function Home() {
   const [categoryBots, setCategoryBots] = useState<Record<string, Bot[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    category: null as string | null,
+    search: '',
+    pointRange: null as [number, number] | null,
+  });
 
   useEffect(() => {
     const fetchBots = async () => {
@@ -125,7 +130,12 @@ export default function Home() {
             <h2 className="text-3xl font-bold">Botストア</h2>
             <a href="/bots" className="text-indigo-600 hover:underline">すべて見る →</a>
           </div>
-          <FilterBarWrapper categories={categories} pointRanges={pointRanges} />
+          <FilterBarWrapper 
+            categories={categories} 
+            pointRanges={pointRanges} 
+            filters={filters}
+            onFilterChange={setFilters}
+          />
           
           {/* 新着ボット */}
           <div className="mt-6 mb-12">

@@ -5,9 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { useChatService } from './ChatProvider';
 import { Message } from '@/types/types';
 import ChatWindow from './ChatWindow';
-import HistoryPanel from './HistoryPanel';
-import HistoryToggle from './HistoryToggle';
-import HistoryModal from './HistoryModal';
+import HistoryModal from './history/HistoryModal';
+import HistoryPanel from './history/HistoryPanel';
+import HistoryToggle from './history/HistoryToggle';
 
 interface ChatUIProps {
   botId: string;

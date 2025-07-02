@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import FaqAccordion from '@/components/faq/FaqAccordion';
+import FAQAccordion from '@/components/ui/FAQAccordion';
 import SupportChat from '@/components/faq/SupportChat';
 import Link from 'next/link';
 import { FaqItem } from '@/types/types';
@@ -96,7 +96,7 @@ export default function FaqPage() {
         {/* FAQアコーディオン */}
         <div className="mb-12">
           {filteredFaqs.length > 0 ? (
-            <FaqAccordion items={filteredFaqs} />
+            <FAQAccordion items={filteredFaqs} />
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-500">

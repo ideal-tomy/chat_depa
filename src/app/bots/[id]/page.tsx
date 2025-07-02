@@ -1,6 +1,5 @@
 import BotInfoCard from '@/components/bots/BotInfoCard';
 import ChatInterface from '@/components/bots/ChatInterface';
-import ExportPanel from '@/components/bots/ExportPanel';
 import RelatedBots from '@/components/bots/RelatedBots';
 import { Bot } from '@/types/types';
 import { Metadata } from 'next';
@@ -96,7 +95,6 @@ export default async function BotDetailPage({ params }: BotDetailPageProps) {
           <div className="hidden lg:block order-2 lg:order-1 lg:col-span-1">
             <div className="sticky top-24 space-y-8">
               <BotInfoCard bot={bot} />
-              <ExportPanel botId={bot.id} />
               <RelatedBots bots={relatedBots} />
             </div>
           </div>

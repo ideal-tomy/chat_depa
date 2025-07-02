@@ -1,62 +1,155 @@
-create-next-app の -e フラグを使うと、Next.js の公式 Examples リポジトリからテンプレートを丸ごとクローンしてプロジェクトを作成できます。with-supabase テンプレートを選ぶと、認証まわりのセットアップが一瞬で scaffold されます。
 
-使い方例
-bash
-コピーする
-編集する
-# プロジェクトを with-supabase テンプレートで作成
-npx create-next-app@latest my-chat-dept \
-  -e with-supabase
-cd my-chat-dept
--e with-supabase で “with-supabase” Example を指定
+# Supabase設定仕様書
 
-GitHub の vercel/next.js/examples/with-supabase がベース
+## 1. はじめに
 
-scaffold される主な内容
-@supabase/supabase-js の導入＆初期化
+本ドキュメントは、「chat_depa」プロジェクトにおけるSupabaseの各種設定を定義するものです。
+データベース、認証、ストレージ、その他関連機能のセットアップと運用に関する指針を定めます。
 
-lib/supabaseClient.ts で createClient() を呼び出し
+---
 
-Auth フロー
+## 2. プロジェクト基本設定
 
-/pages/api/auth/[...supabase].ts で認証用 API Route
+- **プロジェクト名**: `chat-depa`
+- **リージョン**: アジアパシフィック (東京) `ap-northeast` を推奨
+- **料金プラン**: Freeプランから開始し、利用状況に応じてProプランへの移行を検討
 
-サインイン／サインアップ／サインアウトのエンドポイント
+---
 
-Auth ガード付きサンプルページ
+## 3. データベース (Database)
 
-pages/profile.tsx など、ログイン必須ページの雛形
+### 3.1. テーブル設計
 
-環境変数サンプル
+主要なテーブルのスキーマを以下のように定義します。
 
-.env.local.example に NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY 設定例
+#### a. `profiles`
+Supabaseの`auth.users`テーブルと連動するユーザープロフィール情報。
 
-セットアップ手順
-環境変数の設定
+| カラム名      | データ型                | 説明                                   | 制約                  |
+| :------------ | :---------------------- | :------------------------------------- | :-------------------- |
+| `id`          | `uuid`                  | ユーザーID                             | Primary Key, `auth.users.id`への参照 |
+| `username`    | `text`                  | 表示名                                 | `NOT NULL`            |
+| `avatar_url`  | `text`                  | アバター画像のURL                      |                       |
+| `created_at`  | `timestamp with time zone` | 作成日時                               | `default now()`       |
 
-env
-コピーする
-編集する
-# .env.local
-NEXT_PUBLIC_SUPABASE_URL=https://<your-project>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
-依存関係インストール & 起動
+#### b. `bots`
+提供するチャットボットの情報。
 
-bash
-コピーする
-編集する
-npm install
-npm run dev
-ブラウザで http://localhost:3000 を開くと、
+| カラム名            | データ型                | 説明                                   | 制約                  |
+| :------------------ | :---------------------- | :------------------------------------- | :-------------------- |
+| `id`                | `uuid`                  | ボットID                               | Primary Key, `default gen_random_uuid()` |
+| `name`              | `text`                  | ボット名                               | `NOT NULL`            |
+| `description`       | `text`                  | ボットの説明文                         |                       |
+| `avatar_url`        | `text`                  | ボットのアバター画像のURL              |                       |
+| `category`          | `text`                  | カテゴリ（例: 仕事効率化, 娯楽）       |                       |
+| `can_upload_image`  | `boolean`               | 画像アップロード機能の有無             | `default false`       |
+| `can_send_file`     | `boolean`               | ファイル送信機能の有無                 | `default false`       |
+| `created_at`        | `timestamp with time zone` | 作成日時                               | `default now()`       |
 
-サインアップ／サインインボタン
+#### c. `chats`
+ユーザーとボットのチャットセッション。
 
-認証後に表示されるサンプルページ
-がすでに動作します。
+| カラム名      | データ型                | 説明                                   | 制約                  |
+| :------------ | :---------------------- | :------------------------------------- | :-------------------- |
+| `id`          | `uuid`                  | チャットID                             | Primary Key, `default gen_random_uuid()` |
+| `user_id`     | `uuid`                  | ユーザーID                             | `profiles.id`へのFK   |
+| `bot_id`      | `uuid`                  | ボットID                               | `bots.id`へのFK       |
+| `title`       | `text`                  | チャットのタイトル（履歴表示用）       |                       |
+| `created_at`  | `timestamp with time zone` | 作成日時                               | `default now()`       |
 
-まとめ
-npx create-next-app -e with-supabase で 認証まわりが丸ごと用意 される
+#### d. `chat_messages`
+個別のチャットメッセージ。
 
-あとは自分のチャットロジックや UI を追加していくだけ
+| カラム名      | データ型                | 説明                                   | 制約                  |
+| :------------ | :---------------------- | :------------------------------------- | :-------------------- |
+| `id`          | `bigint`                | メッセージID                           | Primary Key, `identity` |
+| `chat_id`     | `uuid`                  | チャットID                             | `chats.id`へのFK      |
+| `role`        | `text`                  | 送信者 (`user` または `assistant`)     | `NOT NULL`            |
+| `content`     | `text`                  | メッセージ内容                         |                       |
+| `created_at`  | `timestamp with time zone` | 作成日時                               | `default now()`       |
 
-これをベースに Supabase + Next.js の開発をスタートするのが超効率的ですよ！
+### 3.2. 行単位セキュリティ (Row Level Security - RLS)
+
+**原則として、すべてのテーブルでRLSを有効化します。**
+これにより、デフォルトでデータへのアクセスが拒否され、意図しないデータ漏洩を防ぎます。
+
+#### 設定ポリシー例
+
+- **`profiles`テーブル:**
+  - `SELECT`: ログインしているユーザーは、自身のプロフィール情報のみ閲覧可能。
+  - `UPDATE`: ログインしているユーザーは、自身のプロフィール情報のみ更新可能。
+
+- **`chats`テーブル:**
+  - `SELECT`: ログインしているユーザーは、自身の`user_id`に紐づくチャットのみ閲覧可能。
+  - `INSERT`: ログインしているユーザーは、自身の`user_id`を持つチャットのみ作成可能。
+
+- **`chat_messages`テーブル:**
+  - `SELECT`: ユーザーは、自身が参加しているチャットのメッセージのみ閲覧可能。（`chats`テーブルとのJOINが必要）
+  - `INSERT`: ユーザーは、自身が参加しているチャットにのみメッセージを投稿可能。
+
+- **`bots`テーブル:**
+  - `SELECT`: 全てのユーザー（非ログイン含む）が閲覧可能。（ボット一覧表示のため）
+
+---
+
+## 4. 認証 (Authentication)
+
+### 4.1. 認証プロバイダー
+
+- **Email/Password**: 標準のサインアップ、ログイン、パスワードリセット機能を有効化。
+- **Social Providers (推奨)**:
+  - **Google**: 有効化を推奨。多くのユーザーが利用可能。
+  - **GitHub**: 開発者向けに有効化を検討。
+
+### 4.2. 認証設定
+
+- **メールテンプレート**: 必要に応じて、確認メールやパスワードリセットメールの文面をカスタマイズ。
+- **リダイレクトURL**:
+  - 開発環境: `http://localhost:3000/**`
+  - 本番環境: `https://<本番ドメイン>/**`
+  を適宜追加する。
+
+---
+
+## 5. ストレージ (Storage)
+
+### 5.1. バケット (Buckets)
+
+- **`bot_avatars` (公開バケット)**
+  - **目的**: ボットのアイコン画像を格納。
+  - **公開設定**: Public（URLを知っていれば誰でもアクセス可能）。
+  - **RLS**: 不要。
+
+- **`user_uploads` (非公開バケット)**
+  - **目的**: ユーザーがチャットでアップロードした画像やファイル（領収書など）を格納。
+  - **公開設定**: Private。
+  - **RLS**: 必須。
+
+### 5.2. ストレージポリシー (RLS for Storage)
+
+- **`user_uploads`バケットのポリシー:**
+  - `SELECT`: ログインしているユーザーは、自身の`user_id`に紐づくフォルダ/ファイルのみ閲覧可能。
+  - `INSERT`: ログインしているユーザーは、自身の`user_id`に紐づくフォルダにのみアップロード可能。
+  - `UPDATE`/`DELETE`: ログインしているユーザーは、自身のファイルのみ更新・削除可能。
+
+---
+
+## 6. 環境変数設定 (.env.local)
+
+Next.jsアプリケーションのルートディレクトリに`.env.local`ファイルを作成し、以下の変数を設定します。
+**このファイルは`.gitignore`に必ず含め、Gitリポジトリにコミットしないでください。**
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_PROJECT_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+```
+
+- `YOUR_SUPABASE_PROJECT_URL`: SupabaseプロジェクトのURL (`Project Settings` > `API`で確認)
+- `YOUR_SUPABASE_ANON_KEY`: Supabaseプロジェクトの`anon` (public) キー (`Project Settings` > `API`で確認)
+
+---
+
+## 7. 開発と運用
+
+- **ローカル開発**: Supabase CLIの利用を推奨。DBマイグレーションをローカルで管理し、本番環境への適用を安全に行う。
+- **バックアップ**: 定期的にSupabaseのダッシュボードから手動バックアップを取得、またはGitHub Actions等で自動化する。
