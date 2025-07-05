@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Bot } from '@/types/types';
 import BotCard from '@/components/ui/BotCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { FilterState as BotFilterState } from './BotFilter';
 
 const BOTS_PER_PAGE = 12;
 
@@ -14,6 +15,7 @@ interface BotListProps {
     search: string;
     pointRange: [number, number] | null;
   };
+  botFilterState: BotFilterState;
 }
 
 // ボットデータの型変換ヘルパー
@@ -25,9 +27,11 @@ const formatBot = (botData: any): Bot => ({
   isNew: botData.created_at && new Date(botData.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
   isPopular: botData.points > 150,
   complexity: botData.complexity || 'medium',
+  can_upload_image: botData.can_upload_image,
+  can_send_file: botData.can_send_file,
 });
 
-export default function BotList({ filters }: BotListProps) {
+export default function BotList({ filters, botFilterState }: BotListProps) {
   const [bots, setBots] = useState<Bot[]>([]);
   const [groupedBots, setGroupedBots] = useState<Record<string, Bot[]>>({});
   const [page, setPage] = useState(0);
@@ -35,7 +39,7 @@ export default function BotList({ filters }: BotListProps) {
   const [hasMore, setHasMore] = useState(true);
   const loader = useRef(null);
 
-  const isFiltered = !!(filters.category || filters.search || filters.pointRange);
+  const isFiltered = !!(filters.category || filters.search || filters.pointRange || botFilterState.showImageUpload || botFilterState.showFileUpload);
 
   const fetchFilteredBots = useCallback(async (currentPage: number) => {
     if (isLoading) return;
@@ -55,6 +59,12 @@ export default function BotList({ filters }: BotListProps) {
     if (filters.pointRange) {
       query = query.gte('points', filters.pointRange[0]).lte('points', filters.pointRange[1]);
     }
+    if (botFilterState.showImageUpload) {
+      query = query.eq('can_upload_image', true);
+    }
+    if (botFilterState.showFileUpload) {
+      query = query.eq('can_send_file', true);
+    }
 
     const { data, error } = await query;
 
@@ -68,7 +78,7 @@ export default function BotList({ filters }: BotListProps) {
       setHasMore(data.length === BOTS_PER_PAGE);
     }
     setIsLoading(false);
-  }, [filters, isLoading]);
+  }, [filters, botFilterState, isLoading]);
 
   const fetchGroupedBots = async () => {
     setIsLoading(true);
@@ -102,7 +112,7 @@ export default function BotList({ filters }: BotListProps) {
       fetchGroupedBots();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, botFilterState]);
 
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const target = entries[0];

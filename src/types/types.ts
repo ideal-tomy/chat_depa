@@ -14,6 +14,8 @@ export interface Bot {
   useCases?: string[];
   instructions?: string;
   complexity?: 'simple' | 'medium' | 'advanced'; // ボットの複雑さレベル
+  can_upload_image?: boolean; // 画像アップロード機能の有無
+  can_send_file?: boolean; // ファイル送信機能の有無
 }
 
 export interface FaqItem {

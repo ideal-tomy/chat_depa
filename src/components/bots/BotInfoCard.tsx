@@ -25,28 +25,62 @@ export default function BotInfoCard({ bot }: BotInfoCardProps) {
         </div>
       </div>
       
+      {/* このボットでできること */}
+      <div className="mb-4">
+        <h4 className="text-sm font-medium mb-2">このボTットでできること:</h4>
+        <ul className="text-sm text-gray-700 space-y-1">
+          <li className="flex items-center">
+            <span className="mr-2">✅</span>
+            <span>テキストでの会話</span>
+          </li>
+          <li className="flex items-center">
+            {bot.can_upload_image ? (
+              <><span className="mr-2">✅</span><span>画像のアップロード</span></>
+            ) : (
+              <><span className="mr-2">❌</span><span>画像のアップロード</span></>
+            )}
+          </li>
+          <li className="flex items-center">
+            {bot.can_send_file ? (
+              <><span className="mr-2">✅</span><span>ファイルの送信</span></>
+            ) : (
+              <><span className="mr-2">❌</span><span>ファイルの送信</span></>
+            )}
+          </li>
+        </ul>
+      </div>
+
       {/* 使用例セクション */}
-      {bot.useCases && bot.useCases.length > 0 && (
-        <div className="mb-4">
-          <h4 className="text-sm font-medium mb-2">使用例:</h4>
-          <ul className="text-sm text-gray-700 space-y-1">
-            {bot.useCases.map((useCase, index) => (
-              <li key={index} className="flex items-start">
-                <span className="mr-2">•</span>
-                <span>{useCase}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {(() => {
+        let displayUseCases = [];
+        if (bot.useCases) {
+          try {
+            if (Array.isArray(bot.useCases)) {
+              displayUseCases = bot.useCases;
+            } else if (typeof bot.useCases === 'string') {
+              displayUseCases = JSON.parse(bot.useCases);
+            }
+          } catch (e) {
+            console.error('Failed to parse useCases:', e);
+          }
+        }
+
+        return displayUseCases.length > 0 && (
+          <div className="mb-4">
+            <h4 className="text-sm font-medium mb-2">使用例:</h4>
+            <ul className="text-sm text-gray-700 space-y-1">
+              {displayUseCases.map((useCase: string, index: number) => (
+                <li key={index} className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>{useCase}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })()}
       
-      {/* 使い方説明 */}
-      {bot.instructions && (
-        <div className="bg-gray-50 rounded-md p-3 text-sm text-gray-700">
-          <h4 className="font-medium mb-1">使い方:</h4>
-          <p>{bot.instructions}</p>
-        </div>
-      )}
+
     </div>
   );
 }

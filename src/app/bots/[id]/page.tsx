@@ -31,6 +31,8 @@ async function getBotData(id: string): Promise<Bot | null> {
     authorIcon: data.author_icon,
     imageUrl: data.image_url,
     useCases: data.use_cases,
+    can_upload_image: data.can_upload_image,
+    can_send_file: data.can_send_file,
   } as Bot;
 }
 

@@ -48,20 +48,15 @@ const BotCard: React.FC<BotCardProps> = ({
   const cardSizeClass = size === 'large' ? 'w-full' : 'w-full';
   const imageAspectRatioClass = 'aspect-[16/9]';
 
-  const handleSendClick = () => {
-    try {
-      const inputValue = localStorage.getItem(`chat_input_${bot.id}`) || '';
-      window.location.href = `/bots/${bot.id}?message=${encodeURIComponent(inputValue)}`;
-    } catch (e) {
-      console.error('Navigation or LocalStorage error:', e);
-    }
-  };
+  const [message, setMessage] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      localStorage.setItem(`chat_input_${bot.id}`, e.target.value);
-    } catch (e) {
-      console.error('LocalStorage error:', e);
+    setMessage(e.target.value);
+  };
+
+  const handleSendClick = () => {
+    if (bot && bot.id) {
+      window.location.href = `/bots/${bot.id}?message=${encodeURIComponent(message)}`;
     }
   };
 
@@ -71,7 +66,6 @@ const BotCard: React.FC<BotCardProps> = ({
       <div className="absolute top-1 left-1 z-30 -translate-y-1/3 -translate-x-1/3">
         <CharacterIcon 
           type={characterType} 
-          complexity={bot.complexity || 'medium'} 
           size={'large'} 
         />
       </div>
@@ -81,6 +75,12 @@ const BotCard: React.FC<BotCardProps> = ({
         <h3 className="text-lg font-bold text-white mb-1" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>{botName}</h3>
       </div>
       
+      {/* 機能アイコン表示エリア */}
+      <div className="absolute top-3 right-3 z-10 flex gap-2">
+        {bot.can_upload_image && <span className="text-2xl" title="画像アップロード対応">🖼️</span>}
+        {bot.can_send_file && <span className="text-2xl" title="ファイル送信対応">📎</span>}
+      </div>
+
       {/* メイン画像 */}
       <div className={`relative w-full ${imageAspectRatioClass} overflow-hidden rounded-t-lg`}>
         <Image
@@ -100,11 +100,19 @@ const BotCard: React.FC<BotCardProps> = ({
       {/* カード下部コンテンツ */}
       <div className="p-3">
         <div className="relative mt-2">
-          <input 
-            type="text" 
+          <input
+            type="text"
+            className="w-full border-gray-300 rounded-full py-2 pl-4 pr-24 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="メッセージを入力..."
-            className="w-full border border-gray-300 rounded-full py-2 pl-4 pr-16 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            value={message}
             onChange={handleInputChange}
+            onClick={(e) => e.stopPropagation()} // 親要素へのクリックイベント伝播を停止
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault(); // フォーム送信を防止
+                handleSendClick();
+              }
+            }}
           />
           <button
             className="absolute right-0 top-0 h-full bg-indigo-600 text-white px-4 rounded-r-full hover:bg-indigo-700 transition-colors"

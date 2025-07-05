@@ -4,6 +4,7 @@ import { useState } from 'react';
 import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
 import { CategoryOption as CategoryType, PointRangeOption } from '@/types/types';
 import BotList from '@/components/bots/BotList';
+import BotFilter, { FilterState as BotFilterState } from './BotFilter';
 
 interface BotPageClientProps {
   categories: CategoryType[];
@@ -17,6 +18,11 @@ export default function BotPageClient({ categories, pointRanges }: BotPageClient
     pointRange: null as [number, number] | null,
   });
 
+  const [botFilterState, setBotFilterState] = useState<BotFilterState>({
+    showImageUpload: false,
+    showFileUpload: false,
+  });
+
   return (
     <>
       {/* フィルターバー */}
@@ -27,8 +33,9 @@ export default function BotPageClient({ categories, pointRanges }: BotPageClient
           filters={filters}
           onFilterChange={setFilters}
         />
+        <BotFilter filterState={botFilterState} setFilterState={setBotFilterState} />
       </div>
-      <BotList filters={filters} />
+      <BotList filters={filters} botFilterState={botFilterState} />
     </>
   );
 }
