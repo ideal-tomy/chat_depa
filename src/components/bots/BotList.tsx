@@ -6,6 +6,7 @@ import { Bot } from '@/types/types';
 import BotCard from '@/components/ui/BotCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FilterState as BotFilterState } from './BotFilter';
+import { groupBotsByNewCategory, getNewCategory } from '@/lib/bot-classification';
 
 const BOTS_PER_PAGE = 12;
 
@@ -317,14 +318,7 @@ export default function BotList({ filters, botFilterState }: BotListProps) {
         console.log('fetchGroupedBots: Raw data length:', data.length);
         const allBots = data.map(formatBot);
         console.log('fetchGroupedBots: Formatted bots length:', allBots.length);
-        const botsByCategory = allBots.reduce((acc, bot) => {
-          const category = bot.category || 'その他';
-          if (!acc[category]) {
-            acc[category] = [];
-          }
-          acc[category].push(bot);
-          return acc;
-        }, {} as Record<string, Bot[]>);
+        const botsByCategory = groupBotsByNewCategory(allBots);
         console.log('fetchGroupedBots: Grouped bots from database:', botsByCategory);
         setGroupedBots(botsByCategory);
       } else {
