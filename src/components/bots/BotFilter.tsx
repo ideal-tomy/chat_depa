@@ -43,7 +43,7 @@ const BotFilter: React.FC<BotFilterProps> = ({ filterState, setFilterState }) =>
             onChange={handleCheckboxChange}
             className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
           />
-          <span>ファイル送信対応</span>
+          <span>ファイル受信対応</span>
         </label>
       </div>
     </div>
