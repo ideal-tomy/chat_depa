@@ -40,6 +40,9 @@ const BotCard: React.FC<BotCardProps> = ({
   isUGC = false,
   compact = false
 }) => {
+  // React Hooksは条件分岐の前に呼び出す必要がある
+  const [message, setMessage] = useState('');
+  const router = useRouter();
 
   if (!bot || !bot.id) {
     return null;
@@ -51,9 +54,6 @@ const BotCard: React.FC<BotCardProps> = ({
 
   const cardSizeClass = size === 'large' ? 'w-full' : 'w-full';
   const imageAspectRatioClass = 'aspect-[16/9]';
-
-  const [message, setMessage] = useState('');
-  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);

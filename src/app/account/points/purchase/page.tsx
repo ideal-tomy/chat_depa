@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -31,7 +31,7 @@ export default function PointPurchasePage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // プラン一覧を取得
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -57,11 +57,11 @@ export default function PointPurchasePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchPlans();
-  }, []);
+  }, [fetchPlans]);
 
   // 購入処理（現在はダミー実装）
   const handlePurchase = async (plan: Plan) => {
