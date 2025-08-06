@@ -1,17 +1,34 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
-import { Category, PointRange, SortOrder, Bot } from '@/types/types';
+import { useState, useEffect, useCallback } from 'react';
 import BotList from '@/components/bots/BotList';
 import BotFilter from './BotFilter';
-import MobileFilterDrawer from '@/components/ui/MobileFilterDrawer';
 import { supabase } from '@/lib/supabase/client';
-import { Skeleton } from '@/components/ui/Skeleton';
+import { Bot, Category, PointRange, SortOrder } from '@/types/types';
 
 const BOTS_PER_PAGE = 20;
 
-const sortOrders: SortOrder[] = [
+// 静的なフィルターオプション
+const staticCategories: Category[] = [
+  { id: 'all', name: 'すべてのカテゴリ' },
+  { id: 'ビジネス', name: 'ビジネス' },
+  { id: 'マーケティング', name: 'マーケティング' },
+  { id: 'ライフスタイル', name: 'ライフスタイル' },
+  { id: 'プログラミング', name: 'プログラミング' },
+  { id: '旅行', name: '旅行' },
+  { id: 'デザイン', name: 'デザイン' },
+  { id: '学習', name: '学習' },
+  { id: 'フィットネス', name: 'フィットネス' },
+];
+
+const staticPointRanges: PointRange[] = [
+  { id: 'all', label: 'すべて', min: 0, max: Infinity },
+  { id: '0-100', label: '0-100 P', min: 0, max: 100 },
+  { id: '101-500', label: '101-500 P', min: 101, max: 500 },
+  { id: '501+', label: '501+ P', min: 501, max: Infinity },
+];
+
+const staticSortOrders: SortOrder[] = [
   { id: 'popular', label: '人気順' },
   { id: 'newest', label: '新着順' },
 ];
@@ -23,71 +40,105 @@ interface FilterState {
 }
 
 export default function BotPageClient() {
+  const [bots, setBots] = useState<Bot[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     category: 'all',
     pointRange: 'all',
     sortOrder: 'popular',
   });
-  const [initialBots, setInitialBots] = useState<Bot[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [pointRanges, setPointRanges] = useState<PointRange[]>([]);
 
+  const fetchBots = useCallback(async (newFilters: FilterState, isLoadMore = false) => {
+    setLoading(true);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setLoading(true);
-      try {
-        // カテゴリ、ポイント範囲、初期ボットを並行して取得
-        const [
-          { data: categoriesData, error: categoriesError },
-          { data: initialBotsData, error: initialBotsError }
-        ] = await Promise.all([
-          supabase.from('categories').select('*'),
-          supabase.from('bots').select('*').limit(BOTS_PER_PAGE).order('usage_count', { ascending: false })
-        ]);
+    const currentOffset = isLoadMore ? offset : 0;
 
-        if (categoriesError) throw categoriesError;
-        if (initialBotsError) throw initialBotsError;
-        
-        setCategories(categoriesData || []);
-        setInitialBots(initialBotsData || []);
+    let query = supabase
+      .from('bots')
+      .select('*', { count: 'exact' })
+      .range(currentOffset, currentOffset + BOTS_PER_PAGE - 1);
 
-        // サンプルポイント範囲
-        setPointRanges([
-          { id: '0-100', label: '0-100 P', min: 0, max: 100 },
-          { id: '101-500', label: '101-500 P', min: 101, max: 500 },
-          { id: '501+', label: '501+ P', min: 501, max: Infinity },
-        ]);
-        
-      } catch (error) {
-        console.error("Error fetching initial page data:", error);
-      } finally {
-        setLoading(false);
+    // Apply filters
+    if (newFilters.category !== 'all') {
+      query = query.eq('category', newFilters.category);
+    }
+
+    const selectedPointRange = staticPointRanges.find(r => r.id === newFilters.pointRange);
+    if (selectedPointRange && selectedPointRange.id !== 'all') {
+      query = query.gte('points', selectedPointRange.min);
+      if (selectedPointRange.max !== Infinity) {
+        query = query.lte('points', selectedPointRange.max);
       }
-    };
+    }
 
-    fetchInitialData();
-  }, []);
+    // Apply sort order
+    if (newFilters.sortOrder === 'popular') {
+      query = query.order('usage_count', { ascending: false, nullsFirst: false });
+    } else if (newFilters.sortOrder === 'newest') {
+      query = query.order('created_at', { ascending: false });
+    }
+
+    try {
+      const { data, error, count } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      if (data) {
+        if (isLoadMore) {
+          setBots(prev => [...prev, ...data]);
+        } else {
+          setBots(data);
+        }
+        
+        const totalFetched = currentOffset + data.length;
+        setHasMore(totalFetched < (count || 0));
+        setOffset(totalFetched);
+      }
+    } catch (error) {
+      console.error("Error fetching bots:", error);
+      setBots([]);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [offset]);
+
+  // フィルター変更時にボットを再取得
+  useEffect(() => {
+    fetchBots(filters, false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
+
+  const loadMoreBots = () => {
+    if (!loading && hasMore) {
+      fetchBots(filters, true);
+    }
+  };
 
   return (
     <>
       <div className="mb-6">
         <BotFilter
-          categories={categories}
-          pointRanges={pointRanges}
-          sortOrders={sortOrders}
-          onFilterChange={setFilters}
+          categories={staticCategories}
+          pointRanges={staticPointRanges}
+          sortOrders={staticSortOrders}
+          onFilterChange={handleFilterChange}
         />
       </div>
-
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 mt-4">
-          {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
-        </div>
-      ) : (
-        <BotList initialBots={initialBots} filters={filters} />
-      )}
+      <BotList
+        bots={bots}
+        loading={loading}
+        hasMore={hasMore}
+        loadMoreBots={loadMoreBots}
+      />
     </>
   );
 }
