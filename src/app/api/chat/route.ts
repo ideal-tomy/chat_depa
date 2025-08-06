@@ -56,7 +56,8 @@ export async function POST(req: NextRequest) {
     });
 
     // レスポンスをテキストストリームに変換
-    const stream = OpenAIStream(response);
+    // 型互換性のため一時的にキャスト（ai@3.0.0以降で解決予定）
+    const stream = OpenAIStream(response as any);
     
     // ストリームをレスポンスとして返す
     return new StreamingTextResponse(stream);
