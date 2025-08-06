@@ -1,11 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Dialog } from '@headlessui/react';
+import { 
+  UserCircleIcon, 
+  ChevronDownIcon,
+  ArrowRightOnRectangleIcon 
+} from '@heroicons/react/24/outline';
+import { getCurrentUser, signOut } from '@/lib/auth';
+import { pointsAPI } from '@/lib/api-client';
 
 export default function Header() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [pointBalance, setPointBalance] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
   
   const navigation = [
     { name: 'トップ', href: '/' },
@@ -14,6 +27,40 @@ export default function Header() {
     { name: 'AIニュース', href: '/news' },
     { name: 'よくある質問', href: '/faq' },
   ];
+
+  // ユーザー情報とポイント残高を取得
+  const fetchUserData = async () => {
+    try {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+      
+      if (currentUser) {
+        const pointsResponse = await pointsAPI.getBalance();
+        if (pointsResponse.success) {
+          setPointBalance(pointsResponse.data?.current_points || 0);
+        }
+      }
+    } catch (error) {
+      console.error('ユーザーデータ取得エラー:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  // ログアウト処理
+  const handleSignOut = async () => {
+    const success = await signOut();
+    if (success) {
+      setUser(null);
+      setPointBalance(0);
+      setUserMenuOpen(false);
+      router.push('/');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -43,10 +90,65 @@ export default function Header() {
             </Link>
           ))}
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <Link href="/login" className="text-sm font-semibold leading-6 text-gray-900 hover:text-primary">
-            ログイン <span aria-hidden="true">&rarr;</span>
-          </Link>
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:space-x-4">
+          {loading ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
+          ) : user ? (
+            <>
+              {/* ポイント残高表示 */}
+              <Link 
+                href="/account/mypage"
+                className="flex items-center space-x-2 bg-primary text-white px-3 py-1.5 rounded-full text-sm font-medium hover:bg-primary-dark transition-colors"
+              >
+                <span>{pointBalance}P</span>
+              </Link>
+              
+              {/* ユーザーメニュー */}
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center space-x-1 text-sm font-semibold text-gray-900 hover:text-primary"
+                >
+                  <UserCircleIcon className="h-6 w-6" />
+                  <span className="hidden sm:block">{user.email?.split('@')[0] || 'ユーザー'}</span>
+                  <ChevronDownIcon className="h-4 w-4" />
+                </button>
+                
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border">
+                    <Link
+                      href="/account/mypage"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      マイページ
+                    </Link>
+                    <Link
+                      href="/account/points/purchase"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      ポイント購入
+                    </Link>
+                    <hr className="my-1" />
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <div className="flex items-center">
+                        <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                        ログアウト
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <Link href="/account/login" className="text-sm font-semibold leading-6 text-gray-900 hover:text-primary">
+              ログイン <span aria-hidden="true">&rarr;</span>
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -85,13 +187,49 @@ export default function Header() {
                 ))}
               </div>
               <div className="py-6">
-                <Link
-                  href="/login"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  ログイン
-                </Link>
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between -mx-3 px-3 py-2">
+                      <span className="text-base font-semibold text-gray-900">
+                        {user.email?.split('@')[0] || 'ユーザー'}
+                      </span>
+                      <div className="bg-primary text-white px-2 py-1 rounded-full text-sm font-medium">
+                        {pointBalance}P
+                      </div>
+                    </div>
+                    <Link
+                      href="/account/mypage"
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      マイページ
+                    </Link>
+                    <Link
+                      href="/account/points/purchase"
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      ポイント購入
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      className="-mx-3 block w-full text-left rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                    >
+                      ログアウト
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/account/login"
+                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    ログイン
+                  </Link>
+                )}
               </div>
             </div>
           </div>

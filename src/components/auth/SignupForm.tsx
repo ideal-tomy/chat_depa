@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { supabase } from '@/lib/auth';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
-import { supabase } from '@/lib/supabase/client';
 import Button from '@/components/ui/Button';
 
 export default function SignupForm() {

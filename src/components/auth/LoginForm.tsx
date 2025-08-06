@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { supabase } from '@/lib/auth';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -59,23 +60,85 @@ export default function LoginForm() {
     }
     
     setIsLoading(true);
+    setErrors({});
     
     try {
-      // ここで実際のログイン処理を行う（Supabase Authなど）
-      console.log('Login form submitted:', formData);
-      
-      // 成功したらマイページへリダイレクト
-      setTimeout(() => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
+        // ログイン成功
         router.push('/account/mypage');
-      }, 1500);
+      }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      let errorMessage = 'メールアドレスまたはパスワードが正しくありません。';
+      
+      if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = 'メールアドレスまたはパスワードが正しくありません。';
+      } else if (error.message?.includes('Email not confirmed')) {
+        errorMessage = 'メールアドレスの認証が完了していません。認証メールをご確認ください。';
+      } else if (error.message?.includes('Too many requests')) {
+        errorMessage = 'ログイン試行回数が多すぎます。しばらくお待ちください。';
+      }
+      
       setErrors({
-        ...errors,
-        form: 'メールアドレスまたはパスワードが正しくありません。'
+        form: errorMessage
       });
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Googleログイン処理
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/account/mypage`
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      setErrors({
+        form: 'Googleログインに失敗しました。再度お試しください。'
+      });
+      setIsLoading(false);
+    }
+  };
+
+  // GitHubログイン処理
+  const handleGitHubLogin = async () => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/account/mypage`
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('GitHub login error:', error);
+      setErrors({
+        form: 'GitHubログインに失敗しました。再度お試しください。'
+      });
       setIsLoading(false);
     }
   };
@@ -211,7 +274,8 @@ export default function LoginForm() {
           </button>
           <button
             type="button"
-            className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+            onClick={handleGitHubLogin}
+            className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             disabled={isLoading}
           >
             <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
