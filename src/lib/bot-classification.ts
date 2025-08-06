@@ -25,17 +25,17 @@ export const categoryMapping: { [key: string]: string } = {
 };
 
 // アイコンの種類を決定するためのマッピング
+// 存在するファイル名 (sumple01, sumple02...) を参照するように修正
 export const categoryToCharacterType: { [key: string]: string } = {
-  'ビジネス': 'business',
-  'マーケティング': 'creative',
-  'ライフスタイル': 'lifestyle',
-  'プログラミング': 'technical',
-  '旅行': 'lifestyle',
-  'デザイン': 'creative',
-  '学習': 'technical', // 不足していた「学習」を追加
-  'フィットネス': 'lifestyle',
-  // デフォルトマッピング
-  'default': 'other'
+  'ビジネス': 'sumple01',
+  'マーケティング': 'sumple02',
+  'ライフスタイル': 'sumple03',
+  'プログラミング': 'sumple04',
+  '旅行': 'sumple03',
+  'デザイン': 'sumple02',
+  '学習': 'sumple04',
+  'フィットネス': 'sumple03',
+  'default': 'sumple01' // デフォルトアイコン
 };
 
 // ...（以降のコードは変更なし）
