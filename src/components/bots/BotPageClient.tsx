@@ -5,6 +5,8 @@ import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
 import { CategoryOption as CategoryType, PointRangeOption } from '@/types/types';
 import BotList from '@/components/bots/BotList';
 import BotFilter, { FilterState as BotFilterState } from './BotFilter';
+import MobileFilterDrawer from '@/components/ui/MobileFilterDrawer';
+import { newCategories } from '@/lib/bot-classification';
 
 interface BotPageClientProps {
   categories: CategoryType[];
@@ -25,8 +27,8 @@ export default function BotPageClient({ categories, pointRanges }: BotPageClient
 
   return (
     <>
-      {/* フィルターバー */}
-      <div className="mb-6 sticky top-0 z-30 bg-white rounded-lg shadow-md p-3">
+      {/* デスクトップ用フィルターバー */}
+      <div className="mb-6 sticky top-0 z-30 bg-white rounded-lg shadow-md p-3 hidden md:block">
         <FilterBarWrapper 
           categories={categories} 
           pointRanges={pointRanges} 
@@ -35,6 +37,17 @@ export default function BotPageClient({ categories, pointRanges }: BotPageClient
         />
         <BotFilter filterState={botFilterState} setFilterState={setBotFilterState} />
       </div>
+
+      {/* モバイル用フィルター */}
+      <MobileFilterDrawer
+        filters={filters}
+        botFilterState={botFilterState}
+        onFiltersChange={setFilters}
+        onBotFilterChange={setBotFilterState}
+        categories={newCategories}
+      />
+
+      {/* ボット一覧 */}
       <BotList filters={filters} botFilterState={botFilterState} />
     </>
   );

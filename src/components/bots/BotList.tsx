@@ -6,7 +6,8 @@ import { Bot } from '@/types/types';
 import BotCard from '@/components/ui/BotCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FilterState as BotFilterState } from './BotFilter';
-import { groupBotsByNewCategory, getNewCategory } from '@/lib/bot-classification';
+import { groupBotsByNewCategory, getNewCategory, newCategories } from '@/lib/bot-classification';
+import HorizontalCarousel from '@/components/ui/HorizontalCarousel';
 
 const BOTS_PER_PAGE = 12;
 
@@ -427,15 +428,21 @@ export default function BotList({ filters, botFilterState }: BotListProps) {
           )}
         </>
       ) : (
-        <div className="space-y-12">
-          {Object.entries(groupedBots).map(([category, categoryBots]) => (
-            <section key={category}>
-              <h2 className="text-2xl font-bold mb-4 border-b pb-2">{category}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {categoryBots.map((bot) => <BotCard key={bot.id} bot={bot} />)}
-              </div>
-            </section>
-          ))}
+        <div className="space-y-8">
+          {newCategories.map(category => {
+            const categoryBots = groupedBots[category];
+            if (!categoryBots || categoryBots.length === 0) return null;
+            
+            return (
+              <HorizontalCarousel
+                key={category}
+                title={category}
+                bots={categoryBots}
+                autoScroll={true}
+                autoScrollSpeed={4000}
+              />
+            );
+          })}
         </div>
       )}
     </div>

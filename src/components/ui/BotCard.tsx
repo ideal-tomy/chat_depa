@@ -12,6 +12,7 @@ interface BotCardProps {
   isNew?: boolean;
   isPopular?: boolean;
   isUGC?: boolean;
+  compact?: boolean;
 }
 
 // カテゴリーからキャラクタータイプへのマッピング
@@ -34,7 +35,8 @@ const BotCard: React.FC<BotCardProps> = ({
   showPreview = false, // このプロパティはもう使用しません
   isNew = false,
   isPopular = false,
-  isUGC = false
+  isUGC = false,
+  compact = false
 }) => {
 
   if (!bot || !bot.id) {
@@ -54,26 +56,32 @@ const BotCard: React.FC<BotCardProps> = ({
     setMessage(e.target.value);
   };
 
-  const handleSendClick = () => {
+  const handleSendClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // カードクリックイベントの伝播を停止
     if (bot && bot.id) {
       window.location.href = `/bots/${bot.id}?message=${encodeURIComponent(message)}`;
     }
   };
 
+  const handleCardClick = () => {
+    if (bot && bot.id) {
+      window.location.href = `/bots/${bot.id}`;
+    }
+  };
+
   return (
-    <div className={`relative bg-white rounded-lg shadow-md ${cardSizeClass}`}>
-      {/* キャラクターアイコン: z-30 */}
-      <div className="absolute top-1 left-1 z-30 -translate-y-1/3 -translate-x-1/3">
+    <div className={`relative bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer ${cardSizeClass} ${compact ? 'max-w-xs h-96' : 'max-w-md h-[28rem]'}`}
+      onClick={handleCardClick}
+    >
+      {/* キャラクターアイコン: z-30 - はみ出し表示 */}
+      <div className="absolute -top-2 -left-2 z-30">
         <CharacterIcon 
           type={characterType} 
-          size={'large'} 
+          size={compact ? 'medium' : 'large'} 
         />
       </div>
       
-      {/* タイトル: z-10 */}
-      <div className="absolute top-3 left-20 z-10">
-        <h3 className="text-lg font-bold text-white mb-1" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>{botName}</h3>
-      </div>
+
       
       {/* 機能アイコン表示エリア */}
       <div className="absolute top-3 right-3 z-10 flex gap-2">
@@ -82,7 +90,7 @@ const BotCard: React.FC<BotCardProps> = ({
       </div>
 
       {/* メイン画像 */}
-      <div className={`relative w-full ${imageAspectRatioClass} overflow-hidden rounded-t-lg`}>
+      <div className={`relative w-full ${compact ? 'h-52' : 'h-64'} overflow-hidden rounded-t-lg`}>
         <Image
           src={botImageUrl}
           alt={botName}
@@ -98,11 +106,25 @@ const BotCard: React.FC<BotCardProps> = ({
       </div>
       
       {/* カード下部コンテンツ */}
-      <div className="p-3">
+      <div className={`${compact ? 'p-2' : 'p-3'}`}>
+        {/* タイトル */}
+        <h3 className={`${compact ? 'text-sm' : 'text-lg'} font-bold text-gray-800 mb-2`}>
+          {botName}
+        </h3>
+        
+        {/* 説明文 */}
+        {bot.description && (
+          <div className={`mb-2 ${compact ? 'mb-1' : 'mb-2'}`}>
+            <p className={`${compact ? 'text-xs' : 'text-sm'} text-gray-700 font-medium line-clamp-2 leading-relaxed`}>
+              {bot.description}
+            </p>
+          </div>
+        )}
+        
         <div className="relative mt-2">
           <input
             type="text"
-            className="w-full border-gray-300 rounded-full py-2 pl-4 pr-24 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className={`w-full border-gray-300 rounded-full ${compact ? 'py-1 pl-3 pr-16 text-xs' : 'py-2 pl-4 pr-24 text-sm'} focus:outline-none focus:ring-2 focus:ring-indigo-400`}
             placeholder="メッセージを入力..."
             value={message}
             onChange={handleInputChange}
@@ -115,20 +137,20 @@ const BotCard: React.FC<BotCardProps> = ({
             }}
           />
           <button
-            className="absolute right-0 top-0 h-full bg-indigo-600 text-white px-4 rounded-r-full hover:bg-indigo-700 transition-colors"
+            className={`absolute right-0 top-0 h-full bg-indigo-600 text-white ${compact ? 'px-2 text-xs' : 'px-4'} rounded-r-full hover:bg-indigo-700 transition-colors`}
             onClick={handleSendClick}
           >
             送信
           </button>
         </div>
         
-        <div className="flex justify-between items-center mt-2">
-          <div className="flex gap-2">
-            {isNew && <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">NEW</span>}
-            {isPopular && <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">人気</span>}
-            {isUGC && <span className="bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">クリエイター</span>}
+        <div className={`flex justify-between items-center ${compact ? 'mt-1' : 'mt-2'}`}>
+          <div className="flex gap-1">
+            {isNew && <span className={`bg-red-500 text-white font-bold rounded-full shadow-md ${compact ? 'text-xs px-1 py-0.5' : 'text-xs px-2 py-1'}`}>NEW</span>}
+            {isPopular && <span className={`bg-yellow-500 text-white font-bold rounded-full shadow-md ${compact ? 'text-xs px-1 py-0.5' : 'text-xs px-2 py-1'}`}>人気</span>}
+            {isUGC && <span className={`bg-purple-500 text-white font-bold rounded-full shadow-md ${compact ? 'text-xs px-1 py-0.5' : 'text-xs px-2 py-1'}`}>クリエイター</span>}
           </div>
-          <div className="font-bold text-indigo-600">
+          <div className={`font-bold text-indigo-600 ${compact ? 'text-xs' : 'text-sm'}`}>
             {bot.points !== undefined ? `${bot.points} P` : '0 P'}
           </div>
         </div>
