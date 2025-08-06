@@ -13,9 +13,13 @@ export interface Bot {
   isUGC?: boolean;
   useCases?: string[];
   instructions?: string;
-  complexity?: 'simple' | 'medium' | 'advanced'; // ボットの複雑さレベル
-  can_upload_image?: boolean; // 画像アップロード機能の有無
-  can_send_file?: boolean; // ファイル送信機能の有無
+  complexity?: 'simple' | 'medium' | 'advanced';
+  can_upload_image?: boolean;
+  can_send_file?: boolean;
+  character_desc?: string;
+  system_prompt?: string;
+  usage_count?: number;
+  created_at?: string;
 }
 
 export interface FaqItem {
@@ -31,6 +35,24 @@ export interface Post {
   date: string;
   imageUrl: string;
 }
+
+export interface Category {
+  id: string;
+  name: string;
+}
+
+export interface PointRange {
+  id: string;
+  label: string;
+  min: number;
+  max: number;
+}
+
+export interface SortOrder {
+  id: string;
+  label: string;
+}
+
 
 export interface CategoryOption {
   id: string;

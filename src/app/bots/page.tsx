@@ -1,30 +1,9 @@
-import { CategoryOption as CategoryType } from '@/types/types';
 import BotPageClient from '@/components/bots/BotPageClient';
 
 export const metadata = {
   title: 'Bot一覧 | Chatbot Department',
   description: '様々な専門分野のBotをご用意しています。目的に合わせてお選びください。',
 };
-
-const categories: CategoryType[] = [
-  { id: 'all', name: 'すべてのカテゴリ' },
-
-  { id: 'ビジネス', name: 'ビジネス' },
-  { id: 'マーケティング', name: 'マーケティング' },
-  { id: 'ライフスタイル', name: 'ライフスタイル' },
-  { id: 'プログラミング', name: 'プログラミング' },
-  { id: '旅行', name: '旅行' },
-  { id: 'デザイン', name: 'デザイン' },
-  { id: '学習', name: '学習' },
-  { id: 'フィットネス', name: 'フィットネス' },
-];
-
-type PointRangeOption = { id: string; name: string; range: [number, number] };
-const pointRanges: PointRangeOption[] = [
-  { id: '0-99', name: '0-99P', range: [0, 99] },
-  { id: '100-199', name: '100-199P', range: [100, 199] },
-  { id: '200+', name: '200P〜', range: [200, 100000] },
-];
 
 export default function BotsPage() {
   return (
@@ -37,7 +16,7 @@ export default function BotsPage() {
 
       {/* メインコンテンツ */}
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <BotPageClient categories={categories} pointRanges={pointRanges} />
+        <BotPageClient />
       </div>
       
       {/* UGCセクション（クリエイター作成ボット）の予定地 */}
@@ -47,7 +26,7 @@ export default function BotsPage() {
           <p className="text-gray-600 mb-8">ユーザーコミュニティから生まれた、独創的なボットたち。</p>
           {/* ここにクリエイター作成ボットのカルーセルやリストを配置 */}
           <div className="p-8 border-2 border-dashed border-gray-300 rounded-lg">
-            <p className="text-gray-500">Comming Soon...</p>
+            <p className="text-gray-500">Coming Soon...</p>
           </div>
         </div>
       </section>

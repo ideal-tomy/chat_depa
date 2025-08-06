@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import BotCard from '@/components/ui/BotCard';
-import { Bot, Category } from '@/types/types'; // BotとCategory型をインポート
+import { Bot } from '@/types/types';
 import { supabase } from '@/lib/supabase/client';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 interface BotListProps {
-  initialBots: Bot[];
+  initialBots?: Bot[]; // initialBotsをオプショナルに変更
   filters: {
     category: string;
     pointRange: string;
@@ -18,7 +18,7 @@ interface BotListProps {
 
 const BOTS_PER_PAGE = 20;
 
-const BotList: React.FC<BotListProps> = ({ initialBots, filters }) => {
+const BotList: React.FC<BotListProps> = ({ initialBots = [], filters }) => { // デフォルト値を空配列に
   const [bots, setBots] = useState<Bot[]>(initialBots);
   const [offset, setOffset] = useState(BOTS_PER_PAGE);
   const [hasMore, setHasMore] = useState(initialBots.length === BOTS_PER_PAGE);
@@ -30,9 +30,11 @@ const BotList: React.FC<BotListProps> = ({ initialBots, filters }) => {
 
   // フィルターが変更されたらボットリストをリセット
   useEffect(() => {
-    setBots(initialBots);
+    // initialBotsがundefinedやnullの場合でも安全に動作するようにデフォルト値を設定
+    const currentInitialBots = initialBots || [];
+    setBots(currentInitialBots);
     setOffset(BOTS_PER_PAGE);
-    setHasMore(initialBots.length === BOTS_PER_PAGE);
+    setHasMore(currentInitialBots.length === BOTS_PER_PAGE);
   }, [filters, initialBots]);
 
   const loadMoreBots = useCallback(async () => {
@@ -67,7 +69,7 @@ const BotList: React.FC<BotListProps> = ({ initialBots, filters }) => {
     if (error) {
       console.error("Error fetching more bots:", error);
     } else if (newBots) {
-      setBots((prev: Bot[]) => [...prev, ...newBots]);
+      setBots((prev: Bot[]) => [...(prev || []), ...newBots]); // prevも安全に処理
       setOffset((prev: number) => prev + newBots.length);
       setHasMore(newBots.length === BOTS_PER_PAGE);
     }
@@ -80,10 +82,19 @@ const BotList: React.FC<BotListProps> = ({ initialBots, filters }) => {
     }
   }, [inView, loadMoreBots]);
 
+  // botsがまだ空の状態で初期ロード中を示す
+  if (!bots && loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 mt-4">
+        {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-        {bots.map((bot: Bot) => (
+        {bots && bots.map((bot: Bot) => (
           <BotCard key={bot.id} bot={bot} />
         ))}
       </div>
@@ -96,10 +107,16 @@ const BotList: React.FC<BotListProps> = ({ initialBots, filters }) => {
 
       <div ref={ref} style={{ height: '1px' }} />
 
-      {!hasMore && !loading && (
-        <div className="text-center text-gray-500 py-8">
+      {!hasMore && !loading && bots && bots.length > 0 && (
+        <div className="text-center text-gray-500 py-8 col-span-full">
           これ以上ボットはありません
         </div>
+      )}
+
+      {!loading && bots && bots.length === 0 && (
+         <div className="text-center text-gray-500 py-8 col-span-full">
+           表示するボットがありません。
+         </div>
       )}
     </>
   );
