@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { categoryToCharacterType } from '@/lib/bot-classification';
 
 interface BotCardProps {
-  bot: Bot;
+  bot: Bot | undefined | null; // botがundefinedやnullの可能性を許容
   size?: 'standard' | 'large';
   compact?: boolean;
 }
@@ -15,8 +15,9 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
   const [message, setMessage] = useState('');
   const router = useRouter();
 
+  // botオブジェクトが存在しない場合は、何もレンダリングしない
   if (!bot || !bot.id) {
-    return null;
+    return null; 
   }
 
   const characterType = categoryToCharacterType[bot.category || ''] || categoryToCharacterType.default;
