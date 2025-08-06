@@ -8,7 +8,7 @@ import { Bot, Category, PointRange, SortOrder } from '@/types/types';
 
 const BOTS_PER_PAGE = 20;
 
-// 静的なフィルターオプション
+// カテゴリ、ポイント範囲、並び順の静的データ
 const staticCategories: Category[] = [
   { id: 'all', name: 'すべてのカテゴリ' },
   { id: 'ビジネス', name: 'ビジネス' },
@@ -52,7 +52,6 @@ export default function BotPageClient() {
 
   const fetchBots = useCallback(async (newFilters: FilterState, isLoadMore = false) => {
     setLoading(true);
-
     const currentOffset = isLoadMore ? offset : 0;
 
     let query = supabase
@@ -60,7 +59,7 @@ export default function BotPageClient() {
       .select('*', { count: 'exact' })
       .range(currentOffset, currentOffset + BOTS_PER_PAGE - 1);
 
-    // Apply filters
+    // フィルター適用
     if (newFilters.category !== 'all') {
       query = query.eq('category', newFilters.category);
     }
@@ -73,27 +72,19 @@ export default function BotPageClient() {
       }
     }
 
-    // Apply sort order
+    // 並び順適用 (usage_count の代わりに points を使用)
     if (newFilters.sortOrder === 'popular') {
-      query = query.order('usage_count', { ascending: false, nullsFirst: false });
+      query = query.order('points', { ascending: false, nullsFirst: false });
     } else if (newFilters.sortOrder === 'newest') {
       query = query.order('created_at', { ascending: false });
     }
 
     try {
       const { data, error, count } = await query;
-
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       if (data) {
-        if (isLoadMore) {
-          setBots(prev => [...prev, ...data]);
-        } else {
-          setBots(data);
-        }
-        
+        setBots(prev => isLoadMore ? [...prev, ...data] : data);
         const totalFetched = currentOffset + data.length;
         setHasMore(totalFetched < (count || 0));
         setOffset(totalFetched);
@@ -107,21 +98,17 @@ export default function BotPageClient() {
     }
   }, [offset]);
 
-  // フィルター変更時にボットを再取得
   useEffect(() => {
-    fetchBots(filters, false);
+    fetchBots(filters);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
-  const handleFilterChange = (newFilters: FilterState) => {
-    setFilters(newFilters);
-  };
-
-  const loadMoreBots = () => {
+  const loadMoreBots = useCallback(() => {
     if (!loading && hasMore) {
       fetchBots(filters, true);
     }
-  };
+  }, [loading, hasMore, filters, fetchBots]);
+
 
   return (
     <>
@@ -130,7 +117,7 @@ export default function BotPageClient() {
           categories={staticCategories}
           pointRanges={staticPointRanges}
           sortOrders={staticSortOrders}
-          onFilterChange={handleFilterChange}
+          onFilterChange={setFilters}
         />
       </div>
       <BotList
