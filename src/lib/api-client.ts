@@ -1,6 +1,8 @@
 import { getSession } from './auth'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+const API_BASE_URL = typeof window !== 'undefined'
+  ? '' // ブラウザでは同一オリジン相対パス
+  : (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000')
 
 // API レスポンス型定義
 interface ApiResponse<T = any> {

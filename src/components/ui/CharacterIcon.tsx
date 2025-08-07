@@ -39,15 +39,15 @@ const CharacterIcon: React.FC<CharacterIconProps> = ({
     switch (charType) {
       case 'business':
       case 'entertainment':
-        return '/images/icons/sample/sumple04.png';
+        return '/images/sumple04.png';
       case 'technical':
       case 'fortune':
-        return '/images/icons/sample/sumple03.png';
+        return '/images/sumple03.png';
       case 'lifestyle':
       case 'creative':
       case 'other':
       default:
-        return '/images/icons/sample/sumple01.png';
+        return '/images/sumple01.png';
     }
   };
 

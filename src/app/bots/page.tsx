@@ -16,6 +16,7 @@ export default function BotsPage() {
 
       {/* メインコンテンツ */}
       <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <h2 className="text-3xl font-bold mb-6 text-center md:text-left">Botストア</h2>
         <BotPageClient />
       </div>
       

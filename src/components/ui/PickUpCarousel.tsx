@@ -87,7 +87,7 @@ export default function PickUpCarousel({ title = 'ピックアップBot', bots }
         
         {/* カルーセルアイテム */}
         {bots.map(bot => (
-          <div key={bot.id} className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-start">
+          <div key={bot.id} className="w-[280px] sm:w-[320px] flex-shrink-0 snap-start">
             <BotCard bot={bot} />
           </div>
         ))}

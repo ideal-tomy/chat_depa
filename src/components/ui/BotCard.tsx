@@ -6,8 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { categoryToCharacterType } from '@/lib/bot-classification';
 
 interface BotCardProps {
-  bot: Bot | undefined | null; // botがundefinedやnullの可能性を許容
-  size?: 'standard' | 'large';
+  bot: Bot | undefined | null;
   compact?: boolean;
 }
 
@@ -15,14 +14,31 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
   const [message, setMessage] = useState('');
   const router = useRouter();
 
-  // botオブジェクトが存在しない場合は、何もレンダリングしない
+  // 1. Botオブジェクトの存在をより厳密にチェック
   if (!bot || !bot.id) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('BotCard received an invalid bot object:', bot);
+    }
     return null; 
   }
 
-  const characterType = categoryToCharacterType[bot.category || ''] || categoryToCharacterType.default;
+  // 2. 安全にアイコンタイプを取得
+  const getCharacterType = () => {
+    // categoryToCharacterType自体が読み込まれているか確認
+    if (typeof categoryToCharacterType !== 'object' || categoryToCharacterType === null) {
+      console.error("`categoryToCharacterType` is not a valid object.");
+      return 'default';
+    }
+    // bot.categoryが存在し、かつマッピングオブジェクトにキーが存在するか
+    const categoryKey = bot.category && bot.category in categoryToCharacterType 
+      ? bot.category 
+      : 'default';
+    // 最終的な値が存在するか確認
+    return categoryToCharacterType[categoryKey] || categoryToCharacterType['default'];
+  };
+
+  const characterType = getCharacterType();
   const botName = bot.name || '無名のボット';
-  const botImageUrl = bot.imageUrl || '/images/placeholder.png';
 
   const handleSendClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -81,40 +97,55 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
     router.push(`/bots/${bot.id}`);
   };
 
+  // 3. カードサイズの統一とレイアウト修正
   return (
     <div 
       onClick={handleCardClick}
-      className="relative flex flex-col w-full rounded-xl bg-white shadow-lg transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden"
+      className="relative flex flex-col w-full h-[380px] rounded-xl bg-white shadow-lg transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-4 group"
     >
-      <div className="absolute -top-3 -left-3 z-10 w-12 h-12">
+      {/* アイコン */}
+      <div className="absolute top-3 left-3 z-10 w-12 h-12">
         <Image
-          src={`/images/icons/sample/${characterType}.png`}
-          alt=""
+          src={`/images/${characterType}.png`}
+          alt={`${botName}のアイコン`}
           width={48}
           height={48}
           className="rounded-full border-2 border-white shadow-md"
+          onError={(e) => {
+            e.currentTarget.src = '/images/sumple01.png'; // フォールバック
+          }}
         />
       </div>
 
-      <div className="flex flex-col flex-grow p-4">
-        <div className="pt-8 mb-2 flex-shrink-0">
-          <h3 className="text-center font-semibold text-lg leading-tight text-gray-800">
-            {botName}
-          </h3>
+      {/* ポイント表示 */}
+      <div className="absolute top-4 right-4 z-10 px-2 py-1 bg-gray-800 text-white text-xs font-bold rounded">
+        {bot.points || 0}P
+      </div>
+
+      {/* カードコンテンツ */}
+      <div className="flex flex-col flex-grow pt-12">
+        {/* タイトル */}
+        <div className="h-16 flex items-center justify-center mb-2">
+            <h3 className="text-center font-semibold text-lg leading-tight text-gray-800 line-clamp-2 group-hover:text-indigo-600">
+                {botName}
+            </h3>
         </div>
 
-        <div className="flex-grow mb-4">
-          <p className="text-sm text-gray-600 line-clamp-3">
-            {bot.description}
-          </p>
+        {/* 説明文 */}
+        <div className="flex-grow">
+            <p className="text-sm text-gray-600 line-clamp-4">
+                {bot.description || '説明がありません。'}
+            </p>
         </div>
         
+        {/* 送信フォーム */}
         {!compact && (
           <div className="mt-auto flex-shrink-0">
             <div className="flex items-center space-x-2">
               <input
                 type="text"
                 value={message}
+                onClick={(e) => e.stopPropagation()}
                 onChange={(e) => {
                   e.stopPropagation();
                   setMessage(e.target.value);
@@ -128,9 +159,6 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
               >
                 送信
               </button>
-            </div>
-            <div className="text-right text-xs text-gray-500 mt-1">
-              {bot.points}P
             </div>
           </div>
         )}
