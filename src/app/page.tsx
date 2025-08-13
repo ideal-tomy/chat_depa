@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import HeroSection from '@/components/ui/HeroSection';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import PickUpCarousel from '@/components/ui/PickUpCarousel';
 import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
 import BotCard from '@/components/ui/BotCard';
@@ -255,7 +256,9 @@ export default function Home() {
       <div className="container mx-auto px-4 py-16">
         <section id="pickup-bots" className="mb-20">
           <h2 className="text-3xl font-bold text-center mb-10">おすすめのBot</h2>
-          <PickUpCarousel bots={pickupBots} />
+          <ErrorBoundary>
+            <PickUpCarousel bots={pickupBots} />
+          </ErrorBoundary>
         </section>
 
         <section id="bot-store" className="mb-10">
@@ -285,20 +288,22 @@ export default function Home() {
           </div>
           
           {/* カテゴリー別ボット */}
-          {Object.entries(categoryBots).slice(0, 3).map(([category, bots], index) => (
-            <div key={category} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
-              <CategorySection 
-                title={category} 
-                viewAllLink={`/bots?category=${category}`}
-                variant="standard"
-              >
-                <CategoryCarousel 
-                  bots={bots.slice(0, 8)} 
-                  variant="standard" 
-                />
-              </CategorySection>
-            </div>
-          ))}
+          <ErrorBoundary>
+            {Object.entries(categoryBots).slice(0, 3).map(([category, bots], index) => (
+              <div key={category} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+                <CategorySection 
+                  title={category} 
+                  viewAllLink={`/bots?category=${category}`}
+                  variant="standard"
+                >
+                  <CategoryCarousel 
+                    bots={bots.slice(0, 8)} 
+                    variant="standard" 
+                  />
+                </CategorySection>
+              </div>
+            ))}
+          </ErrorBoundary>
           
           {/* 人気のボット */}
           <div className="mt-10 mb-12">
