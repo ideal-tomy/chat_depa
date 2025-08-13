@@ -51,7 +51,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
     const user = await getCurrentUser();
     if (!user) {
       alert('ログインが必要です');
-      router.push('/account/login');
+      router.push(`/account/login?redirect=${encodeURIComponent(`/bots/${bot.id}?message=${encodeURIComponent(message.trim())}`)}`);
       return;
     }
 

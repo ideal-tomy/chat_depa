@@ -10,7 +10,7 @@ interface PickUpCarouselProps {
   bots: Bot[];
 }
 
-export default function PickUpCarousel({ title = 'ピックアップBot', bots }: PickUpCarouselProps) {
+export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpCarouselProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);

@@ -7,6 +7,7 @@ import PickUpCarousel from '@/components/ui/PickUpCarousel';
 import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
 import BotCard from '@/components/ui/BotCard';
 import CategoryCarousel from '@/components/ui/CategoryCarousel';
+import { getNewCategory } from '@/lib/bot-classification';
 import CategorySection from '@/components/ui/CategorySection';
 import FAQAccordion from '@/components/ui/FAQAccordion';
 import BlogCard from '@/components/ui/BlogCard';
@@ -287,22 +288,29 @@ export default function Home() {
             </CategorySection>
           </div>
           
-          {/* カテゴリー別ボット */}
+          {/* カテゴリー別ボット（占い系、健康系、偏見系、ビジネス系） */}
           <ErrorBoundary>
-            {Object.entries(categoryBots).slice(0, 3).map(([category, bots], index) => (
-              <div key={category} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
-                <CategorySection 
-                  title={category} 
-                  viewAllLink={`/bots?category=${category}`}
-                  variant="standard"
-                >
-                  <CategoryCarousel 
-                    bots={bots.slice(0, 8)} 
-                    variant="standard" 
-                  />
-                </CategorySection>
-              </div>
-            ))}
+            {['占い・スピ系', '健康・運動系', '偏見丸出し系', 'ビジネス系'].map((catName, index) => {
+              const bots = allBots.filter(b => getNewCategory(b.category) === catName)
+              if (catName === 'ビジネス系') {
+                // 真面目のみ
+                const { determineDisplayCategory } = require('@/lib/bot-classification')
+                return (
+                  <div key={catName} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+                    <CategorySection title={catName} viewAllLink={`/bots?category=${encodeURIComponent(catName)}`} variant="standard">
+                      <CategoryCarousel bots={bots.filter((b:any)=> determineDisplayCategory(b) === '真面目').slice(0,8)} variant="standard" />
+                    </CategorySection>
+                  </div>
+                )
+              }
+              return (
+                <div key={catName} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+                  <CategorySection title={catName} viewAllLink={`/bots?category=${encodeURIComponent(catName)}`} variant="standard">
+                    <CategoryCarousel bots={bots.slice(0,8)} variant="standard" />
+                  </CategorySection>
+                </div>
+              )
+            })}
           </ErrorBoundary>
           
           {/* 人気のボット */}
