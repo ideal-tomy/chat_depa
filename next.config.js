@@ -9,12 +9,12 @@ const nextConfig = {
     ],
   },
   eslint: {
-    // デプロイ時のビルドでESLintエラーを無視（本番環境用）
-    ignoreDuringBuilds: true,
+    // 本番ではESLintエラーを検出させる
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    // デプロイ時のビルドでTypeScriptエラーを無視（ライブラリ型不一致対応）
-    ignoreBuildErrors: true,
+    // 型エラーも検出させる
+    ignoreBuildErrors: false,
   },
 };
 

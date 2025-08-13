@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
 
 // プロフィール情報取得API
 export async function GET(request: NextRequest) {
@@ -12,10 +13,14 @@ export async function GET(request: NextRequest) {
     // Authorization ヘッダーからトークンを取得
     const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      // 未ログイン時は200 + デフォルト値
       return NextResponse.json({
-        success: false,
-        error: 'Authorization header required'
-      }, { status: 401 })
+        success: true,
+        data: {
+          profile: null,
+          auth: null
+        }
+      })
     }
 
     const token = authHeader.substring(7)

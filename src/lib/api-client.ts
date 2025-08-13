@@ -1,8 +1,7 @@
 import { getSession } from './auth'
 
-const API_BASE_URL = typeof window !== 'undefined'
-  ? '' // ブラウザでは同一オリジン相対パス
-  : (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000')
+// API は常に相対パスで叩く（SSRでも Next.js が同一オリジンで解決）
+const API_BASE_URL = ''
 
 // API レスポンス型定義
 interface ApiResponse<T = any> {
