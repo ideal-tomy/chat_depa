@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import BotList from '@/components/bots/BotList';
 import BotFilter from './BotFilter';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
@@ -40,6 +41,7 @@ interface FilterState {
 }
 
 export default function BotPageClient() {
+  const searchParams = useSearchParams();
   const [bots, setBots] = useState<Bot[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     category: 'all',
@@ -99,9 +101,14 @@ export default function BotPageClient() {
   }, [offset]);
 
   useEffect(() => {
+    // URLクエリから初期カテゴリを反映
+    const urlCategory = searchParams.get('category');
+    if (urlCategory && urlCategory !== filters.category) {
+      setFilters(prev => ({ ...prev, category: urlCategory }));
+    }
     fetchBots(filters);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, searchParams]);
 
   const loadMoreBots = useCallback(() => {
     if (!loading && hasMore) {
@@ -120,6 +127,13 @@ export default function BotPageClient() {
           onFilterChange={setFilters}
         />
       </div>
+      {filters.category !== 'all' && (
+        <div className="mb-4 px-1">
+          <h3 className="text-lg font-semibold">
+            カテゴリ: {staticCategories.find(c => c.id === filters.category)?.name || filters.category}
+          </h3>
+        </div>
+      )}
       <BotList
         bots={bots}
         loading={loading}
