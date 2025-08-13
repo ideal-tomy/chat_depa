@@ -7,10 +7,14 @@ import { categoryToCharacterType } from '@/lib/bot-classification';
 
 interface BotCardProps {
   bot: Bot | undefined | null;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'standard' | 'compact';
+  hideForm?: boolean;
+  // backward compatibility
   compact?: boolean;
 }
 
-const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
+const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard', hideForm = false, compact = false }) => {
   const [message, setMessage] = useState('');
   const router = useRouter();
 
@@ -98,10 +102,13 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
   };
 
   // 3. カードサイズの統一とレイアウト修正
+  const isCompact = variant === 'compact' || compact;
+  const containerBase = "relative flex flex-col w-full h-[380px] rounded-xl bg-white shadow-lg transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-4 group";
+  const containerClassName = containerBase;
   return (
     <div 
       onClick={handleCardClick}
-      className="relative flex flex-col w-full h-[380px] rounded-xl bg-white shadow-lg transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-4 group"
+      className={containerClassName}
     >
       {/* アイコン */}
       <div className="absolute top-3 left-3 z-10 w-12 h-12">
@@ -139,7 +146,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
         </div>
         
         {/* 送信フォーム */}
-        {!compact && (
+        {!hideForm && !isCompact && (
           <div className="mt-auto flex-shrink-0">
             <div className="flex items-center space-x-2">
               <input

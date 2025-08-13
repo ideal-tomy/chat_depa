@@ -89,7 +89,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         <div className={`flex ${gapClass}`}>
           {bots.map((bot) => (
             <div key={bot.id} className={`flex-shrink-0 ${slideSizeClass}`}>
-              <BotCard bot={bot} />
+              <BotCard bot={bot} variant={variant} />
             </div>
           ))}
         </div>
