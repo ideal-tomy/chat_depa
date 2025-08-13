@@ -20,6 +20,7 @@ export interface Bot {
   system_prompt?: string;
   usage_count?: number;
   created_at?: string;
+  ui_theme?: string | null;
 }
 
 export interface FaqItem {

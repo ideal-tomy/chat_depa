@@ -15,9 +15,9 @@ export default function ChatPageClient({ bot }: ChatPageClientProps) {
 
   return (
     <ChatProvider botId={bot.id}>
-      <ChatUI 
-        botId={bot.id} 
-        uiTheme={bot.ui_theme || null} 
+      <ChatUI
+        botId={bot.id}
+        uiTheme={bot.ui_theme === 'business' || bot.ui_theme === 'variety' ? bot.ui_theme : null}
       />
     </ChatProvider>
   );

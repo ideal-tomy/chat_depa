@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import BotList from '@/components/bots/BotList';
 import BotFilter from './BotFilter';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 import { Bot, Category, PointRange, SortOrder } from '@/types/types';
 
 const BOTS_PER_PAGE = 20;

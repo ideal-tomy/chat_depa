@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 
 // 新しいカテゴリ分類マッピング
-const categoryMapping = {
+const categoryMapping: Record<string, string> = {
   // 法律系
   '申請系': '法律系',
   '法解釈系': '法律系',
@@ -243,8 +243,8 @@ export async function POST() {
     // 各ボットを更新
     for (const bot of existingBots || []) {
       try {
-        const oldCategory = bot.category;
-        const newCategory = categoryMapping[oldCategory] || oldCategory;
+        const oldCategory: string = String(bot.category || '');
+        const newCategory: string = categoryMapping[oldCategory] || oldCategory;
         const displayCategory = determineDisplayCategory(bot);
         
         // カテゴリと表示分類を更新

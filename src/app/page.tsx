@@ -10,7 +10,7 @@ import CategorySection from '@/components/ui/CategorySection';
 import FAQAccordion from '@/components/ui/FAQAccordion';
 import BlogCard from '@/components/ui/BlogCard';
 import { Bot, FaqItem, Post } from '@/types/types';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 
 type CategoryOption = { id: string; name: string };
 const categories: CategoryOption[] = [

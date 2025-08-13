@@ -51,7 +51,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
       return;
     }
 
-    const { supabase } = await import('@/lib/supabase/client');
+    const { supabaseBrowser: supabase } = await import('@/lib/supabase/browser');
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session?.access_token) {
