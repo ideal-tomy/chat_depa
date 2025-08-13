@@ -1,4 +1,4 @@
-import { Message } from '@/types/types';
+import { Message } from '@/types';
 
 export interface ChatService {
   startSession(): Promise<string>;

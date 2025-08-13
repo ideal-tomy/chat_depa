@@ -1,4 +1,4 @@
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 
 interface BotInfoCardProps {

@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import BotCard from './BotCard';
 
 interface HorizontalCarouselProps {

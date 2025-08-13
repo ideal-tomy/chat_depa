@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { FunnelIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
-import { Category, PointRange, SortOrder } from '@/types/types'; // 型をインポート
+import { Category, PointRange, SortOrder } from '@/types'; // 型をインポート
 
 interface FilterState {
   category: string;

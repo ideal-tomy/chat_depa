@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import BotCard from './BotCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 

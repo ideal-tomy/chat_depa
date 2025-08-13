@@ -1,5 +1,5 @@
 import { ChatService } from './chatService';
-import { Message } from '@/types/types';
+import { Message } from '@/types';
 
 /**
  * ChatServiceの汎用的な実装クラス。

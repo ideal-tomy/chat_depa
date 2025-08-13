@@ -1,4 +1,4 @@
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import { ChatProvider } from './ChatProvider';
 import ChatUI from './ChatUI';
 

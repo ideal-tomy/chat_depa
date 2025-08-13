@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import BotCard from './BotCard';
 
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 
 interface PickUpCarouselProps {
   title?: string;

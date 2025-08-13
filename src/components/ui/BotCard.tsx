@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import { getCurrentUser } from '@/lib/auth';
 import { categoryToCharacterType } from '@/lib/bot-classification';
 

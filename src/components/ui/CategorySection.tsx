@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Bot, CategoryOption } from '@/types/types';
+import { Bot, CategoryOption } from '@/types';
 
 interface CategorySectionProps {
   title: string;

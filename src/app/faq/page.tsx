@@ -5,7 +5,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import FAQAccordion from '@/components/ui/FAQAccordion';
 import SupportChat from '@/components/faq/SupportChat';
 import Link from 'next/link';
-import { FaqItem } from '@/types/types';
+import { FaqItem } from '@/types';
 
 // FAQデータ（実際の実装ではAPIから取得）
 const faqData: FaqItem[] = [

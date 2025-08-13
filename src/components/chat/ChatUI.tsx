@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'; // useCallbackをインポート
 import { useSearchParams } from 'next/navigation';
 import { useChatService } from './ChatProvider';
-import { Message } from '@/types/types';
+import { Message } from '@/types';
 import ChatWindow from './ChatWindow';
 import HistoryModal from './history/HistoryModal';
 import HistoryPanel from './history/HistoryPanel';
