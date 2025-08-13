@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
+// 動的レンダリングを強制
+export const dynamic = 'force-dynamic'
+
 // プロフィール情報取得API
 export async function GET(request: NextRequest) {
   try {
