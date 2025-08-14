@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import BotCard from '@/components/ui/BotCard';
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 interface BotListProps {

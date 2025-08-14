@@ -3,14 +3,14 @@
 import { useState, useRef, useEffect } from 'react';
 import BotCard from './BotCard';
 
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 
 interface PickUpCarouselProps {
   title?: string;
   bots: Bot[];
 }
 
-export default function PickUpCarousel({ title = 'ピックアップBot', bots }: PickUpCarouselProps) {
+export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpCarouselProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);

@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import HeroSection from '@/components/ui/HeroSection';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import PickUpCarousel from '@/components/ui/PickUpCarousel';
 import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
 import BotCard from '@/components/ui/BotCard';
 import CategoryCarousel from '@/components/ui/CategoryCarousel';
+import { getNewCategory } from '@/lib/bot-classification';
 import CategorySection from '@/components/ui/CategorySection';
 import FAQAccordion from '@/components/ui/FAQAccordion';
 import BlogCard from '@/components/ui/BlogCard';
-import { Bot, FaqItem, Post } from '@/types/types';
-import { supabase } from '@/lib/supabase/client';
+import { Bot, FaqItem, Post } from '@/types';
+import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 
 type CategoryOption = { id: string; name: string };
 const categories: CategoryOption[] = [
@@ -255,7 +257,9 @@ export default function Home() {
       <div className="container mx-auto px-4 py-16">
         <section id="pickup-bots" className="mb-20">
           <h2 className="text-3xl font-bold text-center mb-10">おすすめのBot</h2>
-          <PickUpCarousel bots={pickupBots} />
+          <ErrorBoundary>
+            <PickUpCarousel bots={pickupBots} />
+          </ErrorBoundary>
         </section>
 
         <section id="bot-store" className="mb-10">
@@ -284,21 +288,30 @@ export default function Home() {
             </CategorySection>
           </div>
           
-          {/* カテゴリー別ボット */}
-          {Object.entries(categoryBots).slice(0, 3).map(([category, bots], index) => (
-            <div key={category} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
-              <CategorySection 
-                title={category} 
-                viewAllLink={`/bots?category=${category}`}
-                variant="standard"
-              >
-                <CategoryCarousel 
-                  bots={bots.slice(0, 8)} 
-                  variant="standard" 
-                />
-              </CategorySection>
-            </div>
-          ))}
+          {/* カテゴリー別ボット（占い系、健康系、偏見系、ビジネス系） */}
+          <ErrorBoundary>
+            {['占い・スピ系', '健康・運動系', '偏見丸出し系', 'ビジネス系'].map((catName, index) => {
+              const bots = allBots.filter(b => getNewCategory(b.category) === catName)
+              if (catName === 'ビジネス系') {
+                // 真面目のみ
+                const { determineDisplayCategory } = require('@/lib/bot-classification')
+                return (
+                  <div key={catName} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+                    <CategorySection title={catName} viewAllLink={`/bots?category=${encodeURIComponent(catName)}`} variant="standard">
+                      <CategoryCarousel bots={bots.filter((b:any)=> determineDisplayCategory(b) === '真面目').slice(0,8)} variant="standard" />
+                    </CategorySection>
+                  </div>
+                )
+              }
+              return (
+                <div key={catName} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+                  <CategorySection title={catName} viewAllLink={`/bots?category=${encodeURIComponent(catName)}`} variant="standard">
+                    <CategoryCarousel bots={bots.slice(0,8)} variant="standard" />
+                  </CategorySection>
+                </div>
+              )
+            })}
+          </ErrorBoundary>
           
           {/* 人気のボット */}
           <div className="mt-10 mb-12">

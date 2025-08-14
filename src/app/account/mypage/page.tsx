@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { getCurrentUser, signOut } from '@/lib/auth';
 import { profileAPI, pointsAPI } from '@/lib/api-client';
+import { useProfile } from '@/components/hooks/useProfile';
 
 interface UserProfile {
   id: string;
@@ -90,9 +91,14 @@ export default function MyPage() {
     }
   }, [router]);
 
+  // React Queryでプロフィールだけは即時読み込み・フェールセーフ
+  const { data: profileData } = useProfile();
   useEffect(() => {
+    if (profileData?.profile) {
+      setUserProfile(profileData.profile as any)
+    }
     fetchUserData();
-  }, [fetchUserData]);
+  }, [fetchUserData, profileData]);
 
   // ログアウト処理
   const handleSignOut = async () => {

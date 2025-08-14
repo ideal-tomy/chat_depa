@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
 
 // システム完成・動作確認API
 export async function GET() {

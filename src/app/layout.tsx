@@ -4,6 +4,7 @@ import '../styles/globals.css';
 // レイアウトコンポーネント
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import QueryProvider from '@/components/providers/QueryProvider';
 
 export const metadata: Metadata = {
   title: 'Chatbot Department - 用途別AIチャットボットの百貨店',
@@ -25,9 +26,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-grow">
-          {children}
-        </main>
+        <QueryProvider>
+          <main className="flex-grow">
+            {children}
+          </main>
+        </QueryProvider>
         <Footer />
       </body>
     </html>

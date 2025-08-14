@@ -1,7 +1,7 @@
 'use client';
 
 import FilterBar from '@/components/ui/FilterBar';
-import type { CategoryOption, PointRangeOption } from '@/types/types';
+import type { CategoryOption, PointRangeOption } from '@/types';
 
 interface FilterBarWrapperProps {
   categories: CategoryOption[];

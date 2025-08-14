@@ -24,44 +24,18 @@ interface Plan {
 
 export default function PointPurchasePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // 初期ロードは不要
   const [error, setError] = useState<string | null>(null);
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+
+  const plans: Plan[] = [
+    { id: 'plan-5000', name: '5,000ポイント', description: '初めての方におすすめ', price: 50, points: 5000, bonus_percent: 0, is_bonus: false },
+    { id: 'plan-10000', name: '10,000ポイント', description: '定番プラン', price: 100, points: 10000, bonus_percent: 0, is_bonus: false },
+    { id: 'plan-30000', name: '30,000ポイント', description: 'お得な大容量プラン', price: 300, points: 30000, bonus_percent: 5, is_bonus: true },
+    { id: 'plan-50000', name: '50,000ポイント', description: '最安値プラン', price: 500, points: 50000, bonus_percent: 10, is_bonus: true },
+  ];
+
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(plans[0]); // 初期選択は最初のプラン
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // プラン一覧を取得
-  const fetchPlans = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // 認証状態確認
-      const user = await getCurrentUser();
-      if (!user) {
-        router.push('/account/login');
-        return;
-      }
-
-      // プラン一覧取得
-      const response = await pointsAPI.getPlans();
-      if (!response.success) {
-        throw new Error(response.error || 'プラン情報の取得に失敗しました');
-      }
-
-      setPlans(response.data?.plans || []);
-
-    } catch (err) {
-      console.error('プラン取得エラー:', err);
-      setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchPlans();
-  }, [fetchPlans]);
 
   // 購入処理（現在はダミー実装）
   const handlePurchase = async (plan: Plan) => {
@@ -109,7 +83,7 @@ export default function PointPurchasePage() {
                 <h3 className="text-lg font-medium text-red-800">エラーが発生しました</h3>
                 <p className="text-red-600 mt-1">{error}</p>
                 <button
-                  onClick={fetchPlans}
+                  onClick={() => {}} // No API call to retry here
                   className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                 >
                   再試行

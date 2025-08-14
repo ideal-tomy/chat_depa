@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
 
 // アカウント設定バックエンドAPIの動作確認用
 export async function GET() {

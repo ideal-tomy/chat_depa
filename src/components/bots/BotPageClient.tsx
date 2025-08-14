@@ -1,24 +1,21 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import BotList from '@/components/bots/BotList';
 import BotFilter from './BotFilter';
-import { supabase } from '@/lib/supabase/client';
-import { Bot, Category, PointRange, SortOrder } from '@/types/types';
+import CategorySection from '@/components/ui/CategorySection';
+import CategoryCarousel from '@/components/ui/CategoryCarousel';
+import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
+import { Bot, Category, PointRange, SortOrder } from '@/types';
+import { categoryMapping, newCategories, getNewCategory, determineDisplayCategory } from '@/lib/bot-classification';
 
 const BOTS_PER_PAGE = 20;
 
-// カテゴリ、ポイント範囲、並び順の静的データ
+// カテゴリ、ポイント範囲、並び順の静的データ（新カテゴリ体系に合わせる）
 const staticCategories: Category[] = [
   { id: 'all', name: 'すべてのカテゴリ' },
-  { id: 'ビジネス', name: 'ビジネス' },
-  { id: 'マーケティング', name: 'マーケティング' },
-  { id: 'ライフスタイル', name: 'ライフスタイル' },
-  { id: 'プログラミング', name: 'プログラミング' },
-  { id: '旅行', name: '旅行' },
-  { id: 'デザイン', name: 'デザイン' },
-  { id: '学習', name: '学習' },
-  { id: 'フィットネス', name: 'フィットネス' },
+  ...newCategories.map((c) => ({ id: c, name: c })),
 ];
 
 const staticPointRanges: PointRange[] = [
@@ -40,7 +37,9 @@ interface FilterState {
 }
 
 export default function BotPageClient() {
+  const searchParams = useSearchParams();
   const [bots, setBots] = useState<Bot[]>([]);
+  const [allBots, setAllBots] = useState<Bot[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     category: 'all',
     pointRange: 'all',
@@ -61,7 +60,15 @@ export default function BotPageClient() {
 
     // フィルター適用
     if (newFilters.category !== 'all') {
-      query = query.eq('category', newFilters.category);
+      // 新カテゴリ名に一致する旧カテゴリも含めてヒットさせる
+      const oldCategoryKeys = Object.keys(categoryMapping).filter(
+        (k) => categoryMapping[k] === newFilters.category
+      );
+      if (oldCategoryKeys.length > 0) {
+        query = query.in('category', [newFilters.category, ...oldCategoryKeys]);
+      } else {
+        query = query.eq('category', newFilters.category);
+      }
     }
 
     const selectedPointRange = staticPointRanges.find(r => r.id === newFilters.pointRange);
@@ -84,7 +91,21 @@ export default function BotPageClient() {
       if (error) throw error;
 
       if (data) {
-        setBots(prev => isLoadMore ? [...prev, ...data] : data);
+        // ビジネス系は "真面目" のみ表示
+        const filtered = (newFilters.category === 'ビジネス系')
+          ? (data as any[]).filter((b) => determineDisplayCategory(b) === '真面目')
+          : data
+
+        setBots((prev) => {
+          const merged = isLoadMore ? [...prev, ...data] : data;
+          const seen = new Set<string>();
+          return (filtered as any[]).filter((b: any) => {
+            const key = String(b.id);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          }) as Bot[];
+        });
         const totalFetched = currentOffset + data.length;
         setHasMore(totalFetched < (count || 0));
         setOffset(totalFetched);
@@ -98,10 +119,39 @@ export default function BotPageClient() {
     }
   }, [offset]);
 
+  // すべてのカテゴリを並べるために一括取得（初回とカテゴリ=all時に利用）
+  const fetchAllForSections = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bots')
+        .select('*')
+        .order('created_at', { ascending: true })
+        .range(0, 199);
+      if (error) throw error;
+      setAllBots((data || []) as Bot[]);
+    } catch (e) {
+      console.error('Error fetching all bots for sections:', e);
+      setAllBots([]);
+    }
+  }, []);
+
   useEffect(() => {
+    // URLクエリから初期カテゴリを反映（旧→新カテゴリへマッピング）
+    const urlCategory = searchParams.get('category');
+    if (urlCategory) {
+      const mapped = newCategories.includes(urlCategory)
+        ? urlCategory
+        : getNewCategory(urlCategory);
+      if (mapped !== filters.category) {
+        setFilters((prev) => ({ ...prev, category: mapped }));
+      }
+    }
     fetchBots(filters);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+    if (filters.category === 'all') {
+      fetchAllForSections();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, searchParams]);
 
   const loadMoreBots = useCallback(() => {
     if (!loading && hasMore) {
@@ -110,6 +160,35 @@ export default function BotPageClient() {
   }, [loading, hasMore, filters, fetchBots]);
 
 
+  // カテゴリ=all のときは、タイトルとカルーセルを交互に表示
+  if (filters.category === 'all') {
+    return (
+      <>
+        <div className="mb-6">
+          <BotFilter
+            categories={staticCategories}
+            pointRanges={staticPointRanges}
+            sortOrders={staticSortOrders}
+            onFilterChange={setFilters}
+          />
+        </div>
+
+        {newCategories.map((cat, index) => {
+          const list = (allBots || []).filter((b: any) => getNewCategory(b.category) === cat);
+          if (list.length === 0) return null;
+          return (
+            <div key={cat} className={`mt-6 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+              <CategorySection title={cat} viewAllLink={`/bots?category=${encodeURIComponent(cat)}`}>
+                <CategoryCarousel bots={list} />
+              </CategorySection>
+            </div>
+          );
+        })}
+      </>
+    );
+  }
+
+  // カテゴリ指定時は従来のリスト + タイトル表示
   return (
     <>
       <div className="mb-6">
@@ -120,12 +199,12 @@ export default function BotPageClient() {
           onFilterChange={setFilters}
         />
       </div>
-      <BotList
-        bots={bots}
-        loading={loading}
-        hasMore={hasMore}
-        loadMoreBots={loadMoreBots}
-      />
+      <div className="mb-4 px-1">
+        <h3 className="text-lg font-semibold">
+          カテゴリ: {staticCategories.find((c) => c.id === filters.category)?.name || filters.category}
+        </h3>
+      </div>
+      <BotList bots={bots} loading={loading} hasMore={hasMore} loadMoreBots={loadMoreBots} />
     </>
   );
 }

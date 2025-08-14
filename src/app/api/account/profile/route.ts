@@ -1,5 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabaseServer } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
 
 // 動的レンダリングを強制
 export const dynamic = 'force-dynamic'
@@ -7,18 +8,19 @@ export const dynamic = 'force-dynamic'
 // プロフィール情報取得API
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = supabaseServer
 
     // Authorization ヘッダーからトークンを取得
     const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      // 未ログイン時は200 + デフォルト値
       return NextResponse.json({
-        success: false,
-        error: 'Authorization header required'
-      }, { status: 401 })
+        success: true,
+        data: {
+          profile: null,
+          auth: null
+        }
+      })
     }
 
     const token = authHeader.substring(7)
@@ -71,10 +73,7 @@ export async function GET(request: NextRequest) {
 // プロフィール情報更新API
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = supabaseServer
 
     // Authorization ヘッダーからトークンを取得
     const authHeader = request.headers.get('authorization')

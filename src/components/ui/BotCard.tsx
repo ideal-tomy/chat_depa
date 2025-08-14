@@ -1,16 +1,20 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import { getCurrentUser } from '@/lib/auth';
 import { categoryToCharacterType } from '@/lib/bot-classification';
 
 interface BotCardProps {
   bot: Bot | undefined | null;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'standard' | 'compact';
+  hideForm?: boolean;
+  // backward compatibility
   compact?: boolean;
 }
 
-const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
+const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard', hideForm = false, compact = false }) => {
   const [message, setMessage] = useState('');
   const router = useRouter();
 
@@ -46,51 +50,13 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
 
     const user = await getCurrentUser();
     if (!user) {
-      alert('ログインが必要です');
-      router.push('/account/login');
+      // 未ログイン時はログインページにリダイレクト
+      router.push(`/account/login?redirect=${encodeURIComponent(`/bots/${bot.id}?message=${encodeURIComponent(message.trim())}`)}`);
       return;
     }
 
-    const { supabase } = await import('@/lib/supabase/client');
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session?.access_token) {
-      alert('認証情報が見つかりません。再ログインしてください。');
-      router.push('/account/login');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/bot/use', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({
-          bot_id: bot.id,
-          message: message.trim()
-        })
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        if (result.error === 'Insufficient points') {
-          alert(`ポイント不足です。\n\n${bot.name}の利用には${result.data?.required_points}ポイントが必要です。\n現在のポイント: ${result.data?.current_points}P\n\nポイントを購入しますか？`);
-          router.push('/account/points/purchase');
-          return;
-        }
-        throw new Error(result.error);
-      }
-
-      alert(`✅ ${bot.name}からの応答:\n\n${result.data?.bot_response}\n\n📊 ポイント消費: ${result.data?.points_consumed}P\n💰 残りポイント: ${result.data?.new_balance}P`);
-      setMessage('');
-      window.dispatchEvent(new CustomEvent('pointsUpdated'));
-    } catch (error) {
-      console.error('Bot use error:', error);
-      alert('❌ ボットの利用に失敗しました。\n\nエラー: ' + (error instanceof Error ? error.message : '不明なエラー') + '\n\n再度お試しください。');
-    }
+    // ログイン済みの場合は専用ページに遷移
+    router.push(`/bots/${bot.id}?message=${encodeURIComponent(message.trim())}`);
   };
   
   const handleCardClick = () => {
@@ -98,10 +64,13 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
   };
 
   // 3. カードサイズの統一とレイアウト修正
+  const isCompact = variant === 'compact' || compact;
+  const containerBase = "relative flex flex-col w-full h-[380px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-4 group";
+  const containerClassName = containerBase;
   return (
     <div 
       onClick={handleCardClick}
-      className="relative flex flex-col w-full h-[380px] rounded-xl bg-white shadow-lg transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-4 group"
+      className={containerClassName}
     >
       {/* アイコン */}
       <div className="absolute top-3 left-3 z-10 w-12 h-12">
@@ -118,14 +87,14 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
       </div>
 
       {/* ポイント表示 */}
-      <div className="absolute top-4 right-4 z-10 px-2 py-1 bg-gray-800 text-white text-xs font-bold rounded">
+      <div className="absolute top-4 right-4 z-10 px-2 py-1 bg-indigo-700 text-white text-sm font-bold rounded">
         {bot.points || 0}P
       </div>
 
       {/* カードコンテンツ */}
       <div className="flex flex-col flex-grow pt-12">
         {/* タイトル */}
-        <div className="h-16 flex items-center justify-center mb-2">
+        <div className="min-h-[4rem] flex items-center justify-center mb-2">
             <h3 className="text-center font-semibold text-lg leading-tight text-gray-800 line-clamp-2 group-hover:text-indigo-600">
                 {botName}
             </h3>
@@ -139,8 +108,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
         </div>
         
         {/* 送信フォーム */}
-        {!compact && (
-          <div className="mt-auto flex-shrink-0">
+        <div className="mt-auto flex-shrink-0">
             <div className="flex items-center space-x-2">
               <input
                 type="text"
@@ -151,7 +119,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
                   setMessage(e.target.value);
                 }}
                 placeholder="メッセージを入力..."
-                className="flex-grow w-full px-3 py-2 text-sm border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                className="flex-grow w-full px-3 py-2.5 text-sm border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
               />
               <button
                 onClick={handleSendClick}
@@ -161,7 +129,6 @@ const BotCard: React.FC<BotCardProps> = ({ bot, compact = false }) => {
               </button>
             </div>
           </div>
-        )}
       </div>
     </div>
   );

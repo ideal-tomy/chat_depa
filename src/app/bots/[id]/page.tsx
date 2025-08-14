@@ -1,9 +1,9 @@
 import BotInfoCard from '@/components/bots/BotInfoCard';
 import ChatInterface from '@/components/bots/ChatInterface';
 import RelatedBots from '@/components/bots/RelatedBots';
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import { Metadata } from 'next';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 import { notFound } from 'next/navigation';
 
 interface BotDetailPageProps {

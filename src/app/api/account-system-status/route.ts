@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
 
 // アカウント管理システムの完成状況確認API
 export async function GET() {

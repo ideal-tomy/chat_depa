@@ -1,12 +1,10 @@
-import { createClient } from '@supabase/supabase-js'
+export const dynamic = 'force-dynamic'
+import { supabaseServer } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = supabaseServer
 
     // RPC関数を使ってスキーマ情報を取得
     const { data: profilesData, error: profilesError } = await supabase

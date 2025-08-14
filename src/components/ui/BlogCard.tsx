@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Post } from '@/types/types';
+import { Post } from '@/types';
 
 interface BlogCardProps {
   post: Post;

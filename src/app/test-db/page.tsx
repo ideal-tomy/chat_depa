@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 
 export default function TestDBPage() {
   const [result, setResult] = useState<any>(null);

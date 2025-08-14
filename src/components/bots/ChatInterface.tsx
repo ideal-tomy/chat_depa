@@ -1,10 +1,10 @@
 'use client';
 
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PaperAirplaneIcon, StopIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 import Link from 'next/link';
 
 interface ChatInterfaceProps {

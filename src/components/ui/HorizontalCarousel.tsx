@@ -2,11 +2,11 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Bot } from '@/types/types';
+import { Bot } from '@/types';
 import BotCard from './BotCard';
 
 interface HorizontalCarouselProps {
-  title: string;
+  title?: string;
   bots: Bot[];
   autoScroll?: boolean;
   autoScrollSpeed?: number;
@@ -102,9 +102,11 @@ export default function HorizontalCarousel({
   return (
     <div className="relative group mb-8">
       {/* セクションタイトル */}
-      <h2 className="text-xl md:text-2xl font-bold mb-4 px-4 md:px-6">
-        {title}
-      </h2>
+      {title && (
+        <h2 className="text-xl md:text-2xl font-bold mb-4 px-4 md:px-6">
+          {title}
+        </h2>
+      )}
 
       {/* カルーセルコンテナ */}
       <div 

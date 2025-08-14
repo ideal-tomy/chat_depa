@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
-import { Message } from '@/types/types';
+import { Message } from '@/types';
 
 interface ChatWindowProps {
   messages: Message[];

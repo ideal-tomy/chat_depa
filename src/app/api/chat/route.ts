@@ -3,6 +3,7 @@ import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
+export const dynamic = 'force-dynamic'
 
 // 動的レンダリングを強制
 export const dynamic = 'force-dynamic'

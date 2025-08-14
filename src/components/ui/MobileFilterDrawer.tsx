@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { X, Filter, ChevronDown } from 'lucide-react';
-import { FilterState as BotFilterState } from '../bots/BotFilter';
+type BotFilterState = { showImageUpload: boolean; showFileUpload: boolean };
 
 interface MobileFilterDrawerProps {
   filters: {
