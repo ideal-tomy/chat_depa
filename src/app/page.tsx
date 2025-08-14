@@ -11,6 +11,7 @@ import { getNewCategory } from '@/lib/bot-classification';
 import CategorySection from '@/components/ui/CategorySection';
 import FAQAccordion from '@/components/ui/FAQAccordion';
 import BlogCard from '@/components/ui/BlogCard';
+import AnimatedBackground from '@/components/ui/AnimatedBackground';
 import { Bot, FaqItem, Post } from '@/types';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 
@@ -244,7 +245,10 @@ export default function Home() {
     fetchBots();
   }, []);
   return (
-    <main className="bg-gray-50 text-gray-800">
+    <main className="bg-white text-gray-800 relative">
+      {/* アニメーション背景 */}
+      <AnimatedBackground />
+      
       <HeroSection
         title="あなたのAIアシスタントを探そう"
         description="Chat Depaでは、仕事や学習、生活をサポートする多彩なAI Botを提供しています。今すぐお気に入りのBotを見つけましょう。"
@@ -254,15 +258,15 @@ export default function Home() {
         secondaryButtonLink="/about"
       />
 
-      <div className="container mx-auto px-4 py-16">
-        <section id="pickup-bots" className="mb-20">
+      <div className="container mx-auto px-4 py-16 relative z-10">
+        <section id="pickup-bots" className="mb-20 bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
           <h2 className="text-3xl font-bold text-center mb-10">おすすめのBot</h2>
           <ErrorBoundary>
             <PickUpCarousel bots={pickupBots} />
           </ErrorBoundary>
         </section>
 
-        <section id="bot-store" className="mb-10">
+        <section id="bot-store" className="mb-10 bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold">Botストア</h2>
             <a href="/bots" className="text-indigo-600 hover:underline">すべて見る →</a>
@@ -296,7 +300,7 @@ export default function Home() {
                 // 真面目のみ
                 const { determineDisplayCategory } = require('@/lib/bot-classification')
                 return (
-                  <div key={catName} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+                  <div key={catName} className="mt-10">
                     <CategorySection title={catName} viewAllLink={`/bots?category=${encodeURIComponent(catName)}`} variant="standard">
                       <CategoryCarousel bots={bots.filter((b:any)=> determineDisplayCategory(b) === '真面目').slice(0,8)} variant="standard" />
                     </CategorySection>
@@ -304,7 +308,7 @@ export default function Home() {
                 )
               }
               return (
-                <div key={catName} className={`mt-10 ${index % 2 === 1 ? 'py-8 bg-gray-100' : ''}`}>
+                <div key={catName} className="mt-10">
                   <CategorySection title={catName} viewAllLink={`/bots?category=${encodeURIComponent(catName)}`} variant="standard">
                     <CategoryCarousel bots={bots.slice(0,8)} variant="standard" />
                   </CategorySection>
@@ -328,7 +332,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="how-to-use" className="mb-20 bg-white p-12 rounded-xl shadow-lg">
+        <section id="how-to-use" className="mb-20 bg-white/80 backdrop-blur-sm p-12 rounded-xl shadow-lg">
           <h2 className="text-3xl font-bold text-center mb-10">Chat Depaのかんたんご利用方法</h2>
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
@@ -346,7 +350,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="news" className="mb-20">
+        <section id="news" className="mb-20 bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg">
           <h2 className="text-3xl font-bold text-center mb-10">お知らせ・ブログ</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {blogPosts.map((post) => (
@@ -355,7 +359,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="faq">
+        <section id="faq" className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg">
           <h2 className="text-3xl font-bold text-center mb-10">よくある質問</h2>
           <div className="max-w-3xl mx-auto">
             <FAQAccordion items={faqItems} />
