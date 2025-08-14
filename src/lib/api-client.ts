@@ -29,6 +29,7 @@ async function apiRequest<T = any>(
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
+      credentials: 'include', // クッキー送信を有効化
       headers: {
         ...defaultHeaders,
         ...options.headers,
@@ -55,7 +56,7 @@ async function apiRequest<T = any>(
 export const profileAPI = {
   // プロフィール取得
   async getProfile(): Promise<ApiResponse<{ profile: any; auth: any }>> {
-    return apiRequest('/api/account/profile')
+    return apiRequest('/api/account/profile-client')
   },
 
   // プロフィール更新

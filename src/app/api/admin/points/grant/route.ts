@@ -2,9 +2,6 @@ import { supabaseServer } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 
-// 動的レンダリングを強制
-export const dynamic = 'force-dynamic'
-
 // 管理者用手動ポイント付与API
 export async function POST(request: NextRequest) {
   try {

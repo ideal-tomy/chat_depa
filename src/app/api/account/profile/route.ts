@@ -1,56 +1,44 @@
-import { supabaseServer } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+
 export const dynamic = 'force-dynamic'
 
-// 動的レンダリングを強制
-export const dynamic = 'force-dynamic'
-
-// プロフィール情報取得API
-export async function GET(request: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
-    const supabase = supabaseServer
+    console.log('[profile] Starting profile API request')
+    
+    // Supabase クライアントの作成
+    const supabase = createRouteHandlerClient({ cookies })
+    console.log('[profile] Supabase client created')
 
-    // Authorization ヘッダーからトークンを取得
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // 未ログイン時は200 + デフォルト値
-      return NextResponse.json({
-        success: true,
-        data: {
-          profile: null,
-          auth: null
-        }
-      })
+    // 認証ユーザー取得
+    const { data: { user }, error: authErr } = await supabase.auth.getUser()
+    if (authErr) {
+      console.error('[profile] auth error:', authErr)
+      return NextResponse.json({ error: 'Unauthorized', details: authErr.message }, { status: 401 })
+    }
+    if (!user) {
+      console.log('[profile] No user found')
+      return NextResponse.json({ error: 'No user' }, { status: 401 })
     }
 
-    const token = authHeader.substring(7)
-    
-    // トークンからユーザー情報を取得
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid token or user not found'
-      }, { status: 401 })
-    }
+    console.log('[profile] User found:', user.id)
 
-    // プロフィール情報を取得
-    const { data: profile, error: profileError } = await supabase
+    // profiles から読み出し
+    const { data: profile, error } = await supabase
       .from('profiles')
-      .select('id, username, avatar_url, current_points, role, created_at')
+      .select('*')
       .eq('id', user.id)
       .single()
 
-    if (profileError) {
-      console.error('Profile fetch error:', profileError)
-      return NextResponse.json({
-        success: false,
-        error: 'Failed to fetch profile'
-      }, { status: 500 })
+    if (error) {
+      console.error('[profile] db error:', error)
+      return NextResponse.json({ error: error.message, code: error.code }, { status: 500 })
     }
 
-    return NextResponse.json({
+    console.log('[profile] Profile found successfully')
+    return NextResponse.json({ 
       success: true,
       data: {
         profile: profile || null,
@@ -59,13 +47,13 @@ export async function GET(request: NextRequest) {
           email: user.email
         }
       }
-    })
-
-  } catch (error) {
-    console.error('Profile API error:', error)
-    return NextResponse.json({
-      success: false,
-      error: 'Internal server error'
+    }, { status: 200 })
+    
+  } catch (e: any) {
+    console.error('[profile] unexpected error:', e)
+    return NextResponse.json({ 
+      error: e?.message ?? 'unexpected error',
+      stack: e?.stack 
     }, { status: 500 })
   }
 }
@@ -73,27 +61,19 @@ export async function GET(request: NextRequest) {
 // プロフィール情報更新API
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = supabaseServer
+    console.log('[profile PUT] Starting profile update request')
+    
+    const supabase = createRouteHandlerClient({ cookies })
 
-    // Authorization ヘッダーからトークンを取得
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Authorization header required'
-      }, { status: 401 })
+    // 認証ユーザー取得
+    const { data: { user }, error: authErr } = await supabase.auth.getUser()
+    if (authErr) {
+      console.error('[profile PUT] auth error:', authErr)
+      return NextResponse.json({ error: 'Unauthorized', details: authErr.message }, { status: 401 })
     }
-
-    const token = authHeader.substring(7)
-    
-    // トークンからユーザー情報を取得
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid token or user not found'
-      }, { status: 401 })
+    if (!user) {
+      console.log('[profile PUT] No user found')
+      return NextResponse.json({ error: 'No user' }, { status: 401 })
     }
 
     // リクエストボディを取得
@@ -125,17 +105,18 @@ export async function PUT(request: NextRequest) {
       .from('profiles')
       .update(updateData)
       .eq('id', user.id)
-      .select('id, username, avatar_url, current_points, role, created_at')
+      .select('*')
       .single()
 
     if (updateError) {
-      console.error('Profile update error:', updateError)
+      console.error('[profile PUT] db error:', updateError)
       return NextResponse.json({
-        success: false,
-        error: 'Failed to update profile'
+        error: updateError.message,
+        code: updateError.code
       }, { status: 500 })
     }
 
+    console.log('[profile PUT] Profile updated successfully')
     return NextResponse.json({
       success: true,
       message: 'Profile updated successfully',
@@ -144,11 +125,11 @@ export async function PUT(request: NextRequest) {
       }
     })
 
-  } catch (error) {
-    console.error('Profile update API error:', error)
+  } catch (error: any) {
+    console.error('[profile PUT] unexpected error:', error)
     return NextResponse.json({
-      success: false,
-      error: 'Internal server error'
+      error: error?.message ?? 'Internal server error',
+      stack: error?.stack
     }, { status: 500 })
   }
 }

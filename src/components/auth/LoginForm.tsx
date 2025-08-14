@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { supabase } from '@/lib/auth';
+import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -249,6 +249,7 @@ export default function LoginForm() {
         <div className="mt-6 grid grid-cols-2 gap-3">
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
             disabled={isLoading}
           >

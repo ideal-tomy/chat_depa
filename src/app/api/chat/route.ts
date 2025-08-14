@@ -5,9 +5,6 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 export const dynamic = 'force-dynamic'
 
-// 動的レンダリングを強制
-export const dynamic = 'force-dynamic'
-
 // OpenAI APIクライアントを作成
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
