@@ -100,10 +100,10 @@ export default function HorizontalCarousel({
   if (bots.length === 0) return null;
 
   return (
-    <div className="relative group mb-8">
+    <div className="relative group mb-4 sm:mb-6 md:mb-8">
       {/* セクションタイトル */}
       {title && (
-        <h2 className="text-xl md:text-2xl font-bold mb-4 px-4 md:px-6">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 md:mb-4">
           {title}
         </h2>
       )}
@@ -139,7 +139,7 @@ export default function HorizontalCarousel({
         {/* スクロールコンテナ */}
         <div
           ref={scrollRef}
-          className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide px-4 md:px-6 pb-4"
+          className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-4"
           style={{
             scrollSnapType: 'x mandatory',
             scrollBehavior: 'smooth'
@@ -148,17 +148,13 @@ export default function HorizontalCarousel({
           {bots.map((bot) => (
             <div
               key={bot.id}
-              className="flex-none w-64 md:w-72 lg:w-80"
+              className="flex-none w-[calc(25%-6px)] min-w-[150px] sm:w-[calc(33.333%-8px)] sm:min-w-[180px] md:w-64 lg:w-72 xl:w-80"
               style={{ scrollSnapAlign: 'start' }}
             >
               <BotCard bot={bot} compact />
             </div>
           ))}
         </div>
-
-        {/* グラデーションオーバーレイ */}
-        <div className="absolute top-0 right-0 w-16 h-full bg-gradient-to-l from-gray-50 to-transparent pointer-events-none" />
-        <div className="absolute top-0 left-0 w-16 h-full bg-gradient-to-r from-gray-50 to-transparent pointer-events-none" />
       </div>
     </div>
   );
