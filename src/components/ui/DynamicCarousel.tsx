@@ -1,18 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Bot } from '@/types';
 import BotCard from './BotCard';
-import { Skeleton } from './Skeleton';
 
 interface DynamicCarouselProps {
-  displayType: 'pickup' | 'new' | 'trending' | 'category_featured';
+  displayType?: 'pickup' | 'new' | 'trending' | 'category_featured';
   categoryId?: string;
   maxItems?: number;
   showRanking?: boolean;
   title?: string;
   subtitle?: string;
   className?: string;
+  bots?: Bot[]; // 外部から渡されるボットデータ
 }
 
 export default function DynamicCarousel({ 
@@ -22,45 +22,9 @@ export default function DynamicCarousel({
   showRanking = false,
   title,
   subtitle,
-  className = ''
+  className = '',
+  bots = [] // デフォルトで空配列
 }: DynamicCarouselProps) {
-  const [bots, setBots] = useState<Bot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchDynamicBots();
-  }, [displayType, categoryId, maxItems]);
-
-  const fetchDynamicBots = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams({
-        type: displayType,
-        limit: maxItems.toString()
-      });
-
-      if (categoryId) {
-        params.append('category', categoryId);
-      }
-
-      const response = await fetch(`/api/bots/dynamic?${params}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch bots');
-      }
-
-      const data = await response.json();
-      setBots(data.bots || []);
-    } catch (err) {
-      console.error('Error fetching dynamic bots:', err);
-      setError('ボットの取得に失敗しました');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getDefaultTitle = () => {
     switch (displayType) {
@@ -92,40 +56,13 @@ export default function DynamicCarousel({
     }
   };
 
-  if (loading) {
-    return (
-      <div className={`dynamic-carousel ${className}`}>
-        <div className="section-header mb-6">
-          <h2 className="text-2xl font-bold mb-2">
-            {title || getDefaultTitle()}
-          </h2>
-          {subtitle && (
-            <p className="text-gray-600">{subtitle}</p>
-          )}
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-          {[...Array(Math.min(maxItems, 5))].map((_, i) => (
-            <Skeleton key={i} className="h-96 w-full" />
-          ))}
-        </div>
-      </div>
-    );
+  // ボットがない場合は何も表示しない
+  if (!bots || bots.length === 0) {
+    return null;
   }
 
-  if (error) {
-    return (
-      <div className={`dynamic-carousel ${className}`}>
-        <div className="text-center py-8">
-          <p className="text-gray-500">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (bots.length === 0) {
-    return null; // ボットがない場合は何も表示しない
-  }
+  // maxItemsで制限
+  const displayBots = bots.slice(0, maxItems);
 
   return (
     <div className={`dynamic-carousel ${className}`}>
@@ -139,7 +76,7 @@ export default function DynamicCarousel({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-        {bots.map((bot, index) => (
+        {displayBots.map((bot, index) => (
           <div key={bot.id} className="relative">
             {showRanking && index < 3 && (
               <div className="absolute top-2 left-2 z-10">

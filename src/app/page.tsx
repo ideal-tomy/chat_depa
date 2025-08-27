@@ -33,7 +33,7 @@ function mapToDisplayCategory(dbCategory: string): string {
 function groupByDisplayCategory(bots: Bot[]): Record<string, Bot[]> {
   const grouped: Record<string, Bot[]> = {};
   
-            bots.forEach((bot: Bot) => {
+            bots.forEach((bot) => {
     const displayCategory = mapToDisplayCategory(bot.category || '');
     if (!grouped[displayCategory]) {
       grouped[displayCategory] = [];
@@ -83,13 +83,16 @@ export default function Home() {
           // おすすめボット（最初の6件）
           setPickupBots(formattedData.slice(0, 6));
           
-          // 人気ボット（次の6件）
+          // 人気ボット（次の6件、おすすめと重複しない）
           setPopularBots(formattedData.slice(6, 12));
           
-          // 新着ボット（1週間以内のもの）
+          // 新着ボット（1週間以内のもの、他のセクションと重複しない）
           const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
           const recentBots = formattedData.filter(bot => new Date(bot.created_at) > oneWeekAgo);
-          setNewBots(recentBots.slice(0, 6));
+          // おすすめと人気で使用されていないボットから選択
+          const usedBotIds = new Set([...formattedData.slice(0, 12).map(bot => bot.id)]);
+          const availableNewBots = recentBots.filter(bot => !usedBotIds.has(bot.id));
+          setNewBots(availableNewBots.slice(0, 6));
           
           // カテゴリ別に分類（表示用カテゴリ名でグループ化）
           const groupedBots = groupByDisplayCategory(formattedData);
@@ -187,6 +190,7 @@ export default function Home() {
               subtitle="多くのユーザーに利用されているボット"
               maxItems={6}
               className="mb-8"
+              bots={popularBots}
             />
           </section>
         )}
@@ -200,6 +204,7 @@ export default function Home() {
               subtitle="最近追加されたボット"
               maxItems={6}
               className="mb-8"
+              bots={newBots}
             />
           </section>
         )}
