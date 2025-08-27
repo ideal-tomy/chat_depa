@@ -148,7 +148,7 @@ export default function HorizontalCarousel({
           {bots.map((bot) => (
             <div
               key={bot.id}
-              className="flex-none w-[calc(25%-6px)] min-w-[150px] sm:w-[calc(33.333%-8px)] sm:min-w-[180px] md:w-64 lg:w-72 xl:w-80"
+              className="flex-none w-[calc(50%-4px)] min-w-[140px] sm:w-[calc(33.333%-8px)] sm:min-w-[160px] md:w-56 lg:w-64 xl:w-72"
               style={{ scrollSnapAlign: 'start' }}
             >
               <BotCard bot={bot} compact />

@@ -26,23 +26,23 @@ const BotList: React.FC<BotListProps> = ({ bots, loading, hasMore, loadMoreBots 
 
   if (loading && bots.length === 0) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 mt-4">
-        {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 mt-4">
+        {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-[180px] sm:h-[240px] md:h-[320px] w-full" />)}
       </div>
     );
   }
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
         {bots.map((bot) => (
           <BotCard key={bot.id} bot={bot} />
         ))}
       </div>
 
       {loading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 mt-4">
-          {[...Array(5)].map((_, i) => <Skeleton key={`loading-${i}`} className="h-96 w-full" />)}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 mt-4">
+          {[...Array(5)].map((_, i) => <Skeleton key={`loading-${i}`} className="h-[180px] sm:h-[240px] md:h-[320px] w-full" />)}
         </div>
       )}
 

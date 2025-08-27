@@ -65,71 +65,72 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
 
   // 3. カードサイズの統一とレスポンシブ対応レイアウト修正
   const isCompact = variant === 'compact' || compact;
-  // スマホ: h-[200px] (大幅縮小), タブレット: h-[280px], デスクトップ: h-[380px]
-  const containerBase = "relative flex flex-col w-full h-[200px] sm:h-[280px] md:h-[380px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-2 sm:p-3 md:p-4 group";
+  // スマホ: h-[180px] (さらに縮小), タブレット: h-[240px], デスクトップ: h-[320px]
+  const containerBase = "relative flex flex-col w-full h-[180px] sm:h-[240px] md:h-[320px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-2 sm:p-3 md:p-4 group";
   const containerClassName = containerBase;
+  
   return (
     <div 
       onClick={handleCardClick}
       className={containerClassName}
     >
-      {/* アイコン */}
-      <div className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 z-10 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12">
-        <Image
-          src={`/images/${characterType}.png`}
-          alt={`${botName}のアイコン`}
-          width={48}
-          height={48}
-          className="rounded-full border-2 border-white shadow-md w-full h-full object-cover"
-          onError={(e) => {
-            e.currentTarget.src = '/images/sumple01.png'; // フォールバック
-          }}
-        />
-      </div>
-
-      {/* ポイント表示 */}
-      <div className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 md:top-4 md:right-4 z-10 px-1 py-0.5 sm:px-1.5 sm:py-0.5 md:px-2 md:py-1 bg-indigo-700 text-white text-[10px] sm:text-xs md:text-sm font-bold rounded">
-        {bot.points || 0}P
-      </div>
-
-      {/* カードコンテンツ */}
-      <div className="flex flex-col flex-grow pt-8 sm:pt-10 md:pt-12">
-        {/* タイトル */}
-        <div className="min-h-[2rem] sm:min-h-[3rem] md:min-h-[4rem] flex items-center justify-center mb-1 sm:mb-2">
-            <h3 className="text-center font-semibold text-sm sm:text-base md:text-lg leading-tight text-gray-800 line-clamp-2 group-hover:text-indigo-600">
-                {botName}
-            </h3>
+      {/* ヘッダー部分：アイコン + タイトル + ポイント（2:7:1の比率） */}
+      <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+        {/* アイコン（2の比率） */}
+        <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12">
+          <Image
+            src={`/images/${characterType}.png`}
+            alt={`${botName}のアイコン`}
+            width={48}
+            height={48}
+            className="rounded-full border-2 border-white shadow-md w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = '/images/sumple01.png'; // フォールバック
+            }}
+          />
         </div>
 
-        {/* 説明文 */}
-        <div className="flex-grow">
-            <p className="text-[10px] sm:text-xs md:text-sm text-gray-600 line-clamp-2 sm:line-clamp-3 md:line-clamp-4 leading-tight">
-                {bot.description || '説明がありません。'}
-            </p>
+        {/* タイトル（7の比率） */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-xs sm:text-sm md:text-base leading-tight text-gray-800 line-clamp-2 group-hover:text-indigo-600">
+            {botName}
+          </h3>
         </div>
-        
-        {/* 送信フォーム */}
-        <div className="mt-auto flex-shrink-0">
-            <div className="flex items-center space-x-1 sm:space-x-2">
-              <input
-                type="text"
-                value={message}
-                onClick={(e) => e.stopPropagation()}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  setMessage(e.target.value);
-                }}
-                placeholder="メッセージを入力..."
-                className="flex-grow w-full px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2.5 text-[10px] sm:text-xs md:text-sm border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500"
-              />
-              <button
-                onClick={handleSendClick}
-                className="px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-4 md:py-2 text-[10px] sm:text-xs md:text-sm font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                送信
-              </button>
-            </div>
-          </div>
+
+        {/* ポイント表示（1の比率） */}
+        <div className="flex-shrink-0 px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-2.5 md:py-1 bg-indigo-700 text-white text-[10px] sm:text-xs md:text-sm font-bold rounded">
+          {bot.points || 0}P
+        </div>
+      </div>
+
+      {/* 説明文（余白を最小限に） */}
+      <div className="flex-grow mb-2 sm:mb-3">
+        <p className="text-[9px] sm:text-xs md:text-sm text-gray-600 line-clamp-2 sm:line-clamp-3 md:line-clamp-4 leading-tight">
+          {bot.description || '説明がありません。'}
+        </p>
+      </div>
+      
+      {/* 送信フォーム（下部に固定） */}
+      <div className="flex-shrink-0">
+        <div className="flex items-center space-x-1 sm:space-x-2">
+          <input
+            type="text"
+            value={message}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              e.stopPropagation();
+              setMessage(e.target.value);
+            }}
+            placeholder="メッセージを入力..."
+            className="flex-grow w-full px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 text-[10px] sm:text-xs md:text-sm border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500"
+          />
+          <button
+            onClick={handleSendClick}
+            className="px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-4 md:py-2 text-[10px] sm:text-xs md:text-sm font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            送信
+          </button>
+        </div>
       </div>
     </div>
   );
