@@ -7,6 +7,7 @@ import PickUpCarousel from '@/components/ui/PickUpCarousel';
 import FilterBarWrapper from '@/components/wrappers/FilterBarWrapper';
 import BotCard from '@/components/ui/BotCard';
 import CategoryCarousel from '@/components/ui/CategoryCarousel';
+import DynamicCarousel from '@/components/ui/DynamicCarousel';
 import { getNewCategory } from '@/lib/bot-classification';
 import CategorySection from '@/components/ui/CategorySection';
 import FAQAccordion from '@/components/ui/FAQAccordion';
@@ -262,7 +263,13 @@ export default function Home() {
         <section id="pickup-bots" className="mb-8 sm:mb-12 md:mb-20 bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 md:p-8 shadow-lg">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 md:mb-10">おすすめのBot</h2>
           <ErrorBoundary>
-            <PickUpCarousel bots={pickupBots} />
+            <DynamicCarousel 
+              displayType="pickup" 
+              maxItems={6} 
+              showRanking={true}
+              title="厳選されたおすすめBot"
+              subtitle="管理者が厳選した高品質なボット"
+            />
           </ErrorBoundary>
         </section>
 
@@ -280,16 +287,14 @@ export default function Home() {
           
           {/* 新着ボット */}
           <div className="mt-2 sm:mt-3 mb-4 sm:mb-6 md:mb-8">
-            <CategorySection 
-              title="新着のBot" 
-              viewAllLink="/bots?category=new"
-              variant="standard"
-            >
-              <CategoryCarousel 
-                bots={allBots.filter(bot => bot.isNew).slice(0, 10)} 
-                variant="standard" 
+            <ErrorBoundary>
+              <DynamicCarousel 
+                displayType="new" 
+                maxItems={8}
+                title="新着のBot"
+                subtitle="最近追加されたボット"
               />
-            </CategorySection>
+            </ErrorBoundary>
           </div>
           
           {/* カテゴリー別ボット（占い系、健康系、偏見系、ビジネス系） */}
@@ -319,16 +324,15 @@ export default function Home() {
           
           {/* 人気のボット */}
           <div className="mt-2 sm:mt-3 md:mt-6 mb-4 sm:mb-6 md:mb-8">
-            <CategorySection 
-              title="人気のBot" 
-              viewAllLink="/bots?category=popular"
-              variant="standard"
-            >
-              <CategoryCarousel 
-                bots={allBots.filter(bot => bot.isPopular).slice(0, 10)} 
-                variant="standard" 
+            <ErrorBoundary>
+              <DynamicCarousel 
+                displayType="trending" 
+                maxItems={10}
+                showRanking={true}
+                title="人気のBot"
+                subtitle="多くのユーザーに利用されているボット"
               />
-            </CategorySection>
+            </ErrorBoundary>
           </div>
         </section>
 

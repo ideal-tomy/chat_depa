@@ -1,6 +1,7 @@
 import BotInfoCard from '@/components/bots/BotInfoCard';
 import ChatInterface from '@/components/bots/ChatInterface';
 import RelatedBots from '@/components/bots/RelatedBots';
+import RelatedBotsRecommendation from '@/components/bots/RelatedBotsRecommendation';
 import { Bot } from '@/types';
 import { Metadata } from 'next';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
@@ -98,6 +99,12 @@ export default async function BotDetailPage({ params }: BotDetailPageProps) {
             <div className="sticky top-24 space-y-8">
               <BotInfoCard bot={bot} />
               <RelatedBots bots={relatedBots} />
+              <RelatedBotsRecommendation
+                currentBotId={bot.id}
+                displayType="sidebar"
+                maxItems={4}
+                showReason={true}
+              />
             </div>
           </div>
 

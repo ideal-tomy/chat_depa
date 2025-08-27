@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     // OpenAIにストリーミング形式でチャット補完をリクエスト
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview', // または 'gpt-3.5-turbo'
+      model: "gpt-5-nano", // 正しいモデル名に修正
       stream: true,
       messages: [systemPrompt, ...messages],
     });
