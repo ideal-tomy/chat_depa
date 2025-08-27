@@ -11,117 +11,64 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get('userId');
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    // 1. 管理者指定の優先ボットを取得
-    const { data: featuredBots, error: featuredError } = await supabaseServer
+    // シンプルに全ボットを取得（フラグは後で追加予定）
+    let query = supabaseServer
       .from('bots')
       .select('*')
-      .eq('is_pickup', true)
-      .order('featured_priority', { ascending: false, nullsLast: true })
-      .limit(10);
+      .order('created_at', { ascending: false });
 
-    if (featuredError) {
-      console.error('Featured bots error:', featuredError);
-    }
-
-    // 2. 人気ボット（利用頻度ベース）を取得
-    const { data: popularBots, error: popularError } = await supabaseServer
-      .from('bots')
-      .select(`
-        *,
-        bot_usage_stats (
-          total_uses,
-          unique_users,
-          avg_session_duration,
-          completion_rate,
-          user_rating
-        )
-      `)
-      .eq('is_trending', true)
-      .order('usage_stats.total_uses', { ascending: false, nullsLast: true })
-      .limit(20);
-
-    if (popularError) {
-      console.error('Popular bots error:', popularError);
-    }
-
-    // 3. 新着ボットを取得
-    const { data: newBots, error: newError } = await supabaseServer
-      .from('bots')
-      .select('*')
-      .eq('is_new', true)
-      .order('created_at', { ascending: false })
-      .limit(15);
-
-    if (newError) {
-      console.error('New bots error:', newError);
-    }
-
-    // 4. カテゴリ別ボットを取得
-    let categoryBots: Bot[] = [];
     if (category && category !== 'all') {
-      const { data: catBots, error: catError } = await supabaseServer
-        .from('bots')
-        .select('*')
-        .eq('category', category)
-        .order('created_at', { ascending: false })
-        .limit(30);
-
-      if (!catError && catBots) {
-        categoryBots = catBots;
-      }
+      query = query.eq('category', category);
     }
 
-    // 5. ユーザー固有の推薦ボットを取得
-    let personalizedBots: Bot[] = [];
-    if (userId) {
-      const { data: userBots, error: userError } = await supabaseServer
-        .from('bots')
-        .select('*')
-        .order('manual_sort_order', { ascending: true, nullsLast: true })
-        .limit(20);
+    const { data: allBots, error } = await query;
 
-      if (!userError && userBots) {
-        personalizedBots = userBots;
-      }
+    if (error) {
+      console.error('Error fetching bots:', error);
+      return NextResponse.json({ 
+        error: 'Failed to fetch bots' 
+      }, { status: 500 });
     }
 
-    // 6. フォールバック：すべてのボットを取得（フラグが設定されていない場合）
-    let fallbackBots: Bot[] = [];
-    if ((!featuredBots || featuredBots.length === 0) && 
-        (!popularBots || popularBots.length === 0) && 
-        (!newBots || newBots.length === 0)) {
-      
-      const { data: allBots, error: allError } = await supabaseServer
-        .from('bots')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (!allError && allBots) {
-        fallbackBots = allBots;
-      }
+    if (!allBots || allBots.length === 0) {
+      return NextResponse.json({
+        success: true,
+        bots: [],
+        total: 0,
+        categories: {
+          featured: 0,
+          popular: 0,
+          new: 0,
+          category: 0,
+          personalized: 0,
+          fallback: 0
+        }
+      });
     }
 
-    // 7. ボットを統合して重複を除去
-    const allBots = [
-      ...(featuredBots || []),
-      ...(popularBots || []),
-      ...(newBots || []),
-      ...categoryBots,
-      ...personalizedBots,
-      ...fallbackBots
-    ];
+    // ボットを分類（仮のロジック）
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    // 重複除去（IDベース）
+    const categorizedBots = {
+      featured: allBots.slice(0, 6), // 最初の6件をおすすめとして扱う
+      popular: allBots.slice(6, 12), // 次の6件を人気として扱う
+      new: allBots.filter(bot => new Date(bot.created_at) > oneWeekAgo).slice(0, 6), // 1週間以内のものを新着として扱う
+      category: category && category !== 'all' ? allBots : [],
+      personalized: [],
+      fallback: allBots
+    };
+
+    // 重複を除去して統合
     const uniqueBots = allBots.filter((bot, index, self) => 
       index === self.findIndex(b => b.id === bot.id)
     );
 
-    // 8. 表示順序を最適化
+    // 表示順序を最適化
     const optimizedBots = optimizeDisplayOrder(uniqueBots, {
-      featuredBots: featuredBots || [],
-      popularBots: popularBots || [],
-      newBots: newBots || [],
+      featuredBots: categorizedBots.featured,
+      popularBots: categorizedBots.popular,
+      newBots: categorizedBots.new,
       category,
       userId
     });
@@ -131,12 +78,12 @@ export async function GET(req: NextRequest) {
       bots: optimizedBots.slice(0, limit),
       total: optimizedBots.length,
       categories: {
-        featured: featuredBots?.length || 0,
-        popular: popularBots?.length || 0,
-        new: newBots?.length || 0,
-        category: categoryBots.length,
-        personalized: personalizedBots.length,
-        fallback: fallbackBots.length
+        featured: categorizedBots.featured.length,
+        popular: categorizedBots.popular.length,
+        new: categorizedBots.new.length,
+        category: categorizedBots.category.length,
+        personalized: categorizedBots.personalized.length,
+        fallback: categorizedBots.fallback.length
       }
     });
 

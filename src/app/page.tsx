@@ -7,61 +7,41 @@ import PickUpCarousel from '@/components/ui/PickUpCarousel';
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel';
 import DynamicCarousel from '@/components/ui/DynamicCarousel';
 
-// カテゴリマッピング（旧カテゴリ名 → 新カテゴリ名）
+// カテゴリマッピング（データベースのカテゴリ名 → 表示用カテゴリ名）
 const categoryMapping: Record<string, string> = {
-  '占い系': '占い・スピ系',
-  'スピリチュアル系': '占い・スピ系',
-  '健康系': '健康・運動系',
-  '運動系': '健康・運動系',
-  'ビジネス系': 'ビジネス系',
-  '学習系': '学習系',
-  'エンタメ系': 'エンタメ系',
-  '生活系': '生活系',
-  'その他': 'その他'
+  'プレゼン改善系': 'プレゼンテーション',
+  '数学特化': '学習・教育',
+  '言語化トレーニング系': 'コミュニケーション',
+  '申請系': '手続き・申請',
+  '栄養管理': '健康・栄養',
+  '契約系': 'ビジネス・契約',
+  '法解釈系': '法律・法務',
+  '食事指導': '健康・栄養',
+  '栄養素解説': '健康・栄養',
+  '栄養偏重系': '健康・栄養',
+  '行政書士系': '手続き・申請',
+  '学習': '学習・教育',
+  'テスト': 'その他'
 };
 
-// 静的ポイント範囲
-const staticPointRanges = [
-  { id: 'all', name: 'すべてのポイント', range: [0, Infinity] },
-  { id: 'free', name: '無料', range: [0, 0] },
-  { id: 'low', name: '1-50ポイント', range: [1, 50] },
-  { id: 'medium', name: '51-100ポイント', range: [51, 100] },
-  { id: 'high', name: '101ポイント以上', range: [101, Infinity] }
-];
+// 表示用カテゴリに変換する関数
+function mapToDisplayCategory(dbCategory: string): string {
+  return categoryMapping[dbCategory] || 'その他';
+}
 
-// 静的並び順
-const staticSortOrders = [
-  { id: 'popular', name: '人気順' },
-  { id: 'newest', name: '新着順' },
-  { id: 'points', name: 'ポイント順' }
-];
-
-// カテゴリ表示判定関数
-function determineDisplayCategory(bot: any): string {
-  const category = bot.category || '';
+// 表示用カテゴリをグループ化する関数
+function groupByDisplayCategory(bots: Bot[]): Record<string, Bot[]> {
+  const grouped: Record<string, Bot[]> = {};
   
-  // ビジネス系の判定
-  if (category.includes('ビジネス') || 
-      category.includes('仕事') || 
-      category.includes('業務') ||
-      category.includes('契約') ||
-      category.includes('申請') ||
-      category.includes('行政')) {
-    return '真面目';
-  }
+            bots.forEach((bot: Bot) => {
+    const displayCategory = mapToDisplayCategory(bot.category || '');
+    if (!grouped[displayCategory]) {
+      grouped[displayCategory] = [];
+    }
+    grouped[displayCategory].push(bot);
+  });
   
-  // その他の判定
-  if (category.includes('占い') || category.includes('スピリチュアル')) {
-    return '占い・スピ系';
-  }
-  if (category.includes('健康') || category.includes('運動') || category.includes('栄養')) {
-    return '健康・運動系';
-  }
-  if (category.includes('偏見') || category.includes('丸出し')) {
-    return '偏見丸出し系';
-  }
-  
-  return category || 'その他';
+  return grouped;
 }
 
 export default function Home() {
@@ -100,29 +80,20 @@ export default function Home() {
           
           setAllBots(formattedData);
           
-          // 注目ボット（管理者指定）を最初に表示
-          const featuredBots = formattedData.filter((bot: Bot) => bot.is_pickup);
-          setPickupBots(featuredBots.length > 0 ? featuredBots.slice(0, 6) : formattedData.slice(0, 6));
+          // おすすめボット（最初の6件）
+          setPickupBots(formattedData.slice(0, 6));
           
-          // 人気ボット（利用頻度ベース）
-          const trendingBots = formattedData.filter((bot: Bot) => bot.is_trending);
-          setPopularBots(trendingBots.length > 0 ? trendingBots.slice(0, 6) : formattedData.slice(6, 12));
+          // 人気ボット（次の6件）
+          setPopularBots(formattedData.slice(6, 12));
           
-          // 新着ボット
-          const recentBots = formattedData.filter((bot: Bot) => bot.isNew);
-          setNewBots(recentBots.length > 0 ? recentBots.slice(0, 6) : formattedData.slice(12, 18));
+          // 新着ボット（1週間以内のもの）
+          const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+          const recentBots = formattedData.filter(bot => new Date(bot.created_at) > oneWeekAgo);
+          setNewBots(recentBots.slice(0, 6));
           
-          // カテゴリ別に分類
-          const botsByCategory: Record<string, Bot[]> = {};
-          formattedData.forEach((bot: Bot) => {
-            const category = bot.category || 'その他';
-            if (!botsByCategory[category]) {
-              botsByCategory[category] = [];
-            }
-            botsByCategory[category].push(bot);
-          });
-          
-          setCategoryBots(botsByCategory);
+          // カテゴリ別に分類（表示用カテゴリ名でグループ化）
+          const groupedBots = groupByDisplayCategory(formattedData);
+          setCategoryBots(groupedBots);
         } else {
           console.log('No data from optimized API, using fallback');
           // フォールバック処理（既存のロジック）
@@ -149,18 +120,13 @@ export default function Home() {
             setAllBots(formattedData);
             setPickupBots(formattedData.slice(0, 6));
             setPopularBots(formattedData.slice(6, 12));
-            setNewBots(formattedData.slice(12, 18));
             
-            const botsByCategory: Record<string, Bot[]> = {};
-            formattedData.forEach((bot: Bot) => {
-              const category = bot.category || 'その他';
-              if (!botsByCategory[category]) {
-                botsByCategory[category] = [];
-              }
-              botsByCategory[category].push(bot);
-            });
+            const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            const recentBots = formattedData.filter(bot => new Date(bot.created_at) > oneWeekAgo);
+            setNewBots(recentBots.slice(0, 6));
             
-            setCategoryBots(botsByCategory);
+            const groupedBots = groupByDisplayCategory(formattedData);
+            setCategoryBots(groupedBots);
           }
         }
       } catch (error) {
