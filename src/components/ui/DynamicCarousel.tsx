@@ -84,7 +84,7 @@ export default function DynamicCarousel({
 
   return (
     <div className={`dynamic-carousel ${className}`}>
-      <div className="section-header mb-8">
+      <div className="section-header mb-4">
         <h2 className={getTitleStyle()}>
           {title || getDefaultTitle()}
         </h2>

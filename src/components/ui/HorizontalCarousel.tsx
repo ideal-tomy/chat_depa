@@ -103,7 +103,7 @@ export default function HorizontalCarousel({
     <div className="relative group mb-4 sm:mb-6 md:mb-8">
       {/* セクションタイトル */}
       {title && (
-        <div className="mb-6">
+        <div className="mb-4">
           <h2 className="text-2xl md:text-3xl font-bold mb-3 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent animate-pulse">
             {title}
           </h2>

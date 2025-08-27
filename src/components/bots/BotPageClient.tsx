@@ -178,14 +178,14 @@ export default function BotPageClient() {
           if (list.length === 0) return null;
           return (
             <div key={cat}>
-              <div className={`mt-4 ${index % 2 === 1 ? 'py-6 bg-gray-100' : ''}`}>
+              <div className={`mt-2 ${index % 2 === 1 ? 'py-4 bg-gray-100' : ''}`}>
                 <CategorySection title={cat} viewAllLink={`/bots?category=${encodeURIComponent(cat)}`}>
                   <CategoryCarousel bots={list} />
                 </CategorySection>
               </div>
               {/* 最後のセクション以外に仕切り線を追加 */}
               {index < newCategories.length - 1 && (
-                <div className="border-t border-gray-200 mt-4"></div>
+                <div className="border-t border-gray-200 mt-2"></div>
               )}
             </div>
           );

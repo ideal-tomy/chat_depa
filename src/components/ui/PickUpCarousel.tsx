@@ -57,7 +57,7 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
   return (
     <div className="relative w-full">
       {title && (
-        <div className="mb-8">
+        <div className="mb-4">
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse text-center">
             {title}
           </h2>

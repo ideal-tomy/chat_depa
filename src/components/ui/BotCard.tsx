@@ -45,6 +45,23 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
   const characterType = getCharacterType();
   const botName = bot.name || '無名のボット';
 
+  // タイトルの長さに応じてテキストサイズを調整
+  const getTitleSize = (name: string, isLarge: boolean) => {
+    const baseSize = isLarge ? 'text-lg sm:text-xl' : 'text-sm sm:text-base';
+    
+    if (name.length <= 10) {
+      return isLarge ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg';
+    } else if (name.length <= 15) {
+      return isLarge ? 'text-lg sm:text-xl' : 'text-sm sm:text-base';
+    } else if (name.length <= 20) {
+      return isLarge ? 'text-base sm:text-lg' : 'text-xs sm:text-sm';
+    } else {
+      return isLarge ? 'text-sm sm:text-base' : 'text-xs';
+    }
+  };
+
+  const titleSizeClass = getTitleSize(botName, isLarge);
+
   const handleSendClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!message.trim()) return;
@@ -92,7 +109,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
       <div className="flex items-start gap-2 sm:gap-3 mb-3 pt-8 sm:pt-10">
         {/* タイトル（最大スペース確保） */}
         <div className="flex-1 min-w-0">
-          <h3 className={`font-semibold leading-tight text-gray-800 group-hover:text-indigo-600 mb-1 ${isLarge ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'}`}>
+          <h3 className={`font-semibold leading-tight text-gray-800 group-hover:text-indigo-600 mb-1 ${titleSizeClass}`}>
             {botName}
           </h3>
         </div>

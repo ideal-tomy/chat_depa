@@ -199,23 +199,23 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         {/* おすすめのBot */}
         {pickupBots.length > 0 && (
-          <section className="mb-8">
+          <section className="mb-4">
             <PickUpCarousel title="おすすめのBot" bots={pickupBots} />
           </section>
         )}
 
         {/* 仕切り線 */}
-        <div className="border-t border-gray-200 mb-8"></div>
+        <div className="border-t border-gray-200 mb-4"></div>
 
         {/* 人気のBot */}
         {popularBots.length > 0 && (
-          <section className="mb-8">
+          <section className="mb-4">
             <DynamicCarousel
               displayType="trending"
               title="人気のBot"
               subtitle="多くのユーザーに利用されているボット"
               maxItems={6}
-              className="mb-8"
+              className="mb-4"
               bots={popularBots}
               isLarge={true}
             />
@@ -223,17 +223,17 @@ export default function Home() {
         )}
 
         {/* 仕切り線 */}
-        <div className="border-t border-gray-200 mb-8"></div>
+        <div className="border-t border-gray-200 mb-4"></div>
 
         {/* 新着Bot */}
         {newBots.length > 0 && (
-          <section className="mb-8">
+          <section className="mb-4">
             <DynamicCarousel
               displayType="new"
               title="新着Bot"
               subtitle="最近追加されたボット"
               maxItems={6}
-              className="mb-8"
+              className="mb-4"
               bots={newBots}
               isLarge={true}
               isNew={true}
@@ -242,12 +242,12 @@ export default function Home() {
         )}
 
         {/* 仕切り線 */}
-        <div className="border-t border-gray-200 mb-8"></div>
+        <div className="border-t border-gray-200 mb-4"></div>
 
         {/* カテゴリ別セクション */}
         {Object.entries(categoryBots).map(([category, bots], index) => (
           bots.length > 0 && (
-            <section key={category} className="mb-8">
+            <section key={category} className="mb-4">
               <HorizontalCarousel
                 title={category}
                 bots={bots.slice(0, 10)}
@@ -255,17 +255,17 @@ export default function Home() {
               />
               {/* 最後のセクション以外に仕切り線を追加 */}
               {index < Object.entries(categoryBots).length - 1 && (
-                <div className="border-t border-gray-200 mt-8"></div>
+                <div className="border-t border-gray-200 mt-4"></div>
               )}
             </section>
           )
         ))}
 
         {/* 仕切り線 */}
-        <div className="border-t border-gray-200 mb-8"></div>
+        <div className="border-t border-gray-200 mb-4"></div>
 
         {/* 利用方法セクション */}
-        <section className="mt-8 bg-white rounded-lg shadow-sm p-8">
+        <section className="mt-4 bg-white rounded-lg shadow-sm p-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Chat Depaのかんたんご利用方法</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
