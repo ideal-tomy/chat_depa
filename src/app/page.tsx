@@ -26,14 +26,14 @@ const categoryMapping: Record<string, string> = {
 
 // 表示用カテゴリに変換する関数
 function mapToDisplayCategory(dbCategory: string): string {
-  return categoryMapping[dbCategory] || 'その他';
+  return categoryMapping[dbCategory] || '偏見丸出し';
 }
 
 // 表示用カテゴリをグループ化する関数
 function groupByDisplayCategory(bots: Bot[]): Record<string, Bot[]> {
   const grouped: Record<string, Bot[]> = {};
   
-            bots.forEach((bot) => {
+  bots.forEach((bot: Bot) => {
     const displayCategory = mapToDisplayCategory(bot.category || '');
     if (!grouped[displayCategory]) {
       grouped[displayCategory] = [];
@@ -236,6 +236,7 @@ export default function Home() {
               className="mb-8"
               bots={newBots}
               isLarge={true}
+              isNew={true}
             />
           </section>
         )}

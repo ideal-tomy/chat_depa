@@ -10,12 +10,12 @@ interface BotCardProps {
   size?: 'sm' | 'md' | 'lg';
   variant?: 'standard' | 'compact';
   hideForm?: boolean;
-  // backward compatibility
   compact?: boolean;
   isLarge?: boolean; // 大きなカード表示フラグ
+  isNew?: boolean; // 新着ボットフラグ
 }
 
-const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard', hideForm = false, compact = false, isLarge = false }) => {
+const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard', hideForm = false, compact = false, isLarge = false, isNew = false }) => {
   const [message, setMessage] = useState('');
   const router = useRouter();
 
@@ -81,7 +81,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
           alt={`${botName}のアイコン`}
           width={isLarge ? 80 : 56}
           height={isLarge ? 80 : 56}
-          className={`rounded-full shadow-lg w-full h-full object-cover ${isLarge ? 'animate-bounce' : ''}`}
+          className={`rounded-full shadow-lg w-full h-full object-cover ${isLarge ? 'animate-bounce' : ''} ${isNew ? 'animate-pulse' : ''}`}
           onError={(e) => {
             e.currentTarget.src = '/images/sumple01.png'; // フォールバック
           }}

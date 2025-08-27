@@ -92,7 +92,7 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
         
         {/* カルーセルアイテム - 注目のBotは大きく表示 */}
         {bots.map(bot => (
-          <div key={bot.id} className="w-[400px] sm:w-[450px] md:w-[500px] flex-shrink-0 snap-start">
+          <div key={bot.id} className="w-[450px] sm:w-[500px] md:w-[550px] flex-shrink-0 snap-start">
             <div className="transform hover:scale-105 transition-all duration-300 hover:shadow-2xl">
               <div className="relative">
                 {/* 特別な注目バッジ */}

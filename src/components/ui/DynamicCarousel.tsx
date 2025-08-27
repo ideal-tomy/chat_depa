@@ -14,6 +14,7 @@ interface DynamicCarouselProps {
   className?: string;
   bots?: Bot[]; // 外部から渡されるボットデータ
   isLarge?: boolean; // 大きなカード表示フラグ
+  isNew?: boolean; // 新着ボットフラグ
 }
 
 export default function DynamicCarousel({ 
@@ -25,7 +26,8 @@ export default function DynamicCarousel({
   subtitle,
   className = '',
   bots = [], // デフォルトで空配列
-  isLarge = false // デフォルトで通常サイズ
+  isLarge = false, // デフォルトで通常サイズ
+  isNew = false // デフォルトで通常サイズ
 }: DynamicCarouselProps) {
 
   const getDefaultTitle = () => {
@@ -61,7 +63,7 @@ export default function DynamicCarousel({
   const getTitleStyle = () => {
     switch (displayType) {
       case 'new':
-        return 'text-3xl font-bold mb-3 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent animate-pulse';
+        return 'text-3xl font-bold mb-3 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent animate-pulse text-center';
       default:
         return 'text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse';
     }
@@ -99,7 +101,7 @@ export default function DynamicCarousel({
                 <RankingBadge rank={index + 1} />
               </div>
             )}
-            <BotCard bot={bot} isLarge={isLarge} />
+            <BotCard bot={bot} isLarge={isLarge} isNew={isNew} />
           </div>
         ))}
       </div>
