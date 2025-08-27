@@ -178,7 +178,7 @@ async function getContentBasedRecommendations(botId: string, limit: number): Pro
       id: `content-${bot.id}`,
       source_bot_id: botId,
       recommended_bot_id: bot.id,
-      recommendation_type: 'content_based',
+      recommendation_type: 'content_based' as const,
       similarity_score: similarityScore,
       confidence_score: similarityScore * 0.8,
       click_through_rate: 0.0,
