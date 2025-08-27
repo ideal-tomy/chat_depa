@@ -26,6 +26,9 @@ export default function ChatInterface({ bot }: ChatInterfaceProps) {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
 
+  // メッセージの有無を判定
+  const hasMessages = question || answer || currentResponse;
+
   const handleSendMessage = async (message: string) => {
     if (!message.trim() || isLoading) return;
 
@@ -135,12 +138,17 @@ export default function ChatInterface({ bot }: ChatInterfaceProps) {
   }
 
   return (
-    <div className="flex flex-col bg-white rounded-lg shadow-sm h-[75vh] max-h-[800px]">
+    <div 
+      style={{ 
+        '--chat-h': hasMessages ? 'clamp(420px, 68svh, 720px)' : 'clamp(200px, 42svh, 420px)' 
+      } as React.CSSProperties}
+      className="flex flex-col bg-white rounded-lg shadow-sm h-[var(--chat-h)] transition-[height] duration-300 ease-out"
+    >
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold">チャット</h2>
       </div>
 
-      <div ref={chatContainerRef} className="flex-grow overflow-y-auto p-4 space-y-4">
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {question && (
           <div className="flex justify-end">
             <div className="px-4 py-2 rounded-lg bg-primary text-white rounded-br-none max-w-lg">

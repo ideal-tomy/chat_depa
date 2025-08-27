@@ -89,8 +89,8 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
       onClick={handleCardClick}
       className={containerBase}
     >
-      {/* アイコン（左上にはみ出し、背景透過） */}
-      <div className={`absolute -top-2 -left-2 z-20 ${isLarge ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-14 sm:h-14'}`}>
+      {/* アイコン（上方向中心にはみ出し、背景透過） */}
+      <div className={`absolute -top-4 left-3 z-20 ${isLarge ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-14 sm:h-14'}`}>
         <Image
           src={`/images/${characterType}.png`}
           alt={`${botName}のアイコン`}

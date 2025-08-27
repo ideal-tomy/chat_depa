@@ -86,14 +86,14 @@ export default async function BotDetailPage({ params }: BotDetailPageProps) {
   const relatedBots = await getRelatedBots(bot.category, bot.id);
 
   return (
-    <main className="bg-gray-50 min-h-screen pb-16">
+    <main className="bg-gray-50 min-h-screen">
       {/* ヒーローセクション（Bot情報） - スマホ表示用 */}
       <div className="lg:hidden">
         <BotInfoCard bot={bot} />
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 py-8 max-w-7xl h-[calc(100vh-4rem)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
           {/* サイド情報エリア - PC表示用 */}
           <div className="hidden lg:block order-2 lg:order-1 lg:col-span-1">
             <div className="sticky top-24 space-y-8">
@@ -109,7 +109,7 @@ export default async function BotDetailPage({ params }: BotDetailPageProps) {
           </div>
 
           {/* チャットインターフェースエリア */}
-          <div className="order-1 lg:order-2 lg:col-span-2">
+          <div className="order-1 lg:order-2 lg:col-span-2 h-full">
             <ChatInterface bot={bot} />
           </div>
         </div>
