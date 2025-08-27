@@ -66,19 +66,18 @@ export default function Home() {
     const fetchBots = async () => {
       setLoading(true);
       setError(null);
-      let formattedData: Bot[] = [];
+      
       try {
-        const { data, error } = await supabase
-          .from('bots')
-          .select('*')
-          .order('created_at', { ascending: true });
+        // 最適化された表示順序APIを使用
+        const response = await fetch('/api/bots/optimized-order?limit=50');
+        const data = await response.json();
 
-        if (error) {
-          throw error;
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch bots');
         }
 
-        if (data && data.length > 0) {
-          formattedData = data.map((bot: any) => ({
+        if (data.success && data.bots) {
+          const formattedData = data.bots.map((bot: any) => ({
             ...bot,
             authorIcon: bot.author_icon,
             imageUrl: bot.image_url,
@@ -89,8 +88,12 @@ export default function Home() {
           }));
           
           setAllBots(formattedData);
-          setPickupBots(formattedData.slice(0, 6));
           
+          // 注目ボット（管理者指定）を最初に表示
+          const featuredBots = formattedData.filter((bot: Bot) => bot.is_pickup);
+          setPickupBots(featuredBots.length > 0 ? featuredBots.slice(0, 6) : formattedData.slice(0, 6));
+          
+          // カテゴリ別に分類
           const botsByCategory: Record<string, Bot[]> = {};
           formattedData.forEach((bot: Bot) => {
             const category = bot.category || 'その他';
@@ -102,142 +105,46 @@ export default function Home() {
           
           setCategoryBots(botsByCategory);
         } else {
-          console.log('No data from database, using mock data for home page');
-          // データベースにデータがない場合はモックデータを使用
-          const mockBots: Bot[] = [
-            {
-              id: 'mock-1',
-              name: '補助金書類を提出直前まで作ってくれる君',
-              description: '◯年度版の様式2、最新版でいい？」と毎回確認してくる慎重派。実際に叩き台まで作ってくれる。',
-              category: 'ビジネス',
-              author: 'システム',
-              authorIcon: '/images/sumple01.png',
-              imageUrl: '/images/sumple01.png',
-              points: 120,
-              costPoints: 120,
-              can_upload_image: false,
-              can_send_file: true,
-              isNew: true,
-              isPopular: false,
-              complexity: 'medium'
-            },
-            {
-              id: 'mock-2',
-              name: 'SNS投稿アイデアBot',
-              description: 'バズる投稿のアイデアを無限に生成。ハッシュタグやトレンドを分析して効果的な投稿をサポート。',
-              category: 'マーケティング',
-              author: 'システム',
-              authorIcon: '/images/sumple02.png',
-              imageUrl: '/images/sumple02.png',
-              points: 150,
-              costPoints: 150,
-              can_upload_image: true,
-              can_send_file: false,
-              isNew: false,
-              isPopular: true,
-              complexity: 'medium'
-            },
-            {
-              id: 'mock-3',
-              name: 'プログラミング学習Bot',
-              description: 'コードレビューから学習プランまで、プログラミング学習を総合サポート。初心者から上級者まで対応。',
-              category: 'プログラミング',
-              author: 'システム',
-              authorIcon: '/images/sumple03.png',
-              imageUrl: '/images/sumple03.png',
-              points: 180,
-              costPoints: 180,
-              can_upload_image: false,
-              can_send_file: true,
-              isNew: false,
-              isPopular: true,
-              complexity: 'advanced'
-            }
-          ];
-          
-          setAllBots(mockBots);
-          setPickupBots(mockBots.slice(0, 3));
-          
-          const botsByCategory: Record<string, Bot[]> = {};
-          mockBots.forEach((bot: Bot) => {
-            const category = bot.category || 'その他';
-            if (!botsByCategory[category]) {
-              botsByCategory[category] = [];
-            }
-            botsByCategory[category].push(bot);
-          });
-          
-          setCategoryBots(botsByCategory);
+          console.log('No data from optimized API, using fallback');
+          // フォールバック処理（既存のロジック）
+          const { data: fallbackData, error } = await supabase
+            .from('bots')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+          if (error) {
+            throw error;
+          }
+
+          if (fallbackData && fallbackData.length > 0) {
+            const formattedData = fallbackData.map((bot: any) => ({
+              ...bot,
+              authorIcon: bot.author_icon,
+              imageUrl: bot.image_url,
+              complexity: ['simple', 'medium', 'advanced'][Math.floor(Math.random() * 3)] as 'simple' | 'medium' | 'advanced',
+              isNew: new Date(bot.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
+              isPopular: bot.points > 150,
+              isUGC: bot.id % 5 === 0
+            }));
+            
+            setAllBots(formattedData);
+            setPickupBots(formattedData.slice(0, 6));
+            
+            const botsByCategory: Record<string, Bot[]> = {};
+            formattedData.forEach((bot: Bot) => {
+              const category = bot.category || 'その他';
+              if (!botsByCategory[category]) {
+                botsByCategory[category] = [];
+              }
+              botsByCategory[category].push(bot);
+            });
+            
+            setCategoryBots(botsByCategory);
+          }
         }
-      } catch (err) {
-        console.error('Error fetching bots:', err);
-        setError('データの取得に失敗しました。モックデータを表示しています。');
-        
-        // エラーの場合もモックデータを使用
-        const mockBots: Bot[] = [
-          {
-            id: 'mock-1',
-            name: '補助金書類を提出直前まで作ってくれる君',
-            description: '◯年度版の様式2、最新版でいい？」と毎回確認してくる慎重派。実際に叩き台まで作ってくれる。',
-            category: 'ビジネス',
-            author: 'システム',
-            authorIcon: '/images/sumple01.png',
-            imageUrl: '/images/sumple01.png',
-            points: 120,
-            costPoints: 120,
-            can_upload_image: false,
-            can_send_file: true,
-            isNew: true,
-            isPopular: false,
-            complexity: 'medium'
-          },
-          {
-            id: 'mock-2',
-            name: 'SNS投稿アイデアBot',
-            description: 'バズる投稿のアイデアを無限に生成。ハッシュタグやトレンドを分析して効果的な投稿をサポート。',
-            category: 'マーケティング',
-            author: 'システム',
-            authorIcon: '/images/sumple02.png',
-            imageUrl: '/images/sumple02.png',
-            points: 150,
-            costPoints: 150,
-            can_upload_image: true,
-            can_send_file: false,
-            isNew: false,
-            isPopular: true,
-            complexity: 'medium'
-          },
-          {
-            id: 'mock-3',
-            name: 'プログラミング学習Bot',
-            description: 'コードレビューから学習プランまで、プログラミング学習を総合サポート。初心者から上級者まで対応。',
-            category: 'プログラミング',
-            author: 'システム',
-            authorIcon: '/images/sumple03.png',
-            imageUrl: '/images/sumple03.png',
-            points: 180,
-            costPoints: 180,
-            can_upload_image: false,
-            can_send_file: true,
-            isNew: false,
-            isPopular: true,
-            complexity: 'advanced'
-          }
-        ];
-        
-        setAllBots(mockBots);
-        setPickupBots(mockBots.slice(0, 3));
-        
-        const botsByCategory: Record<string, Bot[]> = {};
-        mockBots.forEach((bot: Bot) => {
-          const category = bot.category || 'その他';
-          if (!botsByCategory[category]) {
-            botsByCategory[category] = [];
-          }
-          botsByCategory[category].push(bot);
-        });
-        
-        setCategoryBots(botsByCategory);
+      } catch (error) {
+        console.error('Error fetching bots:', error);
+        setError('ボットの取得に失敗しました');
       } finally {
         setLoading(false);
       }
