@@ -66,8 +66,8 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
 
   // 3. コンテンツベースの高さでレイアウト（固定高さを廃止）
   const containerBase = isLarge 
-    ? "relative flex flex-col w-full min-h-[280px] sm:min-h-[320px] rounded-xl bg-white shadow-lg border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-4 sm:p-6 group"
-    : "relative flex flex-col w-full min-h-[160px] sm:min-h-[200px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-3 sm:p-4 group";
+    ? "relative flex flex-col w-full min-h-[280px] sm:min-h-[320px] rounded-xl bg-white shadow-lg border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-4 sm:p-6 group"
+    : "relative flex flex-col w-full min-h-[160px] sm:min-h-[200px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-3 sm:p-4 group";
   
   return (
     <div 
