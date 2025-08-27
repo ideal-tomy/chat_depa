@@ -47,13 +47,11 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
 
   // タイトルの長さに応じてテキストサイズを調整
   const getTitleSize = (name: string, isLarge: boolean) => {
-    const baseSize = isLarge ? 'text-lg sm:text-xl' : 'text-sm sm:text-base';
-    
-    if (name.length <= 10) {
+    if (name.length <= 8) {
       return isLarge ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg';
-    } else if (name.length <= 15) {
+    } else if (name.length <= 12) {
       return isLarge ? 'text-lg sm:text-xl' : 'text-sm sm:text-base';
-    } else if (name.length <= 20) {
+    } else if (name.length <= 16) {
       return isLarge ? 'text-base sm:text-lg' : 'text-xs sm:text-sm';
     } else {
       return isLarge ? 'text-sm sm:text-base' : 'text-xs';
@@ -83,8 +81,8 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
 
   // 3. コンテンツベースの高さでレイアウト（固定高さを廃止）
   const containerBase = isLarge 
-    ? "relative flex flex-col w-full min-h-[280px] sm:min-h-[320px] rounded-xl bg-white shadow-lg border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-4 sm:p-6 group"
-    : "relative flex flex-col w-full min-h-[160px] sm:min-h-[200px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-3 sm:p-4 group";
+    ? "relative flex flex-col w-full h-[320px] sm:h-[360px] rounded-xl bg-white shadow-lg border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-4 sm:p-6 group"
+    : "relative flex flex-col w-full h-[200px] sm:h-[240px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-3 sm:p-4 group";
   
   return (
     <div 
@@ -109,7 +107,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
       <div className="flex items-start gap-2 sm:gap-3 mb-3 pt-8 sm:pt-10">
         {/* タイトル（最大スペース確保） */}
         <div className="flex-1 min-w-0">
-          <h3 className={`font-semibold leading-tight text-gray-800 group-hover:text-indigo-600 mb-1 ${titleSizeClass}`}>
+          <h3 className={`font-semibold leading-tight text-gray-800 group-hover:text-indigo-600 mb-1 line-clamp-2 ${titleSizeClass}`}>
             {botName}
           </h3>
         </div>
@@ -121,14 +119,14 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
       </div>
 
       {/* 説明文（固定行数で高さを制御） */}
-      <div className="mb-4">
+      <div className="mb-4 flex-1">
         <p className={`text-gray-600 leading-relaxed line-clamp-3 ${isLarge ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
           {bot.description || '説明がありません。'}
         </p>
       </div>
       
       {/* 送信フォーム（下部に配置） */}
-      <div className="mt-auto">
+      <div className="mt-auto flex-shrink-0">
         <div className="flex items-center space-x-2">
           <input
             type="text"
