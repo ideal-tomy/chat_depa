@@ -63,26 +63,23 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
     router.push(`/bots/${bot.id}`);
   };
 
-  // 3. カードサイズの統一とレスポンシブ対応レイアウト修正
-  const isCompact = variant === 'compact' || compact;
-  // スマホ: h-[180px] (さらに縮小), タブレット: h-[240px], デスクトップ: h-[320px]
-  const containerBase = "relative flex flex-col w-full h-[180px] sm:h-[240px] md:h-[320px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-2 sm:p-3 md:p-4 group";
-  const containerClassName = containerBase;
+  // 3. コンテンツベースの高さでレイアウト（固定高さを廃止）
+  const containerBase = "relative flex flex-col w-full min-h-[160px] sm:min-h-[200px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate overflow-hidden p-3 sm:p-4 group";
   
   return (
     <div 
       onClick={handleCardClick}
-      className={containerClassName}
+      className={containerBase}
     >
-      {/* ヘッダー部分：アイコン + タイトル + ポイント（2:7:1の比率） */}
-      <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-        {/* アイコン（2の比率） */}
-        <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12">
+      {/* ヘッダー部分：アイコン + タイトル + ポイント */}
+      <div className="flex items-start gap-2 sm:gap-3 mb-3">
+        {/* アイコン */}
+        <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
           <Image
             src={`/images/${characterType}.png`}
             alt={`${botName}のアイコン`}
-            width={48}
-            height={48}
+            width={40}
+            height={40}
             className="rounded-full border-2 border-white shadow-md w-full h-full object-cover"
             onError={(e) => {
               e.currentTarget.src = '/images/sumple01.png'; // フォールバック
@@ -90,29 +87,29 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
           />
         </div>
 
-        {/* タイトル（7の比率） */}
+        {/* タイトル（最大スペース確保） */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-xs sm:text-sm md:text-base leading-tight text-gray-800 line-clamp-2 group-hover:text-indigo-600">
+          <h3 className="font-semibold text-sm sm:text-base leading-tight text-gray-800 group-hover:text-indigo-600 mb-1">
             {botName}
           </h3>
         </div>
 
-        {/* ポイント表示（1の比率） */}
-        <div className="flex-shrink-0 px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-2.5 md:py-1 bg-indigo-700 text-white text-[10px] sm:text-xs md:text-sm font-bold rounded">
+        {/* ポイント表示 */}
+        <div className="flex-shrink-0 px-2 py-1 bg-indigo-700 text-white text-xs sm:text-sm font-bold rounded">
           {bot.points || 0}P
         </div>
       </div>
 
-      {/* 説明文（余白を最小限に） */}
-      <div className="flex-grow mb-2 sm:mb-3">
-        <p className="text-[9px] sm:text-xs md:text-sm text-gray-600 line-clamp-2 sm:line-clamp-3 md:line-clamp-4 leading-tight">
+      {/* 説明文（固定行数で高さを制御） */}
+      <div className="mb-4">
+        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-3">
           {bot.description || '説明がありません。'}
         </p>
       </div>
       
-      {/* 送信フォーム（下部に固定） */}
-      <div className="flex-shrink-0">
-        <div className="flex items-center space-x-1 sm:space-x-2">
+      {/* 送信フォーム（下部に配置） */}
+      <div className="mt-auto">
+        <div className="flex items-center space-x-2">
           <input
             type="text"
             value={message}
@@ -122,11 +119,11 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
               setMessage(e.target.value);
             }}
             placeholder="メッセージを入力..."
-            className="flex-grow w-full px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 text-[10px] sm:text-xs md:text-sm border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500"
+            className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
           <button
             onClick={handleSendClick}
-            className="px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-4 md:py-2 text-[10px] sm:text-xs md:text-sm font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap"
           >
             送信
           </button>

@@ -139,7 +139,7 @@ export default function HorizontalCarousel({
         {/* スクロールコンテナ */}
         <div
           ref={scrollRef}
-          className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-4"
+          className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-4"
           style={{
             scrollSnapType: 'x mandatory',
             scrollBehavior: 'smooth'
@@ -148,7 +148,7 @@ export default function HorizontalCarousel({
           {bots.map((bot) => (
             <div
               key={bot.id}
-              className="flex-none w-[calc(50%-4px)] min-w-[140px] sm:w-[calc(33.333%-8px)] sm:min-w-[160px] md:w-56 lg:w-64 xl:w-72"
+              className="flex-none w-[280px] sm:w-[320px] md:w-[360px]"
               style={{ scrollSnapAlign: 'start' }}
             >
               <BotCard bot={bot} compact />
