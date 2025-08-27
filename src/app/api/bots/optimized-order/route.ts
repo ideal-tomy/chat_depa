@@ -85,13 +85,31 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 6. ボットを統合して重複を除去
+    // 6. フォールバック：すべてのボットを取得（フラグが設定されていない場合）
+    let fallbackBots: Bot[] = [];
+    if ((!featuredBots || featuredBots.length === 0) && 
+        (!popularBots || popularBots.length === 0) && 
+        (!newBots || newBots.length === 0)) {
+      
+      const { data: allBots, error: allError } = await supabaseServer
+        .from('bots')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (!allError && allBots) {
+        fallbackBots = allBots;
+      }
+    }
+
+    // 7. ボットを統合して重複を除去
     const allBots = [
       ...(featuredBots || []),
       ...(popularBots || []),
       ...(newBots || []),
       ...categoryBots,
-      ...personalizedBots
+      ...personalizedBots,
+      ...fallbackBots
     ];
 
     // 重複除去（IDベース）
@@ -99,7 +117,7 @@ export async function GET(req: NextRequest) {
       index === self.findIndex(b => b.id === bot.id)
     );
 
-    // 7. 表示順序を最適化
+    // 8. 表示順序を最適化
     const optimizedBots = optimizeDisplayOrder(uniqueBots, {
       featuredBots: featuredBots || [],
       popularBots: popularBots || [],
@@ -117,7 +135,8 @@ export async function GET(req: NextRequest) {
         popular: popularBots?.length || 0,
         new: newBots?.length || 0,
         category: categoryBots.length,
-        personalized: personalizedBots.length
+        personalized: personalizedBots.length,
+        fallback: fallbackBots.length
       }
     });
 
