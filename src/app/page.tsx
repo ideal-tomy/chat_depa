@@ -94,11 +94,22 @@ export default function Home() {
           const usedBotIds = new Set([...formattedData.slice(0, 12).map(bot => bot.id)]);
           const availableNewBots = recentBots.filter(bot => !usedBotIds.has(bot.id));
           
+          // 指定された新着ボットを優先的に表示
+          const specifiedNewBots = [
+            'ハラスメント命名おじさん',
+            '九星気学の方位ガチ勢',
+            '食事を全肯定する管理栄養士（自称）'
+          ];
+          
+          // 指定されたボットを最初に追加
+          let finalNewBots = formattedData
+            .filter(bot => specifiedNewBots.includes(bot.name) && !usedBotIds.has(bot.id))
+            .slice(0, 3);
+          
           // 新着ボットが少ない場合は、作成日順で上位のボットを追加
-          let finalNewBots = availableNewBots.slice(0, 6);
           if (finalNewBots.length < 6) {
             const remainingBots = formattedData
-              .filter(bot => !usedBotIds.has(bot.id))
+              .filter(bot => !usedBotIds.has(bot.id) && !finalNewBots.some(newBot => newBot.id === bot.id))
               .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
               .slice(0, 6 - finalNewBots.length);
             finalNewBots = [...finalNewBots, ...remainingBots];

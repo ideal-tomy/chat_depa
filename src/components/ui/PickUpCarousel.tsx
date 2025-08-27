@@ -96,7 +96,7 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
             <div className="transform hover:scale-105 transition-all duration-300 hover:shadow-2xl">
               <div className="relative">
                 {/* 特別な注目バッジ */}
-                <div className="absolute -top-2 -right-2 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+                <div className="absolute top-2 right-2 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
                   ⭐ 注目
                 </div>
                 <BotCard bot={bot} isLarge={true} />

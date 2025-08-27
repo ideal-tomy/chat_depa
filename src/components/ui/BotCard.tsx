@@ -74,22 +74,22 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
       onClick={handleCardClick}
       className={containerBase}
     >
-      {/* ヘッダー部分：アイコン + タイトル + ポイント */}
-      <div className="flex items-start gap-2 sm:gap-3 mb-3">
-        {/* アイコン（アニメーション付き） */}
-        <div className={`flex-shrink-0 ${isLarge ? 'w-12 h-12 sm:w-14 sm:h-14' : 'w-8 h-8 sm:w-10 sm:h-10'}`}>
-          <Image
-            src={`/images/${characterType}.png`}
-            alt={`${botName}のアイコン`}
-            width={isLarge ? 56 : 40}
-            height={isLarge ? 56 : 40}
-            className={`rounded-full border-2 border-white shadow-md w-full h-full object-cover ${isLarge ? 'animate-bounce' : ''}`}
-            onError={(e) => {
-              e.currentTarget.src = '/images/sumple01.png'; // フォールバック
-            }}
-          />
-        </div>
+      {/* アイコン（左上にはみ出し、背景透過） */}
+      <div className={`absolute -top-2 -left-2 z-20 ${isLarge ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-14 sm:h-14'}`}>
+        <Image
+          src={`/images/${characterType}.png`}
+          alt={`${botName}のアイコン`}
+          width={isLarge ? 80 : 56}
+          height={isLarge ? 80 : 56}
+          className={`rounded-full shadow-lg w-full h-full object-cover ${isLarge ? 'animate-bounce' : ''}`}
+          onError={(e) => {
+            e.currentTarget.src = '/images/sumple01.png'; // フォールバック
+          }}
+        />
+      </div>
 
+      {/* ヘッダー部分：タイトル + ポイント */}
+      <div className="flex items-start gap-2 sm:gap-3 mb-3 pt-8 sm:pt-10">
         {/* タイトル（最大スペース確保） */}
         <div className="flex-1 min-w-0">
           <h3 className={`font-semibold leading-tight text-gray-800 group-hover:text-indigo-600 mb-1 ${isLarge ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'}`}>
