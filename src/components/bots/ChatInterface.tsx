@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { PaperAirplaneIcon, StopIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface ChatInterfaceProps {
   bot: Bot;
@@ -157,10 +158,16 @@ export default function ChatInterface({ bot }: ChatInterfaceProps) {
           </div>
         )}
 
-        {(answer || currentResponse) && (
-          <div className="flex justify-start">
-             <img src={bot.imageUrl || '/images/placeholder.png'} alt={bot.name} className="h-8 w-8 rounded-full mr-2 self-start" />
-            <div className="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 rounded-bl-none max-w-lg">
+                 {(answer || currentResponse) && (
+           <div className="flex justify-start">
+              <Image 
+                src={bot.imageUrl || '/images/placeholder.png'} 
+                alt={bot.name} 
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full mr-2 self-start" 
+              />
+             <div className="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 rounded-bl-none max-w-lg">
               <p className="text-sm whitespace-pre-wrap">
                 {answer || currentResponse}
                 {isLoading && <span className="animate-pulse">▌</span>}

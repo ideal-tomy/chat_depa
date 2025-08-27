@@ -18,7 +18,6 @@ export class ChatServiceImpl implements ChatService {
    * @returns セッションID
    */
   async startSession(): Promise<string> {
-    console.log(`[ChatService] Starting session for bot: ${this.botId}`);
     // TODO: 実際のAPIエンドポイントを実装する
     await new Promise(res => setTimeout(res, 200)); // 擬似的なネットワーク遅延
     const sessionId = `session-${Date.now()}`;
@@ -33,7 +32,6 @@ export class ChatServiceImpl implements ChatService {
    */
   async sendMessage(sessionId: string, text: string): Promise<Message> {
     try {
-      console.log(`[ChatService] Sending message to session-${sessionId}: ${text}`);
       // TODO: 実際のAPIエンドポイントを実装する
       await new Promise(res => setTimeout(res, 500)); // 擬似的なネットワーク遅延
 
@@ -46,7 +44,6 @@ export class ChatServiceImpl implements ChatService {
 
       return botResponse;
     } catch (error) {
-      console.error("[ChatService] Error sending message:", error);
       // エラーが発生した場合、エラーメッセージを含むMessageオブジェクトを返すか、例外を再スローするかを選択できます。
       // ここでは、ユーザーにエラーを通知するために、エラーメッセージを返します。
       const errorResponse: Message = {
@@ -65,7 +62,6 @@ export class ChatServiceImpl implements ChatService {
    * @returns メッセージの配列
    */
   async fetchHistory(sessionId: string): Promise<Message[]> {
-    console.log(`[ChatService] Fetching history for ${sessionId}`);
     // TODO: 実際のAPIエンドポイントを実装する
     await new Promise(res => setTimeout(res, 800)); // 擬似的なネットワーク遅延
     return [

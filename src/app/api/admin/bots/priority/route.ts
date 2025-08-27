@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     let query = supabaseServer
       .from('bots')
       .select('id, name, category, is_pickup, is_trending, is_new, featured_priority, manual_sort_order, created_at')
-      .order('featured_priority', { ascending: false, nullsLast: true });
+      .order('featured_priority', { ascending: false });
 
     if (category && category !== 'all') {
       query = query.eq('category', category);
