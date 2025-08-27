@@ -27,17 +27,33 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage, isLoad
     }
   };
 
+  // メッセージの有無に応じてチャットエリアの高さを調整
+  const hasMessages = messages.length > 0;
+  const chatAreaHeight = hasMessages 
+    ? 'min-h-[400px] sm:min-h-[500px] md:min-h-[600px]' 
+    : 'min-h-[200px] sm:min-h-[250px]';
+
   return (
-    <div className="flex-1 flex flex-col bg-gray-50">
+    <div className={`flex-1 flex flex-col bg-gray-50 ${chatAreaHeight} transition-all duration-300 ease-in-out`}>
       <div className="flex-1 p-4 overflow-y-auto">
-        {messages.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-            <div className={`max-w-md p-3 rounded-lg ${msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white border'}`}>
-              <p>{msg.text}</p>
-              <span className="text-xs text-gray-400 mt-1 block">{new Date(msg.timestamp).toLocaleTimeString()}</span>
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-gray-500">
+              <div className="text-4xl mb-4">💬</div>
+              <p className="text-lg font-medium">チャットを開始しましょう</p>
+              <p className="text-sm mt-2">メッセージを送信してボットと会話を始めてください</p>
             </div>
           </div>
-        ))}
+        ) : (
+          messages.map((msg) => (
+            <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
+              <div className={`max-w-md p-3 rounded-lg ${msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white border'}`}>
+                <p>{msg.text}</p>
+                <span className="text-xs text-gray-400 mt-1 block">{new Date(msg.timestamp).toLocaleTimeString()}</span>
+              </div>
+            </div>
+          ))
+        )}
         {isLoading && (
             <div className="flex justify-start mb-4">
                 <div className="max-w-md p-3 rounded-lg bg-white border">

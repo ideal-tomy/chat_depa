@@ -80,7 +80,7 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
       {/* カルーセルコンテナ */}
       <div 
         ref={carouselRef}
-        className="flex overflow-x-auto gap-6 md:gap-8 pb-4 snap-x snap-mandatory scrollbar-hide"
+        className="flex gap-6 md:gap-8 pb-4 snap-x snap-mandatory scrollbar-hide overflow-x-auto"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {/* カスタムスクロールバースタイル */}
