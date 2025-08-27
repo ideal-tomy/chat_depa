@@ -57,7 +57,12 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
   return (
     <div className="relative w-full">
       {title && (
-        <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">{title}</h2>
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse text-center">
+            {title}
+          </h2>
+          <p className="text-gray-600 text-lg text-center">厳選されたおすすめボット</p>
+        </div>
       )}
       
       {/* スクロールボタン - 左 */}
@@ -75,7 +80,7 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
       {/* カルーセルコンテナ */}
       <div 
         ref={carouselRef}
-        className="flex overflow-x-auto gap-3 sm:gap-4 md:gap-6 pb-4 snap-x snap-mandatory scrollbar-hide"
+        className="flex overflow-x-auto gap-6 md:gap-8 pb-4 snap-x snap-mandatory scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {/* カスタムスクロールバースタイル */}
@@ -87,14 +92,14 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
         
         {/* カルーセルアイテム - 注目のBotは大きく表示 */}
         {bots.map(bot => (
-          <div key={bot.id} className="w-[320px] sm:w-[360px] md:w-[400px] flex-shrink-0 snap-start">
+          <div key={bot.id} className="w-[400px] sm:w-[450px] md:w-[500px] flex-shrink-0 snap-start">
             <div className="transform hover:scale-105 transition-all duration-300 hover:shadow-2xl">
               <div className="relative">
                 {/* 特別な注目バッジ */}
                 <div className="absolute -top-2 -right-2 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
                   ⭐ 注目
                 </div>
-                <BotCard bot={bot} />
+                <BotCard bot={bot} isLarge={true} />
               </div>
             </div>
           </div>

@@ -13,6 +13,7 @@ interface DynamicCarouselProps {
   subtitle?: string;
   className?: string;
   bots?: Bot[]; // 外部から渡されるボットデータ
+  isLarge?: boolean; // 大きなカード表示フラグ
 }
 
 export default function DynamicCarousel({ 
@@ -23,7 +24,8 @@ export default function DynamicCarousel({
   title,
   subtitle,
   className = '',
-  bots = [] // デフォルトで空配列
+  bots = [], // デフォルトで空配列
+  isLarge = false // デフォルトで通常サイズ
 }: DynamicCarouselProps) {
 
   const getDefaultTitle = () => {
@@ -64,18 +66,23 @@ export default function DynamicCarousel({
   // maxItemsで制限
   const displayBots = bots.slice(0, maxItems);
 
+  // グリッドクラスを決定
+  const gridClass = isLarge 
+    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" 
+    : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6";
+
   return (
     <div className={`dynamic-carousel ${className}`}>
-      <div className="section-header mb-6">
-        <h2 className="text-2xl font-bold mb-2">
+      <div className="section-header mb-8">
+        <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
           {title || getDefaultTitle()}
         </h2>
         {subtitle && (
-          <p className="text-gray-600">{subtitle}</p>
+          <p className="text-gray-600 text-lg">{subtitle}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+      <div className={gridClass}>
         {displayBots.map((bot, index) => (
           <div key={bot.id} className="relative">
             {showRanking && index < 3 && (
@@ -83,7 +90,7 @@ export default function DynamicCarousel({
                 <RankingBadge rank={index + 1} />
               </div>
             )}
-            <BotCard bot={bot} />
+            <BotCard bot={bot} isLarge={isLarge} />
           </div>
         ))}
       </div>

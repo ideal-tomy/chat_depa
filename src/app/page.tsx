@@ -60,7 +60,7 @@ export default function Home() {
       
       try {
         // 最適化された表示順序APIを使用
-        const response = await fetch('/api/bots/optimized-order?limit=50');
+        const response = await fetch('/api/bots/optimized-order?limit=100');
         const data = await response.json();
 
         if (!response.ok) {
@@ -89,10 +89,22 @@ export default function Home() {
           // 新着ボット（1週間以内のもの、他のセクションと重複しない）
           const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
           const recentBots = formattedData.filter(bot => new Date(bot.created_at) > oneWeekAgo);
+          
           // おすすめと人気で使用されていないボットから選択
           const usedBotIds = new Set([...formattedData.slice(0, 12).map(bot => bot.id)]);
           const availableNewBots = recentBots.filter(bot => !usedBotIds.has(bot.id));
-          setNewBots(availableNewBots.slice(0, 6));
+          
+          // 新着ボットが少ない場合は、作成日順で上位のボットを追加
+          let finalNewBots = availableNewBots.slice(0, 6);
+          if (finalNewBots.length < 6) {
+            const remainingBots = formattedData
+              .filter(bot => !usedBotIds.has(bot.id))
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+              .slice(0, 6 - finalNewBots.length);
+            finalNewBots = [...finalNewBots, ...remainingBots];
+          }
+          
+          setNewBots(finalNewBots);
           
           // カテゴリ別に分類（表示用カテゴリ名でグループ化）
           const groupedBots = groupByDisplayCategory(formattedData);
@@ -191,6 +203,7 @@ export default function Home() {
               maxItems={6}
               className="mb-8"
               bots={popularBots}
+              isLarge={true}
             />
           </section>
         )}
@@ -198,13 +211,10 @@ export default function Home() {
         {/* 新着Bot */}
         {newBots.length > 0 && (
           <section className="mb-12">
-            <DynamicCarousel
-              displayType="new"
+            <HorizontalCarousel
               title="新着Bot"
-              subtitle="最近追加されたボット"
-              maxItems={6}
-              className="mb-8"
               bots={newBots}
+              autoScroll={false}
             />
           </section>
         )}

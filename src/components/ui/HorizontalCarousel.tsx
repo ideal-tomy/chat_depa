@@ -103,9 +103,14 @@ export default function HorizontalCarousel({
     <div className="relative group mb-4 sm:mb-6 md:mb-8">
       {/* セクションタイトル */}
       {title && (
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 md:mb-4">
-          {title}
-        </h2>
+        <div className="mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent animate-pulse">
+            {title}
+          </h2>
+          {title === '新着Bot' && (
+            <p className="text-gray-600 text-lg">最近追加されたボット</p>
+          )}
+        </div>
       )}
 
       {/* カルーセルコンテナ */}
