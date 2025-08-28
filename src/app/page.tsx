@@ -88,11 +88,11 @@ export default function Home() {
           
           // 新着ボット（1週間以内のもの、他のセクションと重複しない）
           const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-          const recentBots = formattedData.filter(bot => new Date(bot.created_at) > oneWeekAgo);
+          const recentBots = formattedData.filter((bot: any) => new Date(bot.created_at) > oneWeekAgo);
           
           // おすすめと人気で使用されていないボットから選択
-          const usedBotIds = new Set([...formattedData.slice(0, 12).map(bot => bot.id)]);
-          const availableNewBots = recentBots.filter(bot => !usedBotIds.has(bot.id));
+          const usedBotIds = new Set([...formattedData.slice(0, 12).map((bot: any) => bot.id)]);
+          const availableNewBots = recentBots.filter((bot: any) => !usedBotIds.has(bot.id));
           
           // 指定された新着ボットを優先的に表示
           const specifiedNewBots = [
@@ -103,14 +103,14 @@ export default function Home() {
           
           // 指定されたボットを最初に追加
           let finalNewBots = formattedData
-            .filter(bot => specifiedNewBots.includes(bot.name) && !usedBotIds.has(bot.id))
+            .filter((bot: any) => specifiedNewBots.includes(bot.name) && !usedBotIds.has(bot.id))
             .slice(0, 3);
           
           // 新着ボットが少ない場合は、作成日順で上位のボットを追加
           if (finalNewBots.length < 6) {
             const remainingBots = formattedData
-              .filter(bot => !usedBotIds.has(bot.id) && !finalNewBots.some(newBot => newBot.id === bot.id))
-              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+              .filter((bot: any) => !usedBotIds.has(bot.id) && !finalNewBots.some((newBot: any) => newBot.id === bot.id))
+              .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
               .slice(0, 6 - finalNewBots.length);
             finalNewBots = [...finalNewBots, ...remainingBots];
           }
@@ -121,7 +121,6 @@ export default function Home() {
           const groupedBots = groupByDisplayCategory(formattedData);
           setCategoryBots(groupedBots);
         } else {
-          console.log('No data from optimized API, using fallback');
           // フォールバック処理（既存のロジック）
           const { data: fallbackData, error } = await supabase
             .from('bots')
@@ -148,7 +147,7 @@ export default function Home() {
             setPopularBots(formattedData.slice(6, 12));
             
             const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-            const recentBots = formattedData.filter(bot => new Date(bot.created_at) > oneWeekAgo);
+            const recentBots = formattedData.filter((bot: any) => new Date(bot.created_at) > oneWeekAgo);
             setNewBots(recentBots.slice(0, 6));
             
             const groupedBots = groupByDisplayCategory(formattedData);

@@ -81,7 +81,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
 
   // 3. コンテンツベースの高さでレイアウト（固定高さを廃止）
   const containerBase = isLarge 
-    ? "relative flex flex-col w-full h-[320px] sm:h-[360px] rounded-xl bg-white shadow-lg border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-4 sm:p-6 group"
+    ? "relative flex flex-col w-full h-[280px] sm:h-[320px] rounded-xl bg-white shadow-lg border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-4 sm:p-6 group"
     : "relative flex flex-col w-full h-[200px] sm:h-[240px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-3 sm:p-4 group";
   
   return (
@@ -119,7 +119,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
       </div>
 
       {/* 説明文（固定行数で高さを制御） */}
-      <div className="mb-4 flex-1">
+      <div className="mb-4">
         <p className={`text-gray-600 leading-relaxed line-clamp-3 ${isLarge ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
           {bot.description || '説明がありません。'}
         </p>

@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
         pickupBots: botDetails.filter(b => b.is_pickup).length,
         trendingBots: botDetails.filter(b => b.is_trending).length,
         newBots: botDetails.filter(b => b.is_new).length,
-        categories: [...new Set(botDetails.map(b => b.category))],
+        categories: Array.from(new Set(botDetails.map(b => b.category))),
         pointRanges: {
           free: botDetails.filter(b => b.points === 0).length,
           low: botDetails.filter(b => b.points > 0 && b.points <= 50).length,

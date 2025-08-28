@@ -12,7 +12,9 @@ export async function GET(req: NextRequest) {
     let query = supabaseServer
       .from('bots')
       .select('id, name, category, is_pickup, is_trending, is_new, featured_priority, manual_sort_order, created_at')
-      .order('featured_priority', { ascending: false });
+      .order('featured_priority', { ascending: false, nullsFirst: false }) // DESC NULLS LAST
+      .order('manual_sort_order', { ascending: true, nullsFirst: true }) // ASC NULLS FIRST
+      .order('created_at', { ascending: false }); // 新しいものを優先
 
     if (category && category !== 'all') {
       query = query.eq('category', category);
