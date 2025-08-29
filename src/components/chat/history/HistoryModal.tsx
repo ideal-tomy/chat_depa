@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, Fragment } from 'react';
-import { useChatService } from '../ChatProvider';
+import { useChatService } from '../../features/chat/ChatProvider';
 import { Message } from '@/types';
 import { Dialog, Transition } from '@headlessui/react';
+import { logger } from '@/lib/logger';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 interface HistoryModalProps {
@@ -12,7 +13,7 @@ interface HistoryModalProps {
   sessionId: string;
 }
 
-export default function HistoryModal({ isOpen, onClose, sessionId }: HistoryModalProps) {
+export default function HistoryModal({ isOpen, onClose, sessionId }: { isOpen: boolean; onClose: () => void; sessionId: string | null }): JSX.Element {
   const chatService = useChatService();
   const [history, setHistory] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +24,7 @@ export default function HistoryModal({ isOpen, onClose, sessionId }: HistoryModa
       setIsLoading(true);
       chatService.fetchHistory(sessionId)
         .then(setHistory)
-        .catch(err => console.error('Failed to fetch modal history:', err))
+        .catch(err => logger.error('Failed to fetch modal history', new Error(String(err))))
         .finally(() => setIsLoading(false));
     }
   }, [isOpen, sessionId, chatService, history.length]);
@@ -86,3 +87,4 @@ export default function HistoryModal({ isOpen, onClose, sessionId }: HistoryModa
     </Transition>
   );
 }
+

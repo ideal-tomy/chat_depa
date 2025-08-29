@@ -1,5 +1,5 @@
 import HeroSection from '@/components/ui/HeroSection';
-import SignupForm from '@/components/auth/SignupForm';
+import SignupForm from '@/components/features/auth/SignupForm';
 import PlanComparisonTable from '@/components/ui/PlanComparisonTable';
 
 export const metadata = {
@@ -7,7 +7,7 @@ export const metadata = {
   description: 'ポイントを使ってAI Botとチャットしましょう。会員登録して100ポイント無料プレゼント！',
 };
 
-export default function RegisterPage() {
+export default function RegisterPage(): JSX.Element {
   return (
     <main className="bg-gray-50 text-gray-800">
       {/* ヒーローセクション */}

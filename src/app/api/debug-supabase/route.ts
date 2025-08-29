@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 export const dynamic = 'force-dynamic'
 import { supabaseServer } from '@/lib/supabase/server';
 
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('Debugging Supabase connection...');
+    logger.info('Debugging Supabase connection...');
     
     // 既存のボットデータを確認
     const { data: existingBots, error: selectError } = await supabaseServer
@@ -13,7 +14,7 @@ export async function GET() {
       .limit(10);
 
     if (selectError) {
-      console.error('Error reading bots:', selectError);
+      logger.error('Error reading bots', new Error(String(selectError)));
       return NextResponse.json({ 
         error: 'Failed to read existing bots', 
         details: selectError 
@@ -28,7 +29,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({ 
       error: 'API error', 
       details: error 
@@ -36,9 +37,9 @@ export async function GET() {
   }
 }
 
-export async function POST() {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('Testing single bot insertion...');
+    logger.info('Testing single bot insertion...');
     
     // 最小限のテストボット
     const testBot = {
@@ -57,7 +58,7 @@ export async function POST() {
       .eq('name', testBot.name);
 
     if (deleteError) {
-      console.log('Delete warning (may be normal):', deleteError);
+      logger.warn('Delete warning (may be normal)', { error: deleteError });
     }
 
     // テストボットを挿入
@@ -67,7 +68,7 @@ export async function POST() {
       .select();
 
     if (error) {
-      console.error('Insert error:', error);
+      logger.error('Insert error', new Error(String(error)));
       return NextResponse.json({ 
         error: 'Failed to insert test bot', 
         details: error 
@@ -81,10 +82,11 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({ 
       error: 'API error', 
       details: error 
     }, { status: 500 });
   }
 }
+

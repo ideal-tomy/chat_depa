@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('Checking bots table schema...');
+    logger.info('Checking bots table schema...');
     
     // 既存のボットを1件取得してスキーマを確認
     const { data: sampleBot, error } = await supabaseServer
@@ -14,7 +15,7 @@ export async function GET() {
       .single();
     
     if (error) {
-      console.error('Schema check error:', error);
+      logger.error('Schema check error', new Error(String(error)));
       return NextResponse.json({
         error: 'Failed to check schema',
         details: error
@@ -28,10 +29,11 @@ export async function GET() {
       sampleData: sampleBot
     });
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({
       error: 'API error',
       details: error
     }, { status: 500 });
   }
 }
+

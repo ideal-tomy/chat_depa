@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Bot } from '@/types';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
+import { logger } from '@/lib/logger';
 import PickUpCarousel from '@/components/ui/PickUpCarousel';
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel';
 import DynamicCarousel from '@/components/ui/DynamicCarousel';
@@ -44,11 +45,11 @@ function groupByDisplayCategory(bots: Bot[]): Record<string, Bot[]> {
   return grouped;
 }
 
-export default function Home() {
+export default function Home(): JSX.Element {
   const [pickupBots, setPickupBots] = useState<Bot[]>([]);
   const [popularBots, setPopularBots] = useState<Bot[]>([]);
   const [newBots, setNewBots] = useState<Bot[]>([]);
-  const [allBots, setAllBots] = useState<Bot[]>([]);
+
   const [categoryBots, setCategoryBots] = useState<Record<string, Bot[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,8 +79,6 @@ export default function Home() {
             isUGC: bot.id % 5 === 0
           }));
           
-          setAllBots(formattedData);
-          
           // おすすめボット（最初の6件）
           setPickupBots(formattedData.slice(0, 6));
           
@@ -92,7 +91,6 @@ export default function Home() {
           
           // おすすめと人気で使用されていないボットから選択
           const usedBotIds = new Set([...formattedData.slice(0, 12).map((bot: any) => bot.id)]);
-          const availableNewBots = recentBots.filter((bot: any) => !usedBotIds.has(bot.id));
           
           // 指定された新着ボットを優先的に表示
           const specifiedNewBots = [
@@ -142,7 +140,6 @@ export default function Home() {
               isUGC: bot.id % 5 === 0
             }));
             
-            setAllBots(formattedData);
             setPickupBots(formattedData.slice(0, 6));
             setPopularBots(formattedData.slice(6, 12));
             
@@ -155,7 +152,7 @@ export default function Home() {
           }
         }
       } catch (error) {
-        console.error('Error fetching bots:', error);
+        logger.error('Error fetching bots', error instanceof Error ? error : new Error(String(error)));
         setError('ボットの取得に失敗しました');
       } finally {
         setLoading(false);
@@ -198,17 +195,17 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         {/* おすすめのBot */}
         {pickupBots.length > 0 && (
-          <section className="mb-4">
+          <section className="mb-2">
             <PickUpCarousel title="おすすめのBot" bots={pickupBots} />
           </section>
         )}
 
         {/* 仕切り線 */}
-        <div className="border-t border-gray-200 mb-4"></div>
+        <div className="border-t border-gray-200 mb-2"></div>
 
         {/* 人気のBot */}
         {popularBots.length > 0 && (
-          <section className="mb-4">
+          <section className="mb-2">
             <DynamicCarousel
               displayType="trending"
               title="人気のBot"
@@ -222,11 +219,11 @@ export default function Home() {
         )}
 
         {/* 仕切り線 */}
-        <div className="border-t border-gray-200 mb-4"></div>
+        <div className="border-t border-gray-200 mb-2"></div>
 
         {/* 新着Bot */}
         {newBots.length > 0 && (
-          <section className="mb-4">
+          <section className="mb-2">
             <DynamicCarousel
               displayType="new"
               title="新着Bot"
@@ -241,7 +238,7 @@ export default function Home() {
         )}
 
         {/* 仕切り線 */}
-        <div className="border-t border-gray-200 mb-4"></div>
+        <div className="border-t border-gray-200 mb-2"></div>
 
         {/* カテゴリ別セクション */}
         {Object.entries(categoryBots).map(([category, bots], index) => (
@@ -251,6 +248,8 @@ export default function Home() {
                 title={category}
                 bots={bots.slice(0, 10)}
                 autoScroll={false}
+                isLarge={true}
+                isNew={false}
               />
               {/* 最後のセクション以外に仕切り線を追加 */}
               {index < Object.entries(categoryBots).length - 1 && (

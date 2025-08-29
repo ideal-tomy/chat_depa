@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const { botId, userId, interactionType, sessionData } = await req.json();
 
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
       });
 
     if (interactionError) {
-      console.error('Error recording interaction:', interactionError);
+      logger.error('Error recording interaction', new Error(String(interactionError)));
       return NextResponse.json({ error: 'Failed to record interaction' }, { status: 500 });
     }
 
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     // 3. リアルタイムランキングを更新（非同期）
     updateBotRankings().catch(error => {
-      console.error('Error updating rankings:', error);
+      logger.error('Error updating rankings', new Error(String(error)));
     });
 
     return NextResponse.json({ 
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[BOT_STATS_UPDATE_ERROR]', error);
+    logger.error('[BOT_STATS_UPDATE_ERROR]', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });
@@ -62,7 +63,7 @@ async function updateBotUsageStats(
   userId: string, 
   interactionType: string, 
   sessionData?: any
-) {
+): Promise<void> {
   const supabase = supabaseServer;
 
   // 既存の統計レコードを取得または作成
@@ -73,7 +74,7 @@ async function updateBotUsageStats(
     .single();
 
   if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = no rows returned
-    console.error('Error fetching stats:', fetchError);
+    logger.error('Error fetching stats', new Error(String(fetchError)));
     return;
   }
 
@@ -92,7 +93,7 @@ async function updateBotUsageStats(
       });
 
     if (insertError) {
-      console.error('Error creating stats:', insertError);
+      logger.error('Error creating stats', new Error(String(insertError)));
     }
     return;
   }
@@ -146,7 +147,7 @@ async function updateBotUsageStats(
     .eq('bot_id', botId);
 
   if (updateError) {
-    console.error('Error updating stats:', updateError);
+    logger.error('Error updating stats', new Error(String(updateError)));
   }
 }
 
@@ -161,7 +162,7 @@ async function updateBotRankings() {
     .limit(20);
 
   if (trendingError) {
-    console.error('Error fetching trending bots:', trendingError);
+    logger.error('Error fetching trending bots', new Error(String(trendingError)));
     return;
   }
 
@@ -179,6 +180,6 @@ async function updateBotRankings() {
       .eq('id', bot.bot_id);
   }
 
-  console.log('Bot rankings updated successfully');
+  logger.info('Bot rankings updated successfully');
 }
 

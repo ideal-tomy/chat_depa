@@ -1,11 +1,12 @@
 import { Bot } from '@/types';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import { logger } from '@/lib/logger';
 
 interface BotInfoCardProps {
   bot: Bot;
 }
 
-export default function BotInfoCard({ bot }: BotInfoCardProps) {
+export default function BotInfoCard({ bot }: BotInfoCardProps): JSX.Element {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-center gap-2 text-gray-800 font-medium mb-4">
@@ -61,7 +62,7 @@ export default function BotInfoCard({ bot }: BotInfoCardProps) {
               displayUseCases = JSON.parse(bot.useCases);
             }
           } catch (e) {
-            console.error('Failed to parse useCases:', e);
+            logger.error('Failed to parse useCases', new Error(String(e)));
           }
         }
 

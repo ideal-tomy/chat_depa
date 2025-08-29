@@ -4,17 +4,18 @@ import { useState, useEffect, useCallback } from 'react'; // useCallbackをイ�
 import { useSearchParams } from 'next/navigation';
 import { useChatService } from './ChatProvider';
 import { Message } from '@/types';
+import { logger } from '@/lib/logger';
 import ChatWindow from './ChatWindow';
-import HistoryModal from './history/HistoryModal';
-import HistoryPanel from './history/HistoryPanel';
-import HistoryToggle from './history/HistoryToggle';
+import HistoryModal from '../../chat/history/HistoryModal';
+import HistoryPanel from '../../chat/history/HistoryPanel';
+import HistoryToggle from '../../chat/history/HistoryToggle';
 
 interface ChatUIProps {
   botId: string;
   uiTheme: 'business' | 'variety' | null;
 }
 
-export default function ChatUI({ botId, uiTheme }: ChatUIProps) {
+export default function ChatUI({ botId, uiTheme }: ChatUIProps): JSX.Element {
   const searchParams = useSearchParams();
   const initialMessage = searchParams.get('message') || '';
   const chatService = useChatService();
@@ -34,7 +35,7 @@ export default function ChatUI({ botId, uiTheme }: ChatUIProps) {
         }
       } catch (error) {
         if (isMounted) {
-          console.error("Failed to initialize session:", error);
+          logger.error("Failed to initialize session", new Error(String(error)));
         }
       }
     };
@@ -64,7 +65,7 @@ export default function ChatUI({ botId, uiTheme }: ChatUIProps) {
         }
       } catch (error) {
         if (isMounted) {
-          console.error("Failed to fetch history:", error);
+          logger.error("Failed to fetch history", new Error(String(error)));
         }
       }
     };
@@ -91,7 +92,7 @@ export default function ChatUI({ botId, uiTheme }: ChatUIProps) {
       const botMessage = await chatService.sendMessage(sessionId, text);
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
-      console.error('Failed to send message:', error);
+      logger.error('Failed to send message', new Error(String(error)));
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: 'bot',

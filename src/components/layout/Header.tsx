@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { logger } from '@/lib/logger';
 import { Dialog } from '@headlessui/react';
 import { 
   UserCircleIcon, 
@@ -12,7 +13,7 @@ import {
 import { getCurrentUser, signOut } from '@/lib/auth';
 import { pointsAPI } from '@/lib/api-client';
 
-export default function Header() {
+export default function Header(): JSX.Element {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -41,7 +42,7 @@ export default function Header() {
         }
       }
     } catch (error) {
-      console.error('ユーザーデータ取得エラー:', error);
+      logger.error('ユーザーデータ取得エラー', new Error(String(error)));
     } finally {
       setLoading(false);
     }

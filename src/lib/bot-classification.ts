@@ -1,3 +1,5 @@
+
+
 // 新しいカテゴリ分類マッピング
 export const categoryMapping: { [key: string]: string } = {
   // 法律系

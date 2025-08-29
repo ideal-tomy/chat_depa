@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { supabaseServer } from '@/lib/supabase/server';
 import { DynamicBotRequest, Bot } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(req.url);
     const displayType = searchParams.get('type') as DynamicBotRequest['displayType'];
@@ -18,15 +19,15 @@ export async function GET(req: NextRequest) {
 
     const bots = await getDynamicBots({
       displayType,
-      categoryId: categoryId || undefined,
+      ...(categoryId && { categoryId }),
       maxItems,
-      userId: userId || undefined
+      ...(userId && { userId })
     });
 
     return NextResponse.json({ bots });
 
   } catch (error) {
-    console.error('[DYNAMIC_BOTS_API_ERROR]', error);
+    logger.error('[DYNAMIC_BOTS_API_ERROR]', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });
@@ -85,7 +86,7 @@ async function getDynamicBots(request: DynamicBotRequest): Promise<Bot[]> {
   const { data: bots, error } = await query;
 
   if (error) {
-    console.error('Error fetching dynamic bots:', error);
+    logger.error('Error fetching dynamic bots', new Error(error.message));
     return [];
   }
 

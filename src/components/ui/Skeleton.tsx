@@ -4,7 +4,7 @@ interface SkeletonProps {
   className?: string;
 }
 
-export function Skeleton({ className }: SkeletonProps) {
+export function Skeleton({ className }: SkeletonProps): JSX.Element {
   return (
     <div
       className={cn(

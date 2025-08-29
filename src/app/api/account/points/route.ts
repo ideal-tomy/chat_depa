@@ -1,15 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('[points] Starting points API request')
+    logger.info('[points] Starting points API request')
     
     // Authorization ヘッダーからトークンを取得
-    const authHeader = request.headers.get('authorization')
+    const authHeader = req.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('[points] No authorization header, returning 0 points')
+      logger.warn('[points] No authorization header, returning 0 points')
       return NextResponse.json({ success: true, data: { current_points: 0, user_id: null } });
     }
 
@@ -25,11 +27,11 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     
     if (authError || !user) {
-      console.error('[points] Auth error:', authError)
+      logger.error('[points] Auth error', authError instanceof Error ? authError : new Error('Unknown auth error'));
       return NextResponse.json({ success: true, data: { current_points: 0, user_id: null } });
     }
 
-    console.log('[points] User found:', user.id)
+    logger.info('[points] User found', { userId: user.id });
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -38,9 +40,9 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (profileError) {
-      console.error('[points] Profile error:', profileError);
+      logger.error('[points] Profile error', profileError instanceof Error ? profileError : new Error('Unknown profile error'));
       if (profileError.code === 'PGRST116') { // No rows found
-        console.log('[points] Profile not found, creating default profile');
+        logger.info('[points] Profile not found, creating default profile');
         // プロフィールが存在しない場合はデフォルトプロフィールを作成
         const defaultProfile = {
           id: user.id,
@@ -57,7 +59,7 @@ export async function GET(request: NextRequest) {
           .single()
           
         if (createError) {
-          console.error('[points] Create profile error:', createError)
+          logger.error('[points] Create profile error', createError instanceof Error ? createError : new Error('Unknown create error'));
           return NextResponse.json({ success: true, data: { current_points: 0, user_id: user.id } });
         }
         
@@ -72,7 +74,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Failed to fetch points' }, { status: 500 });
     }
 
-    console.log('[points] Profile found, points:', profile?.current_points);
+    logger.info('[points] Profile found', { points: profile?.current_points });
     return NextResponse.json({
       success: true,
       data: {
@@ -81,11 +83,11 @@ export async function GET(request: NextRequest) {
       },
     });
 
-  } catch (error: any) {
-    console.error('[points] Unexpected error:', error);
+  } catch (error) {
+    logger.error('[points] Unexpected error', error instanceof Error ? error : new Error('Unknown error'));
     return NextResponse.json({ 
       success: false, 
-      error: error?.message ?? 'Internal Server Error' 
+      error: error instanceof Error ? error.message : 'Internal Server Error' 
     }, { status: 500 });
   }
 }

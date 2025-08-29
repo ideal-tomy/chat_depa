@@ -1,14 +1,15 @@
 import { supabaseServer } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 // 管理者用手動ポイント付与API
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const supabase = supabaseServer
 
     // Authorization ヘッダーからトークンを取得
-    const authHeader = request.headers.get('authorization')
+    const authHeader = req.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({
         success: false,
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     // リクエストボディを取得
-    const body = await request.json()
+    const body = await req.json()
     const { target_user_id, points, description } = body
 
     // バリデーション
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
       .eq('id', target_user_id)
 
     if (updateError) {
-      console.error('Points update error:', updateError)
+      logger.error('Points update error', new Error(String(updateError)))
       return NextResponse.json({
         success: false,
         error: 'Failed to update points'
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (historyError) {
-      console.error('History insert error:', historyError)
+      logger.error('History insert error', new Error(String(historyError)))
       // ポイント履歴の記録に失敗しても、ポイント付与自体は成功とする
     }
 
@@ -125,10 +126,11 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Points grant API error:', error)
+    logger.error('Points grant API error', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
     }, { status: 500 })
   }
 }
+

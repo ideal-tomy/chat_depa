@@ -8,7 +8,7 @@ interface ChatPageClientProps {
   bot: Bot;
 }
 
-export default function ChatPageClient({ bot }: ChatPageClientProps) {
+export default function ChatPageClient(props: any): JSX.Element {
   if (!bot) {
     return <div>ボット情報の読み込みに失敗しました。</div>;
   }
@@ -22,3 +22,4 @@ export default function ChatPageClient({ bot }: ChatPageClientProps) {
     </ChatProvider>
   );
 }
+

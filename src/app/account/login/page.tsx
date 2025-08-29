@@ -1,4 +1,4 @@
-import LoginForm from '@/components/auth/LoginForm';
+import LoginForm from '@/components/features/auth/LoginForm';
 import Link from 'next/link';
 
 export const metadata = {
@@ -6,7 +6,7 @@ export const metadata = {
   description: 'Chatbot Departmentにログインして、AIチャットを楽しもう。',
 };
 
-export default function LoginPage() {
+export default function LoginPage(): JSX.Element {
   return (
     <main className="bg-gray-50 text-gray-800 min-h-[80vh] flex flex-col items-center justify-center">
       <div className="container mx-auto px-4 py-10 max-w-md">

@@ -1,6 +1,7 @@
 // CSVから変換されたボットデータ（全117件）
 import fs from 'fs';
 import path from 'path';
+import { logger } from '@/lib/logger';
 
 export function getCsvBots() {
   try {
@@ -14,9 +15,9 @@ export function getCsvBots() {
       throw new Error('Could not parse bots data');
     }
     
-    return JSON.parse(match[1]);
+    return JSON.parse(match[1] || '[]');
   } catch (error) {
-    console.error('Error loading CSV bots data:', error);
+    logger.error('Error loading CSV bots data', new Error(String(error)));
     throw error;
   }
 }

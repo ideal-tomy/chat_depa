@@ -1,23 +1,31 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import BotCard from './BotCard';
+import { Bot, CarouselProps, CarouselState } from '@/types';
+import { logger } from '@/lib/logger';
 
-import { Bot } from '@/types';
-
-interface PickUpCarouselProps {
-  title?: string;
-  bots: Bot[];
-}
-
-export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpCarouselProps) {
+const PickUpCarousel: React.FC<CarouselProps> = ({ 
+  title = '注目のBot', 
+  bots, 
+  onBotClick,
+  loading = false,
+  error = null,
+  className = ''
+}) => {
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState<CarouselState>({
+    currentIndex: 0,
+    isScrolling: false,
+    scrollDirection: null
+  });
+  
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
   
   // スクロール位置とコンテナの全体幅を監視
   useEffect(() => {
-    const updateScrollInfo = () => {
+    const updateScrollInfo = (): void => {
       if (carouselRef.current) {
         const container = carouselRef.current;
         setScrollPosition(container.scrollLeft);
@@ -37,10 +45,18 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
         window.removeEventListener('resize', updateScrollInfo);
       };
     }
+    return undefined;
   }, [bots]);
 
-  const scroll = (direction: 'left' | 'right') => {
+  // スクロール関数をメモ化
+  const scroll = useCallback((direction: 'left' | 'right'): void => {
     if (carouselRef.current) {
+      setState(prev => ({ 
+        ...prev, 
+        isScrolling: true, 
+        scrollDirection: direction 
+      }));
+
       const container = carouselRef.current;
       const scrollAmount = container.clientWidth * 0.8;
       const targetScroll = direction === 'left' 
@@ -51,11 +67,76 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
         left: targetScroll,
         behavior: 'smooth'
       });
+
+      // スクロール完了後に状態をリセット
+      setTimeout(() => {
+        setState(prev => ({ 
+          ...prev, 
+          isScrolling: false, 
+          scrollDirection: null 
+        }));
+      }, 500);
     }
-  };
+  }, []);
+
+
+
+  // ローディング状態の表示
+  if (loading) {
+    return (
+      <div className={`relative w-full ${className}`}>
+        <div className="mb-4">
+          <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-center">
+            {title}
+          </h2>
+          <p className="text-gray-600 text-lg text-center">厳選されたおすすめボット</p>
+        </div>
+        <div className="flex gap-4 md:gap-6 pb-2 pt-4 overflow-x-auto">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="w-[450px] sm:w-[500px] md:w-[550px] flex-shrink-0 animate-pulse">
+              <div className="h-[320px] bg-gray-200 rounded-xl"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // エラー状態の表示
+  if (error) {
+    logger.error('PickUpCarousel error', new Error(String(error)));
+    return (
+      <div className={`relative w-full ${className}`}>
+        <div className="mb-4">
+          <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-center">
+            {title}
+          </h2>
+        </div>
+        <div className="text-center text-red-500 py-8">
+          データの読み込みに失敗しました
+        </div>
+      </div>
+    );
+  }
+
+  // ボットが存在しない場合
+  if (!bots || bots.length === 0) {
+    return (
+      <div className={`relative w-full ${className}`}>
+        <div className="mb-4">
+          <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-center">
+            {title}
+          </h2>
+        </div>
+        <div className="text-center text-gray-500 py-8">
+          表示するボットがありません
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative w-full">
+    <div className={`relative w-full ${className}`}>
       {title && (
         <div className="mb-4">
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse text-center">
@@ -69,7 +150,8 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
       {scrollPosition > 10 && (
         <button 
           onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 z-10 -translate-y-1/2 -translate-x-3 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none"
+          disabled={state.isScrolling}
+          className="absolute left-0 top-1/2 z-10 -translate-y-1/2 -translate-x-3 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -81,7 +163,7 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
       <div className="relative overflow-visible">
         <div 
           ref={carouselRef}
-          className="flex gap-6 md:gap-8 pb-4 pt-6 snap-x snap-mandatory scrollbar-hide overflow-x-auto overflow-y-visible"
+          className="flex gap-4 md:gap-6 pb-2 pt-6 snap-x snap-mandatory scrollbar-hide overflow-x-auto overflow-y-visible"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {/* カスタムスクロールバースタイル */}
@@ -92,7 +174,7 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
           `}</style>
           
           {/* カルーセルアイテム - 注目のBotは大きく表示 */}
-          {bots.map(bot => (
+          {bots.map((bot) => (
             <div key={bot.id} className="w-[450px] sm:w-[500px] md:w-[550px] flex-shrink-0 snap-start -mt-6">
               <div className="transform hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                 <div className="relative overflow-visible">
@@ -100,7 +182,10 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
                   <div className="absolute top-2 right-2 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
                     ⭐ 注目
                   </div>
-                  <BotCard bot={bot} isLarge={true} />
+                                    <BotCard
+                    bot={bot}
+                    isLarge={true}
+                  />
                 </div>
               </div>
             </div>
@@ -112,7 +197,8 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
       {maxScroll > 0 && scrollPosition < maxScroll - 10 && (
         <button 
           onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-3 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none"
+          disabled={state.isScrolling}
+          className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-3 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -121,4 +207,6 @@ export default function PickUpCarousel({ title = '注目のBot', bots }: PickUpC
       )}
     </div>
   );
-}
+};
+
+export default PickUpCarousel;

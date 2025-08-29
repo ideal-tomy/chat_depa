@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
       .limit(limit);
 
     if (error) {
-      console.error('Error fetching bot details:', error);
+      logger.error('Error fetching bot details', new Error(String(error)));
       return NextResponse.json({ 
         error: 'Failed to fetch bot details' 
       }, { status: 500 });
@@ -67,7 +68,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[DEBUG_BOT_DETAILS_API_ERROR]', error);
+    logger.error('[DEBUG_BOT_DETAILS_API_ERROR]', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });

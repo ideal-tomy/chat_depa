@@ -56,7 +56,7 @@ const faqData: FaqItem[] = [
   }
 ];
 
-export default function FaqPage() {
+export default function FaqPage(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('');
   const [showChat, setShowChat] = useState(false);
   

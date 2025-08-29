@@ -1,12 +1,13 @@
 import { supabaseServer } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
-export async function POST() {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const supabase = supabaseServer
 
-    console.log('Creating points management tables...')
+    logger.info('Creating points management tables...')
 
     // 1. profilesテーブルにcurrent_pointsとroleカラムを追加
     const { error: addPointsError } = await supabase.rpc('exec_sql', {
@@ -33,7 +34,7 @@ export async function POST() {
     })
 
     if (addPointsError) {
-      console.error('Error adding columns to profiles:', addPointsError)
+      logger.error('Error adding columns to profiles', new Error(String(addPointsError)))
       throw new Error(`Failed to add columns to profiles: ${addPointsError.message}`)
     }
 
@@ -57,7 +58,7 @@ export async function POST() {
     })
 
     if (pointsHistoryError) {
-      console.error('Error creating points_history:', pointsHistoryError)
+      logger.error('Error creating points_history', new Error(String(pointsHistoryError)))
       throw new Error(`Failed to create points_history: ${pointsHistoryError.message}`)
     }
 
@@ -77,7 +78,7 @@ export async function POST() {
     })
 
     if (plansError) {
-      console.error('Error creating plans:', plansError)
+      logger.error('Error creating plans', new Error(String(plansError)))
       throw new Error(`Failed to create plans: ${plansError.message}`)
     }
 
@@ -103,7 +104,7 @@ export async function POST() {
     })
 
     if (purchasesError) {
-      console.error('Error creating point_purchases:', purchasesError)
+      logger.error('Error creating point_purchases', new Error(String(purchasesError)))
       throw new Error(`Failed to create point_purchases: ${purchasesError.message}`)
     }
 
@@ -145,7 +146,7 @@ export async function POST() {
       })
 
     if (insertPlansError) {
-      console.error('Error inserting plans:', insertPlansError)
+      logger.error('Error inserting plans', new Error(String(insertPlansError)))
       throw new Error(`Failed to insert plans: ${insertPlansError.message}`)
     }
 
@@ -164,10 +165,11 @@ export async function POST() {
     })
 
   } catch (error) {
-    console.error('Table creation error:', error)
+    logger.error('Table creation error', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 })
   }
 }
+

@@ -1,5 +1,6 @@
 import { supabaseServer } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 // ポイント履歴取得API
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
     const supabase = supabaseServer
 
     // Authorization ヘッダーからトークンを取得
-    const authHeader = request.headers.get('authorization')
+    const authHeader = req.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({
         success: false,
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // URLパラメータから取得
-    const url = new URL(request.url)
+    const url = new URL(req.url)
     const limit = parseInt(url.searchParams.get('limit') || '50')
     const offset = parseInt(url.searchParams.get('offset') || '0')
     const type = url.searchParams.get('type') // earned, spent, purchased, manual_grant
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
     const { data: history, error: historyError } = await query
 
     if (historyError) {
-      console.error('History fetch error:', historyError)
+      logger.error('History fetch error', new Error(historyError.message))
       return NextResponse.json({
         success: false,
         error: 'Failed to fetch point history'
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
     const { count, error: countError } = await countQuery
 
     if (countError) {
-      console.error('Count fetch error:', countError)
+      logger.error('Count fetch error', new Error(countError.message))
     }
 
     return NextResponse.json({
@@ -89,10 +90,11 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Point history API error:', error)
+    logger.error('Point history API error', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
     }, { status: 500 })
   }
 }
+

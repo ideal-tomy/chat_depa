@@ -1,7 +1,7 @@
-import BotInfoCard from '@/components/bots/BotInfoCard';
-import ChatInterface from '@/components/bots/ChatInterface';
-import RelatedBots from '@/components/bots/RelatedBots';
-import RelatedBotsRecommendation from '@/components/bots/RelatedBotsRecommendation';
+import BotInfoCard from '@/components/features/bots/BotInfoCard';
+import ChatInterface from '@/components/features/bots/ChatInterface';
+import RelatedBots from '@/components/features/bots/RelatedBots';
+import RelatedBotsRecommendation from '@/components/features/bots/RelatedBotsRecommendation';
 import { Bot } from '@/types';
 import { Metadata } from 'next';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';

@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
-export async function POST() {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('Registering CSV bots with correct schema...');
+    logger.info('Registering CSV bots with correct schema...');
     
     // CSVから変換したボットデータ（スキーマに合わせて調整）
     const csvBots = [
@@ -65,7 +66,7 @@ export async function POST() {
       }
     ];
 
-    console.log(`Processing ${csvBots.length} bots...`);
+    logger.info(`Processing ${csvBots.length} bots...`);
 
     // 重複チェック（名前ベース）
     const existingBots = [];
@@ -85,7 +86,7 @@ export async function POST() {
       }
     }
 
-    console.log(`Found ${existingBots.length} existing bots, adding ${newBots.length} new bots`);
+    logger.info(`Found ${existingBots.length} existing bots, adding ${newBots.length} new bots`);
 
     if (newBots.length === 0) {
       return NextResponse.json({
@@ -103,7 +104,7 @@ export async function POST() {
       .select();
 
     if (error) {
-      console.error('Insert error:', error);
+      logger.error('Insert error', new Error(String(error)));
       return NextResponse.json({
         error: 'Failed to insert bot data',
         details: error
@@ -121,10 +122,11 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({
       error: 'API error',
       details: error
     }, { status: 500 });
   }
 }
+

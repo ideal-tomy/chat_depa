@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { 
   CreditCardIcon,
@@ -15,6 +16,7 @@ import {
 import { getCurrentUser, signOut } from '@/lib/auth';
 import { profileAPI, pointsAPI } from '@/lib/api-client';
 import { useProfile } from '@/components/hooks/useProfile';
+import { logger } from '@/lib/logger';
 
 interface UserProfile {
   id: string;
@@ -33,7 +35,7 @@ interface Transaction {
   created_at: string;
 }
 
-export default function MyPage() {
+export default function MyPage(): JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export default function MyPage() {
       // 認証状態確認
       const user = await getCurrentUser();
       if (!user) {
-        console.log('User not authenticated, redirecting to login');
+        logger.info('User not authenticated, redirecting to login');
         router.replace('/account/login');
         return;
       }
@@ -77,14 +79,14 @@ export default function MyPage() {
       // ポイント履歴取得（最新5件）
       const historyResponse = await pointsAPI.getHistory({ limit: 5 });
       if (!historyResponse.success) {
-        console.warn('ポイント履歴の取得に失敗:', historyResponse.error);
+        logger.warn('ポイント履歴の取得に失敗', { error: historyResponse.error });
         setTransactions([]);
       } else {
         setTransactions(historyResponse.data?.history || []);
       }
 
     } catch (err) {
-      console.error('ユーザーデータ取得エラー:', err);
+      logger.error('ユーザーデータ取得エラー', new Error(String(err)));
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
     } finally {
       setLoading(false);
@@ -183,9 +185,11 @@ export default function MyPage() {
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div className="flex items-center space-x-4 mb-6">
                   {userProfile?.avatar_url ? (
-                    <img 
+                    <Image 
                       src={userProfile.avatar_url} 
                       alt="プロフィール画像"
+                      width={64}
+                      height={64}
                       className="h-16 w-16 rounded-full object-cover"
                     />
                   ) : (

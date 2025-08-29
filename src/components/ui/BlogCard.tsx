@@ -8,7 +8,7 @@ interface BlogCardProps {
   post: Post;
 }
 
-export default function BlogCard({ post }: BlogCardProps) {
+export default function BlogCard(props: any): JSX.Element {
   // 日付フォーマット
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -55,3 +55,4 @@ export default function BlogCard({ post }: BlogCardProps) {
     </Link>
   );
 }
+

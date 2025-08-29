@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('Environment variables check...');
+    logger.info('Environment variables check...');
     
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -19,10 +20,11 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error('Environment check error:', error);
+    logger.error('Environment check error', new Error(String(error)));
     return NextResponse.json({
       error: 'Environment check failed',
       details: error
     }, { status: 500 });
   }
 }
+

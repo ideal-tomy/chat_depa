@@ -25,7 +25,7 @@ const iconConfig = [
   { src: '/images/sumple04.png', alt: 'キャラクター4', link: '/account/points/purchase' },
 ];
 
-export default function AnimatedBackground() {
+export default function AnimatedBackground(): JSX.Element {
   const router = useRouter();
   const [icons, setIcons] = useState<FloatingIcon[]>([]);
   const [mounted, setMounted] = useState(false);
@@ -37,7 +37,7 @@ export default function AnimatedBackground() {
     const initialIcons: FloatingIcon[] = [];
     let idCounter = 0;
 
-    iconConfig.forEach((config, configIndex) => {
+    iconConfig.forEach((config) => {
       const count = 3 + Math.floor(Math.random() * 2); // 3-4個
       
       for (let i = 0; i < count; i++) {
@@ -105,7 +105,7 @@ export default function AnimatedBackground() {
     router.push(link);
   };
 
-  if (!mounted) return null;
+  if (!mounted) return <div />;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">

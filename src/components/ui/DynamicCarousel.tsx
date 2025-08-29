@@ -45,20 +45,7 @@ export default function DynamicCarousel({
     }
   };
 
-  const getDefaultSubtitle = () => {
-    switch (displayType) {
-      case 'pickup':
-        return '厳選されたおすすめボット';
-      case 'new':
-        return '最近追加されたボット';
-      case 'trending':
-        return '多くのユーザーに利用されているボット';
-      case 'category_featured':
-        return `${categoryId || 'カテゴリ'}で人気のボット`;
-      default:
-        return '';
-    }
-  };
+
 
   const getTitleStyle = () => {
     switch (displayType) {
@@ -110,7 +97,7 @@ export default function DynamicCarousel({
 }
 
 // ランキングバッジコンポーネント
-function RankingBadge({ rank }: { rank: number }) {
+function RankingBadge({ rank }: { rank: number }): JSX.Element {
   const getBadgeColor = (rank: number) => {
     switch (rank) {
       case 1:

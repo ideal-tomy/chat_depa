@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('[debug-auth] Starting debug auth check')
+    logger.info('[debug-auth] Starting debug auth check')
     
     // 環境変数の確認
     const envCheck = {
       NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING',
       NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING',
     }
-    console.log('[debug-auth] Environment variables:', envCheck)
+    logger.info('[debug-auth] Environment variables', { envCheck })
     
     // Supabase クライアントの作成
     const supabase = createRouteHandlerClient({ cookies })
-    console.log('[debug-auth] Supabase client created')
+    logger.info('[debug-auth] Supabase client created')
 
     // クッキー情報の確認
     const cookieStore = cookies()
@@ -25,11 +26,11 @@ export async function GET(_req: NextRequest) {
     const supabaseCookies = allCookies.filter(cookie => 
       cookie.name.includes('supabase') || cookie.name.includes('sb-')
     )
-    console.log('[debug-auth] Supabase-related cookies:', supabaseCookies.map(c => ({ name: c.name, hasValue: !!c.value })))
+    logger.info('[debug-auth] Supabase-related cookies', { cookies: supabaseCookies.map(c => ({ name: c.name, hasValue: !!c.value })) })
 
     // 認証ユーザー取得
     const { data: { user }, error: authErr } = await supabase.auth.getUser()
-    console.log('[debug-auth] Auth result:', { 
+    logger.info('[debug-auth] Auth result', { 
       hasUser: !!user, 
       userId: user?.id,
       email: user?.email,
@@ -52,14 +53,14 @@ export async function GET(_req: NextRequest) {
           profileError: profileErr?.message,
           profileErrorCode: profileErr?.code
         }
-        console.log('[debug-auth] Profile check:', profileCheck)
-      } catch (err: any) {
+        logger.info('[debug-auth] Profile check', { profileCheck })
+      } catch (err: unknown) {
         profileCheck = {
           hasProfile: false,
-          profileError: err.message,
-          profileErrorCode: err.code
+          profileError: err instanceof Error ? err.message : String(err),
+          profileErrorCode: err instanceof Error && 'code' in err ? String(err.code) : undefined
         }
-        console.log('[debug-auth] Profile check error:', err)
+        logger.error('[debug-auth] Profile check error', new Error(String(err)))
       }
     }
 
@@ -78,11 +79,12 @@ export async function GET(_req: NextRequest) {
       }
     }, { status: 200 })
     
-  } catch (e: any) {
-    console.error('[debug-auth] unexpected error:', e)
+  } catch (e: unknown) {
+    logger.error('[debug-auth] unexpected error', new Error(String(e)))
     return NextResponse.json({ 
-      error: e?.message ?? 'unexpected error',
-      stack: e?.stack 
+      error: e instanceof Error ? e.message : 'unexpected error',
+      stack: e instanceof Error ? e.stack : undefined
     }, { status: 500 })
   }
 }
+

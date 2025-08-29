@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
 // ボットの優先度設定を取得
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category');
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest) {
     const { data: bots, error } = await query;
 
     if (error) {
-      console.error('Error fetching bot priorities:', error);
+      logger.error('Error fetching bot priorities', new Error(String(error)));
       return NextResponse.json({ 
         error: 'Failed to fetch bot priorities' 
       }, { status: 500 });
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[ADMIN_BOT_PRIORITY_API_ERROR]', error);
+    logger.error('[ADMIN_BOT_PRIORITY_API_ERROR]', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
 }
 
 // ボットの優先度設定を更新
-export async function PUT(req: NextRequest) {
+export async function PUT(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.json();
     const { botId, updates } = body;
@@ -61,7 +62,7 @@ export async function PUT(req: NextRequest) {
       .select();
 
     if (error) {
-      console.error('Error updating bot priority:', error);
+      logger.error('Error updating bot priority', new Error(String(error)));
       return NextResponse.json({ 
         error: 'Failed to update bot priority' 
       }, { status: 500 });
@@ -73,7 +74,7 @@ export async function PUT(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[ADMIN_BOT_PRIORITY_UPDATE_API_ERROR]', error);
+    logger.error('[ADMIN_BOT_PRIORITY_UPDATE_API_ERROR]', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });
@@ -81,7 +82,7 @@ export async function PUT(req: NextRequest) {
 }
 
 // 複数のボットの優先度を一括更新
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.json();
     const { updates } = body;
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[ADMIN_BOT_PRIORITY_BATCH_UPDATE_API_ERROR]', error);
+    logger.error('[ADMIN_BOT_PRIORITY_BATCH_UPDATE_API_ERROR]', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });

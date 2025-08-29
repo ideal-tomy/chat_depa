@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { 
   UsersIcon,
   CurrencyYenIcon,
@@ -12,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { getCurrentUser } from '@/lib/auth';
 import { adminAPI, profileAPI } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 interface User {
   id: string;
@@ -30,7 +32,7 @@ interface Statistics {
   average_points: number;
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard(): JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +85,7 @@ export default function AdminDashboard() {
       setStatistics(usersResponse.data?.statistics || null);
 
     } catch (err) {
-      console.error('データ取得エラー:', err);
+      logger.error('データ取得エラー', new Error(String(err)));
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
     } finally {
       setLoading(false);
@@ -127,7 +129,7 @@ export default function AdminDashboard() {
       fetchData();
 
     } catch (error) {
-      console.error('ポイント付与エラー:', error);
+      logger.error('ポイント付与エラー', new Error(String(error)));
       alert(error instanceof Error ? error.message : 'ポイント付与に失敗しました');
     } finally {
       setIsGranting(false);
@@ -293,9 +295,11 @@ export default function AdminDashboard() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             {user.avatar_url ? (
-                              <img 
+                              <Image 
                                 src={user.avatar_url} 
                                 alt=""
+                                width={40}
+                                height={40}
                                 className="h-10 w-10 rounded-full object-cover mr-3"
                               />
                             ) : (

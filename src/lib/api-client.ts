@@ -1,4 +1,5 @@
 import { getSession } from './auth'
+import { logger } from '@/lib/logger';
 
 // API は常に相対パスで叩く（SSRでも Next.js が同一オリジンで解決）
 const API_BASE_URL = ''
@@ -44,7 +45,7 @@ async function apiRequest<T = any>(
 
     return result
   } catch (error) {
-    console.error(`API request failed for ${endpoint}:`, error)
+    logger.error(`API request failed for ${endpoint}`, new Error(String(error)))
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

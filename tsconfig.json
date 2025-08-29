@@ -1,7 +1,7 @@
 // tsconfig.json
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2022",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -18,13 +18,28 @@
       { "name": "next" }
     ],
 
-    // ★ ここから下を追加 ★
-    "baseUrl": ".",         // プロジェクトルートを基準にする
-    "paths": {
-      "@/*": ["src/*"]      // @/～ が src/～ にマップされる
-    }
-    // ★ ここまで ★
+    // 型安全性の強化（段階的に厳格化）
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    // 一時的に無効化（段階的に有効化予定）
+    // "noUncheckedIndexedAccess": true,
+    // "exactOptionalPropertyTypes": true,
 
+    // パフォーマンス最適化
+    "forceConsistentCasingInFileNames": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+
+    // パス設定
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
     "next-env.d.ts",

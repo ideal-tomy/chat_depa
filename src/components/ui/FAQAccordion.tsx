@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+
 import { Disclosure, Transition } from '@headlessui/react';
 
 interface FAQItem {
@@ -13,7 +13,7 @@ interface FAQAccordionProps {
   title?: string;
 }
 
-export default function FAQAccordion({ items, title }: FAQAccordionProps) {
+export default function FAQAccordion(props: any): JSX.Element {
   return (
     <div className="w-full rounded-lg">
       {title && (
@@ -68,3 +68,4 @@ export default function FAQAccordion({ items, title }: FAQAccordionProps) {
     </div>
   );
 }
+

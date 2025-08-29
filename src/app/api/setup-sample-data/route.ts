@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export async function POST() {
   try {
-    console.log('Setting up sample bot data...');
+    logger.info('Setting up sample bot data...');
     
     // サンプルボットデータ
     const sampleBots = [
@@ -65,7 +66,7 @@ export async function POST() {
       .neq('id', '00000000-0000-0000-0000-000000000000'); // 存在しないIDで全削除
 
     if (deleteError) {
-      console.log('Delete warning (may be normal):', deleteError);
+      logger.warn('Delete warning (may be normal)', { error: deleteError });
     }
 
     // サンプルデータを挿入
@@ -75,7 +76,7 @@ export async function POST() {
       .select();
 
     if (error) {
-      console.error('Insert error:', error);
+      logger.error('Insert error', new Error(String(error)));
       return NextResponse.json({ 
         error: 'Failed to insert sample data', 
         details: error 
@@ -90,10 +91,11 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({ 
       error: 'API error', 
       details: error 
     }, { status: 500 });
   }
 } 
+

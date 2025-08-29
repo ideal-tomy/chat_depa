@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { getCurrentUser } from '@/lib/auth';
 import { pointsAPI } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 interface Transaction {
   id: string;
@@ -32,7 +33,7 @@ const TRANSACTION_TYPES = [
   { value: 'earned', label: '獲得' },
 ] as const;
 
-export default function TransactionsPage() {
+export default function TransactionsPage(): JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +72,7 @@ export default function TransactionsPage() {
       const response = await pointsAPI.getHistory({
         limit: 20,
         offset,
-        type: filter || undefined
+        ...(filter && { type: filter })
       });
 
       if (!response.success) {
@@ -89,7 +90,7 @@ export default function TransactionsPage() {
       setHasMore(response.data?.pagination?.has_more || false);
 
     } catch (err) {
-      console.error('取引履歴取得エラー:', err);
+      logger.error('取引履歴取得エラー', new Error(String(err)));
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
     } finally {
       setLoading(false);

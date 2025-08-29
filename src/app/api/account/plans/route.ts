@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { supabaseServer } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 // 購入可能プラン一覧取得API
 export async function GET() {
@@ -15,7 +16,7 @@ export async function GET() {
       .order('price', { ascending: true })
 
     if (plansError) {
-      console.error('Plans fetch error:', plansError)
+      logger.error('Plans fetch error', new Error(plansError.message))
       return NextResponse.json({
         success: false,
         error: 'Failed to fetch plans'
@@ -41,10 +42,11 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('Plans API error:', error)
+    logger.error('Plans API error', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
     }, { status: 500 })
   }
 }
+

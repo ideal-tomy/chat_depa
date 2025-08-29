@@ -10,13 +10,17 @@ interface HorizontalCarouselProps {
   bots: Bot[];
   autoScroll?: boolean;
   autoScrollSpeed?: number;
+  isLarge?: boolean; // 大きなカード表示フラグ
+  isNew?: boolean; // 新着ボットフラグ
 }
 
 export default function HorizontalCarousel({ 
   title, 
   bots, 
   autoScroll = true, 
-  autoScrollSpeed = 3000 
+  autoScrollSpeed = 3000,
+  isLarge = false,
+  isNew = false
 }: HorizontalCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -95,6 +99,7 @@ export default function HorizontalCarousel({
         scrollElement.removeEventListener('scroll', checkScrollButtons);
       };
     }
+    return undefined;
   }, [bots]);
 
   if (bots.length === 0) return null;
@@ -144,7 +149,7 @@ export default function HorizontalCarousel({
         {/* スクロールコンテナ */}
         <div
           ref={scrollRef}
-          className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-4"
+          className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-4 pt-6"
           style={{
             scrollSnapType: 'x mandatory',
             scrollBehavior: 'smooth'
@@ -156,7 +161,7 @@ export default function HorizontalCarousel({
               className="flex-none w-[280px] sm:w-[320px] md:w-[360px]"
               style={{ scrollSnapAlign: 'start' }}
             >
-              <BotCard bot={bot} compact />
+              <BotCard bot={bot} isLarge={isLarge} isNew={isNew} />
             </div>
           ))}
         </div>

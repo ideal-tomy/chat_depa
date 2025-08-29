@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger';
 
 // クライアントサイド用Supabaseインスタンス
 const supabase = createClient(
@@ -13,7 +14,7 @@ export async function getCurrentUser() {
     if (error) throw error
     return user
   } catch (error) {
-    console.error('認証エラー:', error)
+    logger.error('認証エラー', new Error(String(error)))
     return null
   }
 }
@@ -25,7 +26,7 @@ export async function getSession() {
     if (error) throw error
     return session
   } catch (error) {
-    console.error('セッション取得エラー:', error)
+    logger.error('セッション取得エラー', new Error(String(error)))
     return null
   }
 }
@@ -37,7 +38,7 @@ export async function signOut() {
     if (error) throw error
     return true
   } catch (error) {
-    console.error('ログアウトエラー:', error)
+    logger.error('ログアウトエラー', new Error(String(error)))
     return false
   }
 }

@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 // システム完成・動作確認API
@@ -104,10 +105,11 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('System status check error:', error)
+    logger.error('System status check error', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 })
   }
 }
+

@@ -1,29 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('[profile] Starting profile API request')
+    logger.info('[profile] Starting profile API request')
     
     // Supabase クライアントの作成
     const supabase = createRouteHandlerClient({ cookies })
-    console.log('[profile] Supabase client created')
+    logger.info('[profile] Supabase client created')
 
     // 認証ユーザー取得
     const { data: { user }, error: authErr } = await supabase.auth.getUser()
     if (authErr) {
-      console.error('[profile] auth error:', authErr)
+      logger.error('[profile] auth error', authErr instanceof Error ? authErr : new Error('Unknown auth error'))
       return NextResponse.json({ error: 'Unauthorized', details: authErr.message }, { status: 401 })
     }
     if (!user) {
-      console.log('[profile] No user found')
+      logger.warn('[profile] No user found')
       return NextResponse.json({ error: 'No user' }, { status: 401 })
     }
 
-    console.log('[profile] User found:', user.id)
+    logger.info('[profile] User found', { userId: user.id })
 
     // profiles から読み出し
     const { data: profile, error } = await supabase
@@ -33,11 +34,11 @@ export async function GET(_req: NextRequest) {
       .single()
 
     if (error) {
-      console.error('[profile] db error:', error)
+      logger.error('[profile] db error', error instanceof Error ? error : new Error('Unknown db error'))
       return NextResponse.json({ error: error.message, code: error.code }, { status: 500 })
     }
 
-    console.log('[profile] Profile found successfully')
+    logger.info('[profile] Profile found successfully')
     return NextResponse.json({ 
       success: true,
       data: {
@@ -49,36 +50,36 @@ export async function GET(_req: NextRequest) {
       }
     }, { status: 200 })
     
-  } catch (e: any) {
-    console.error('[profile] unexpected error:', e)
+  } catch (error) {
+    logger.error('[profile] unexpected error', error instanceof Error ? error : new Error('Unknown error'))
     return NextResponse.json({ 
-      error: e?.message ?? 'unexpected error',
-      stack: e?.stack 
+      error: error instanceof Error ? error.message : 'unexpected error',
+      stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
   }
 }
 
 // プロフィール情報更新API
-export async function PUT(request: NextRequest) {
+export async function PUT(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('[profile PUT] Starting profile update request')
+    logger.info('[profile PUT] Starting profile update request')
     
     const supabase = createRouteHandlerClient({ cookies })
 
     // 認証ユーザー取得
     const { data: { user }, error: authErr } = await supabase.auth.getUser()
     if (authErr) {
-      console.error('[profile PUT] auth error:', authErr)
+      logger.error('[profile PUT] auth error', authErr instanceof Error ? authErr : new Error('Unknown auth error'))
       return NextResponse.json({ error: 'Unauthorized', details: authErr.message }, { status: 401 })
     }
     if (!user) {
-      console.log('[profile PUT] No user found')
+      logger.warn('[profile PUT] No user found')
       return NextResponse.json({ error: 'No user' }, { status: 401 })
     }
 
     // リクエストボディを取得
-    const body = await request.json()
-    const { username, avatar_url } = body
+    const body = await req.json()
+    const { username, avatar_url } = body as { username?: string; avatar_url?: string }
 
     // バリデーション
     if (!username || username.trim().length === 0) {
@@ -96,7 +97,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // プロフィール更新
-    const updateData: any = { username: username.trim() }
+    const updateData: Record<string, unknown> = { username: username.trim() }
     if (avatar_url !== undefined) {
       updateData.avatar_url = avatar_url
     }
@@ -109,14 +110,14 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (updateError) {
-      console.error('[profile PUT] db error:', updateError)
+      logger.error('[profile PUT] db error', updateError instanceof Error ? updateError : new Error('Unknown update error'))
       return NextResponse.json({
         error: updateError.message,
         code: updateError.code
       }, { status: 500 })
     }
 
-    console.log('[profile PUT] Profile updated successfully')
+    logger.info('[profile PUT] Profile updated successfully')
     return NextResponse.json({
       success: true,
       message: 'Profile updated successfully',
@@ -125,11 +126,11 @@ export async function PUT(request: NextRequest) {
       }
     })
 
-  } catch (error: any) {
-    console.error('[profile PUT] unexpected error:', error)
+  } catch (error) {
+    logger.error('[profile PUT] unexpected error', error instanceof Error ? error : new Error('Unknown error'))
     return NextResponse.json({
-      error: error?.message ?? 'Internal server error',
-      stack: error?.stack
+      error: error instanceof Error ? error.message : 'Internal server error',
+      stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
   }
 }

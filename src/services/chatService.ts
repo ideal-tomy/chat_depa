@@ -1,5 +1,6 @@
 import { Message } from '@/types';
 
+
 export interface ChatService {
   startSession(): Promise<string>;
   sendMessage(sessionId: string, text: string): Promise<Message>;

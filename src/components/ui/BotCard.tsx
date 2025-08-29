@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Bot } from '@/types';
 import { getCurrentUser } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 import { categoryToCharacterType } from '@/lib/bot-classification';
 
 interface BotCardProps {
@@ -15,14 +16,14 @@ interface BotCardProps {
   isNew?: boolean; // 新着ボットフラグ
 }
 
-const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard', hideForm = false, compact = false, isLarge = false, isNew = false }) => {
+const BotCard: React.FC<BotCardProps> = ({ bot, isLarge = false, isNew = false }) => {
   const [message, setMessage] = useState('');
   const router = useRouter();
 
   // 1. Botオブジェクトの存在をより厳密にチェック
   if (!bot || !bot.id) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn('BotCard received an invalid bot object:', bot);
+      logger.warn('BotCard received an invalid bot object', { bot });
     }
     return null; 
   }
@@ -31,7 +32,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
   const getCharacterType = () => {
     // categoryToCharacterType自体が読み込まれているか確認
     if (typeof categoryToCharacterType !== 'object' || categoryToCharacterType === null) {
-      console.error("`categoryToCharacterType` is not a valid object.");
+      logger.error("`categoryToCharacterType` is not a valid object.");
       return 'default';
     }
     // bot.categoryが存在し、かつマッピングオブジェクトにキーが存在するか
@@ -81,8 +82,8 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
 
   // 3. コンテンツベースの高さでレイアウト（固定高さを廃止）
   const containerBase = isLarge 
-    ? "relative flex flex-col w-full h-[280px] sm:h-[320px] rounded-xl bg-white shadow-lg border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-4 sm:p-6 group"
-    : "relative flex flex-col w-full h-[200px] sm:h-[240px] rounded-xl bg-white shadow-md border border-gray-200 transition-transform hover:scale-105 cursor-pointer isolate p-3 sm:p-4 group";
+    ? "relative flex flex-col w-full h-[280px] sm:h-[320px] rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer isolate p-4 sm:p-6 group"
+    : "relative flex flex-col w-full h-[200px] sm:h-[240px] rounded-xl bg-white shadow-md border border-gray-200 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer isolate p-3 sm:p-4 group";
   
   return (
     <div 
@@ -90,13 +91,13 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
       className={containerBase}
     >
       {/* アイコン（上方向中心にはみ出し、背景透過） */}
-      <div className={`absolute -top-4 left-3 z-20 ${isLarge ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-14 sm:h-14'}`}>
+      <div className={`absolute -top-6 left-3 z-20 ${isLarge ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-14 sm:h-14'}`}>
         <Image
           src={`/images/${characterType}.png`}
           alt={`${botName}のアイコン`}
           width={isLarge ? 80 : 56}
           height={isLarge ? 80 : 56}
-          className={`rounded-full shadow-lg w-full h-full object-cover ${isLarge ? 'animate-bounce' : ''} ${isNew ? 'animate-pulse' : ''}`}
+          className={`rounded-full w-full h-full object-cover bg-transparent transition-transform duration-200 hover:scale-110 ${isLarge ? 'animate-bounce' : ''} ${isNew ? 'animate-pulse' : ''}`}
           onError={(e) => {
             e.currentTarget.src = '/images/sumple01.png'; // フォールバック
           }}
@@ -104,7 +105,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, size = 'md', variant = 'standard
       </div>
 
       {/* ヘッダー部分：タイトル + ポイント */}
-      <div className="flex items-start gap-2 sm:gap-3 mb-3 pt-8 sm:pt-10">
+      <div className="flex items-start gap-2 sm:gap-3 mb-3 pt-10 sm:pt-12">
         {/* タイトル（最大スペース確保） */}
         <div className="flex-1 min-w-0">
           <h3 className={`font-semibold leading-tight text-gray-800 group-hover:text-indigo-600 mb-1 line-clamp-2 ${titleSizeClass}`}>

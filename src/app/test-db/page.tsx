@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
+import { logger } from '@/lib/logger';
 
-export default function TestDBPage() {
+export default function TestDBPage(): JSX.Element {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const testConnection = async () => {
     setLoading(true);
-    console.log('Testing Supabase connection from client...');
+    logger.info('Testing Supabase connection from client...');
     
     try {
       const { data, error } = await supabase
@@ -17,7 +18,7 @@ export default function TestDBPage() {
         .select('id, name, category')
         .limit(3);
       
-      console.log('Query result:', { data, error });
+      logger.info('Query result', { data, error });
       
       if (error) {
         setResult({ error: error.message, details: error });
@@ -25,7 +26,7 @@ export default function TestDBPage() {
         setResult({ success: true, data });
       }
     } catch (err) {
-      console.error('Catch error:', err);
+      logger.error('Catch error', new Error(String(err)));
       setResult({ error: 'Catch error', details: err });
     }
     

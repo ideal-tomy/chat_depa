@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
+import { logger } from '@/lib/logger';
 
-export default function DebugBotsPage() {
+export default function DebugBotsPage(): JSX.Element {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [inserting, setInserting] = useState(false);
 
   const fetchData = async () => {
-    console.log('Debug: Starting to fetch data...');
+    logger.info('Debug: Starting to fetch data...');
     setLoading(true);
     
     try {
@@ -18,7 +19,7 @@ export default function DebugBotsPage() {
         .from('bots')
         .select('*');
       
-      console.log('Debug: Raw query result:', { botsData, botsError });
+      logger.info('Debug: Raw query result', { botsData, botsError });
       
       if (botsError) {
         setError(botsError);
@@ -27,7 +28,7 @@ export default function DebugBotsPage() {
         setError(null);
       }
     } catch (err) {
-      console.error('Debug: Catch error:', err);
+      logger.error('Debug: Catch error', new Error(String(err)));
       setError(err);
     } finally {
       setLoading(false);
@@ -73,7 +74,7 @@ export default function DebugBotsPage() {
     ];
 
     try {
-      console.log('Debug: Inserting sample data...');
+      logger.info('Debug: Inserting sample data...');
       
       const { data: insertedData, error: insertError } = await supabase
         .from('bots')
@@ -81,15 +82,15 @@ export default function DebugBotsPage() {
         .select();
       
       if (insertError) {
-        console.error('Debug: Insert error:', insertError);
+        logger.error('Debug: Insert error', new Error(String(insertError)));
         setError(insertError);
       } else {
-        console.log('Debug: Insert success:', insertedData);
+        logger.info('Debug: Insert success', { insertedData });
         // 挿入後にデータを再取得
         fetchData();
       }
     } catch (err) {
-      console.error('Debug: Insert catch error:', err);
+      logger.error('Debug: Insert catch error', new Error(String(err)));
       setError(err);
     } finally {
       setInserting(false);

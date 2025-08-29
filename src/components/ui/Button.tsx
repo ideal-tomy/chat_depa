@@ -1,74 +1,87 @@
 'use client';
 
-import { ReactNode, ButtonHTMLAttributes } from 'react';
+import React from 'react';
+import { ButtonProps } from '@/types';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
-  fullWidth?: boolean;
-  isLoading?: boolean;
-}
-
-export default function Button({
+const Button: React.FC<ButtonProps> = ({
   children,
+  onClick,
+  disabled = false,
+  loading = false,
   variant = 'primary',
   size = 'md',
-  fullWidth = false,
-  isLoading = false,
   className = '',
-  disabled,
-  ...props
-}: ButtonProps) {
-  // バリアントに応じたスタイル
-  const variantStyles = {
-    primary: 'bg-primary hover:bg-primary-dark text-white shadow-md',
-    secondary: 'bg-accent-yellow hover:bg-opacity-80 text-text-dark',
-    tertiary: 'bg-accent-blue hover:bg-opacity-80 text-white',
-    outline: 'bg-white border-2 border-primary text-primary hover:bg-gray-50',
+  type = 'button'
+}) => {
+  // ベースクラスの計算
+  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+  
+  // バリアント別クラス
+  const variantClasses = {
+    primary: 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500',
+    secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
+    outline: 'border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
+    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500'
   };
-
-  // サイズに応じたスタイル
-  const sizeStyles = {
-    sm: 'text-xs py-1 px-3 rounded',
-    md: 'text-sm py-2 px-4 rounded-md',
-    lg: 'text-base py-3 px-6 rounded-lg',
+  
+  // サイズ別クラス
+  const sizeClasses = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg'
   };
-
-  // 幅のスタイル
-  const widthStyle = fullWidth ? 'w-full' : '';
-
-  // ローディング状態のスタイル
-  const loadingStyle = isLoading ? 'opacity-70 cursor-wait' : '';
-
-  // 無効状態のスタイル
-  const disabledStyle = disabled ? 'opacity-50 cursor-not-allowed' : '';
-
+  
+  // ローディング状態のクラス
+  const loadingClasses = loading ? 'cursor-wait' : '';
+  
+  // 最終的なクラス名を組み立て
+  const finalClassName = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${loadingClasses} ${className}`.trim();
+  
+  // クリックハンドラー
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    if (disabled || loading) {
+      e.preventDefault();
+      return;
+    }
+    
+    if (onClick) {
+      onClick();
+    }
+  };
+  
   return (
     <button
-      className={`
-        font-medium transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:ring-primary
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        ${widthStyle}
-        ${loadingStyle}
-        ${disabledStyle}
-        ${className}
-      `}
-      disabled={disabled || isLoading}
-      {...props}
+      type={type}
+      onClick={handleClick}
+      disabled={disabled || loading}
+      className={finalClassName}
     >
-      {isLoading ? (
-        <div className="flex items-center justify-center">
-          <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          {children}
-        </div>
-      ) : (
-        children
+      {loading && (
+        <svg 
+          className="animate-spin -ml-1 mr-2 h-4 w-4" 
+          xmlns="http://www.w3.org/2000/svg" 
+          fill="none" 
+          viewBox="0 0 24 24"
+        >
+          <circle 
+            className="opacity-25" 
+            cx="12" 
+            cy="12" 
+            r="10" 
+            stroke="currentColor" 
+            strokeWidth="4"
+          />
+          <path 
+            className="opacity-75" 
+            fill="currentColor" 
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
       )}
+      {children}
     </button>
   );
-}
+};
+
+export default Button;

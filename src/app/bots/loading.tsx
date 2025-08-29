@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@/components/ui/Skeleton";
 
-export default function Loading() {
+export default function Loading(): JSX.Element {
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="w-3/4 mx-auto h-10 mb-8">

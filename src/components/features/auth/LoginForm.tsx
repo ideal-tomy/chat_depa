@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
+import { logger } from '@/lib/logger';
 
-export default function LoginForm() {
+export default function LoginForm(): JSX.Element {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -78,7 +79,7 @@ export default function LoginForm() {
       }
       
     } catch (error: any) {
-      console.error('Login error:', error);
+      logger.error('Login error', new Error(String(error)));
       let errorMessage = 'メールアドレスまたはパスワードが正しくありません。';
       
       if (error.message?.includes('Invalid login credentials')) {
@@ -112,7 +113,7 @@ export default function LoginForm() {
         throw error;
       }
     } catch (error: any) {
-      console.error('Google login error:', error);
+      logger.error('Google login error', new Error(String(error)));
       setErrors({
         form: 'Googleログインに失敗しました。再度お試しください。'
       });
@@ -135,7 +136,7 @@ export default function LoginForm() {
         throw error;
       }
     } catch (error: any) {
-      console.error('GitHub login error:', error);
+      logger.error('GitHub login error', new Error(String(error)));
       setErrors({
         form: 'GitHubログインに失敗しました。再度お試しください。'
       });

@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 // 新しいカテゴリ分類マッピング
 const categoryMapping: Record<string, string> = {
@@ -219,7 +220,7 @@ function determineDisplayCategory(bot: any) {
 
 export async function POST() {
   try {
-    console.log('ボットカテゴリ更新開始...');
+    logger.info('ボットカテゴリ更新開始...');
     
     // 既存のボットデータを取得
     const { data: existingBots, error: fetchError } = await supabaseServer
@@ -227,14 +228,14 @@ export async function POST() {
       .select('*');
     
     if (fetchError) {
-      console.error('ボットデータ取得エラー:', fetchError);
+      logger.error('ボットデータ取得エラー', new Error(String(fetchError)));
       return NextResponse.json({
         error: 'Failed to fetch bot data',
         details: fetchError
       }, { status: 500 });
     }
     
-    console.log(`取得したボット数: ${existingBots?.length || 0}件`);
+    logger.info(`取得したボット数: ${existingBots?.length || 0}件`);
     
     let updatedCount = 0;
     let errorCount = 0;
@@ -257,7 +258,7 @@ export async function POST() {
           .eq('id', bot.id);
         
         if (updateError) {
-          console.error(`ボット更新エラー (${bot.name}):`, updateError);
+          logger.error(`ボット更新エラー (${bot.name})`, new Error(String(updateError)));
           errorCount++;
         } else {
           updatedCount++;
@@ -270,7 +271,7 @@ export async function POST() {
           });
         }
       } catch (error) {
-        console.error(`ボット処理エラー (${bot.name}):`, error);
+        logger.error(`ボット処理エラー (${bot.name})`, new Error(String(error)));
         errorCount++;
       }
     }
@@ -296,7 +297,7 @@ export async function POST() {
     });
     
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({
       error: 'API error',
       details: error
@@ -317,3 +318,4 @@ export async function GET() {
     ]
   });
 } 
+

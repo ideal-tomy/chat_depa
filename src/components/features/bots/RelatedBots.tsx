@@ -6,7 +6,7 @@ interface RelatedBotsProps {
   bots: Bot[];
 }
 
-export default function RelatedBots({ bots }: RelatedBotsProps) {
+export default function RelatedBots({ bots }: RelatedBotsProps): JSX.Element {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <h3 className="text-gray-800 font-medium mb-4">関連Bot</h3>

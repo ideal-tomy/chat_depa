@@ -3,14 +3,14 @@ import { supabaseServer } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const supabase = supabaseServer;
 
-    console.log('Setting up optimization tables...');
+    logger.info('Setting up optimization tables...');
 
     // 1. 既存テーブル拡張
-    console.log('1. Extending existing tables...');
+    logger.info('1. Extending existing tables...');
     
     // botsテーブルに表示最適化用カラムを追加
     const alterQueries = [
@@ -24,12 +24,12 @@ export async function POST(req: NextRequest) {
     for (const query of alterQueries) {
       const { error } = await supabase.rpc('exec_sql', { sql: query });
       if (error) {
-        console.error(`Error executing query: ${query}`, error);
+        logger.error(`Error executing query: ${query}`, new Error(String(error)));
       }
     }
 
     // 2. 新規テーブル作成
-    console.log('2. Creating new tables...');
+    logger.info('2. Creating new tables...');
 
     // bot_usage_stats テーブル
     const { error: usageStatsError } = await supabase.rpc('exec_sql', {
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (usageStatsError) {
-      console.error('Error creating bot_usage_stats table:', usageStatsError);
+      logger.error('Error creating bot_usage_stats table', new Error(String(usageStatsError)));
     }
 
     // bot_featured_settings テーブル
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (featuredSettingsError) {
-      console.error('Error creating bot_featured_settings table:', featuredSettingsError);
+      logger.error('Error creating bot_featured_settings table', new Error(String(featuredSettingsError)));
     }
 
     // bot_user_interactions テーブル
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (interactionsError) {
-      console.error('Error creating bot_user_interactions table:', interactionsError);
+      logger.error('Error creating bot_user_interactions table', new Error(String(interactionsError)));
     }
 
     // bot_recommendations テーブル
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (recommendationsError) {
-      console.error('Error creating bot_recommendations table:', recommendationsError);
+      logger.error('Error creating bot_recommendations table', new Error(String(recommendationsError)));
     }
 
     // user_recommendation_feedback テーブル
@@ -134,11 +134,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (feedbackError) {
-      console.error('Error creating user_recommendation_feedback table:', feedbackError);
+      logger.error('Error creating user_recommendation_feedback table', new Error(String(feedbackError)));
     }
 
     // 3. サンプルデータ挿入
-    console.log('3. Inserting sample data...');
+    logger.info('3. Inserting sample data...');
 
     // 既存のボットに新着フラグを設定
     const { error: newFlagError } = await supabase.rpc('exec_sql', {
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (newFlagError) {
-      console.error('Error setting new flags:', newFlagError);
+      logger.error('Error setting new flags', new Error(String(newFlagError)));
     }
 
     // 人気ボットにトレンドフラグを設定
@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (trendingFlagError) {
-      console.error('Error setting trending flags:', trendingFlagError);
+      logger.error('Error setting trending flags', new Error(String(trendingFlagError)));
     }
 
     // ピックアップボットを設定
@@ -184,10 +184,10 @@ export async function POST(req: NextRequest) {
     });
 
     if (pickupFlagError) {
-      console.error('Error setting pickup flags:', pickupFlagError);
+      logger.error('Error setting pickup flags', new Error(String(pickupFlagError)));
     }
 
-    console.log('Optimization tables setup completed successfully');
+    logger.info('Optimization tables setup completed successfully');
 
     return NextResponse.json({ 
       success: true, 
@@ -195,11 +195,12 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[SETUP_OPTIMIZATION_TABLES_ERROR]', error);
+    logger.error('[SETUP_OPTIMIZATION_TABLES_ERROR]', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });
   }
 }
+
 
 

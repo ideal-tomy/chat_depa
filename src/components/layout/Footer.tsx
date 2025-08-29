@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-export default function Footer() {
+export default function Footer(): JSX.Element {
   const navigation = {
     main: [
       { name: 'トップ', href: '/' },

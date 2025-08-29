@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic'
 import { supabaseServer } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const supabase = supabaseServer
 
@@ -25,17 +26,17 @@ export async function GET() {
       .limit(1)
 
     // ポイント関連テーブルの確認
-    const { data: pointsHistoryCheck, error: pointsHistoryError } = await supabase
+    const { error: pointsHistoryError } = await supabase
       .from('points_history')
       .select('*')
       .limit(1)
 
-    const { data: plansCheck, error: plansError } = await supabase
+    const { error: plansError } = await supabase
       .from('plans')
       .select('*')
       .limit(1)
 
-    const { data: pointPurchasesCheck, error: pointPurchasesError } = await supabase
+    const { error: pointPurchasesError } = await supabase
       .from('point_purchases')
       .select('*')
       .limit(1)
@@ -71,10 +72,11 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('Schema check error:', error)
+    logger.error('Schema check error', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 })
   }
 }
+

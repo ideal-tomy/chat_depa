@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { logger } from '@/lib/logger';
 
-export default function ForgotPasswordForm() {
+export default function ForgotPasswordForm(): JSX.Element {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -21,7 +22,7 @@ export default function ForgotPasswordForm() {
     
     try {
       // ここで実際のパスワードリセットメール送信処理を行う（Supabase Auth等）
-      console.log('Password reset requested for:', email);
+      logger.info('Password reset requested', { email });
       
       // 仮の成功レスポンス
       setTimeout(() => {
@@ -30,7 +31,7 @@ export default function ForgotPasswordForm() {
       }, 1500);
       
     } catch (error) {
-      console.error('Password reset error:', error);
+      logger.error('Password reset error', new Error(String(error)));
       setError('パスワード再設定メールの送信に失敗しました。再度お試しください。');
       setIsLoading(false);
     }

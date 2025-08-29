@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export async function POST() {
   try {
-    console.log('Registering all 117 bots from CSV data...');
+    logger.info('Registering all 117 bots from CSV data...');
     
     // CSVから変換したボットデータ（全117件）- Supabaseスキーマ対応版
     const csvBots = [
@@ -1297,7 +1298,7 @@ export async function POST() {
       }
 ];
 
-    console.log(`Processing ${csvBots.length} bots...`);
+    logger.info(`Processing ${csvBots.length} bots...`);
 
     // 小さなバッチに分割して処理（Supabaseの制限を考慮）
     const BATCH_SIZE = 20;
@@ -1307,7 +1308,7 @@ export async function POST() {
       batches.push(csvBots.slice(i, i + BATCH_SIZE));
     }
 
-    console.log(`Processing in ${batches.length} batches of max ${BATCH_SIZE} items each`);
+    logger.info(`Processing in ${batches.length} batches of max ${BATCH_SIZE} items each`);
 
     let totalInserted = 0;
     let totalSkipped = 0;
@@ -1316,7 +1317,8 @@ export async function POST() {
 
     for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
       const batch = batches[batchIndex];
-      console.log(`Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} items)`);
+      if (!batch) continue;
+      logger.info(`Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} items)`);
 
       // バッチ内の重複チェック
       const batchNewBots = [];
@@ -1337,7 +1339,7 @@ export async function POST() {
       }
 
       if (batchNewBots.length > 0) {
-        console.log(`Inserting ${batchNewBots.length} new bots in batch ${batchIndex + 1}`);
+        logger.info(`Inserting ${batchNewBots.length} new bots in batch ${batchIndex + 1}`);
         
         // バッチ挿入実行
         const { data, error } = await supabaseServer
@@ -1346,7 +1348,7 @@ export async function POST() {
           .select();
 
         if (error) {
-          console.error(`Batch ${batchIndex + 1} insert error:`, error);
+          logger.error(`Batch ${batchIndex + 1} insert error`, new Error(error.message));
           return NextResponse.json({
             error: `Failed to insert batch ${batchIndex + 1}`,
             details: error,
@@ -1361,9 +1363,9 @@ export async function POST() {
 
         totalInserted += data.length;
         insertedBots.push(...data.map(bot => ({ id: bot.id, name: bot.name })));
-        console.log(`Batch ${batchIndex + 1} completed: ${data.length} bots inserted`);
+        logger.info(`Batch ${batchIndex + 1} completed: ${data.length} bots inserted`);
       } else {
-        console.log(`Batch ${batchIndex + 1}: All bots already exist, skipping`);
+        logger.info(`Batch ${batchIndex + 1}: All bots already exist, skipping`);
       }
     }
 
@@ -1379,7 +1381,7 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({
       error: 'API error',
       details: error
@@ -1387,7 +1389,7 @@ export async function POST() {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   return NextResponse.json({
     message: 'CSV Bot Registration API (Schema Fixed)',
     description: 'Use POST method to register all 117 bots from CSV data',
@@ -1401,3 +1403,4 @@ export async function GET() {
     ]
   });
 }
+

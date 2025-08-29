@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
-import { BotRecommendation, Bot } from '@/types';
+import { BotRecommendation } from '@/types';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
 
     const recommendations = await getBotRecommendations({
       botId,
-      userId: userId || undefined,
+      ...(userId && { userId }),
       limit,
       type: type as 'collaborative' | 'content_based' | 'hybrid'
     });
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ recommendations });
 
   } catch (error) {
-    console.error('[BOT_RECOMMENDATIONS_API_ERROR]', error);
+    logger.error('BOT_RECOMMENDATIONS_API_ERROR', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });
@@ -44,7 +45,6 @@ async function getBotRecommendations({
   limit: number;
   type: 'collaborative' | 'content_based' | 'hybrid';
 }): Promise<BotRecommendation[]> {
-  const supabase = supabaseServer;
   let recommendations: BotRecommendation[] = [];
 
   if (type === 'collaborative' || type === 'hybrid') {

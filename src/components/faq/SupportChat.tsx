@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { PaperAirplaneIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { logger } from '@/lib/logger';
 
 interface SupportChatProps {
   onClose: () => void;
@@ -14,7 +15,7 @@ interface Message {
   timestamp: Date;
 }
 
-export default function SupportChat({ onClose }: SupportChatProps) {
+export default function SupportChat(props: any): JSX.Element {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -86,7 +87,7 @@ export default function SupportChat({ onClose }: SupportChatProps) {
       }, 1000);
       
     } catch (error) {
-      console.error('Error sending message:', error);
+      logger.error('Error sending message', new Error(String(error)));
       setIsLoading(false);
     }
   };
@@ -187,3 +188,4 @@ export default function SupportChat({ onClose }: SupportChatProps) {
     </div>
   );
 }
+

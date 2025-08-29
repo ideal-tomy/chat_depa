@@ -1,4 +1,4 @@
-import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
+import ForgotPasswordForm from '@/components/features/auth/ForgotPasswordForm';
 import Link from 'next/link';
 
 export const metadata = {
@@ -6,7 +6,7 @@ export const metadata = {
   description: 'Chatbot Departmentのパスワードを忘れた場合の再設定ページです。',
 };
 
-export default function ForgotPasswordPage() {
+export default function ForgotPasswordPage(): JSX.Element {
   return (
     <main className="bg-gray-50 text-gray-800 min-h-[80vh] flex flex-col items-center justify-center">
       <div className="container mx-auto px-4 py-10 max-w-md">

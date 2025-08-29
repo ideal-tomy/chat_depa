@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 // アカウント管理システムの完成状況確認API
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const completedFeatures = {
       database: {
@@ -130,7 +131,7 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('Status check error:', error)
+    logger.error('Status check error', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'

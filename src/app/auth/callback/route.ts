@@ -2,6 +2,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     // エラーがある場合はログイン画面にリダイレクト
     if (error) {
-      console.error('Auth callback error:', error, errorDescription);
+      logger.error('Auth callback error', new Error(String(error)), { errorDescription });
       return NextResponse.redirect(`${requestUrl.origin}/account/login?error=${encodeURIComponent(error)}`);
     }
 
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
       const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       
       if (exchangeError) {
-        console.error('Code exchange error:', exchangeError);
+        logger.error('Code exchange error', new Error(String(exchangeError)));
         return NextResponse.redirect(`${requestUrl.origin}/account/login?error=code_exchange_failed`);
       }
     }
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
     // 成功時はホームページにリダイレクト
     return NextResponse.redirect(requestUrl.origin);
   } catch (error) {
-    console.error('Auth callback unexpected error:', error);
+    logger.error('Auth callback unexpected error', new Error(String(error)));
     return NextResponse.redirect(`${new URL(request.url).origin}/account/login?error=unexpected_error`);
   }
 }

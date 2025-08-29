@@ -3,6 +3,7 @@ import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
+import { logger } from '@/lib/logger';
 export const dynamic = 'force-dynamic'
 
 // OpenAI APIクライアントを作成
@@ -36,11 +37,11 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error fetching bot from Supabase:', error);
+      logger.error('Error fetching bot from Supabase', new Error(error.message));
       return new Response(`Error fetching bot: ${error.message}`, { status: 500 });
     }
     if (!bot) {
-      console.error(`Bot with id ${botId} not found.`);
+      logger.error(`Bot with id ${botId} not found.`);
       return new Response(`Bot with id ${botId} not found.`, { status: 404 });
     }
 
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
     return new StreamingTextResponse(stream);
 
   } catch (error) {
-    console.error('[CHAT_API_ERROR]', error);
+    logger.error('[CHAT_API_ERROR]', new Error(String(error)));
     // エラー発生時は500エラーを返す
     if (error instanceof OpenAI.APIError) {
         return new Response(error.message, { status: error.status });

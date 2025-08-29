@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
-export async function POST() {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('display_categoryカラム追加開始...');
+    logger.info('display_categoryカラム追加開始...');
     
     // SQLでカラムを追加
     const { error } = await supabaseServer.rpc('exec_sql', {
@@ -15,14 +16,14 @@ export async function POST() {
     });
     
     if (error) {
-      console.error('カラム追加エラー:', error);
+      logger.error('カラム追加エラー', new Error(String(error)));
       return NextResponse.json({
         error: 'Failed to add display_category column',
         details: error
       }, { status: 500 });
     }
     
-    console.log('display_categoryカラム追加完了');
+    logger.info('display_categoryカラム追加完了');
     
     // テーブル構造を確認
     const { data: columns, error: columnsError } = await supabaseServer
@@ -32,9 +33,9 @@ export async function POST() {
       .eq('table_name', 'bots');
     
     if (columnsError) {
-      console.error('カラム情報取得エラー:', columnsError);
+      logger.error('カラム情報取得エラー', new Error(String(columnsError)));
     } else {
-      console.log('現在のテーブル構造:', columns);
+      logger.info('現在のテーブル構造', { columns });
     }
     
     return NextResponse.json({
@@ -44,7 +45,7 @@ export async function POST() {
     });
     
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({
       error: 'API error',
       details: error
@@ -52,10 +53,11 @@ export async function POST() {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   return NextResponse.json({
     message: 'Add Display Category Column API',
     description: 'Use POST method to add display_category column to bots table',
     endpoint: '/api/add-display-category-column'
   });
 } 
+

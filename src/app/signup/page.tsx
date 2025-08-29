@@ -1,9 +1,9 @@
 "use client";
 
 import Image from 'next/image';
-import SignupForm from '@/components/auth/SignupForm';
+import SignupForm from '@/components/features/auth/SignupForm';
 
-export default function SignupPage() {
+export default function SignupPage(): JSX.Element {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">

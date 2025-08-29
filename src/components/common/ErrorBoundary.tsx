@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react'
+import { logger } from '@/lib/logger'
 
 type ErrorBoundaryProps = {
   fallback?: React.ReactNode
@@ -24,8 +25,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
 
   componentDidCatch(error: Error) {
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
-      console.error('ErrorBoundary caught an error:', error)
+      logger.error('ErrorBoundary caught an error', error)
     }
   }
 

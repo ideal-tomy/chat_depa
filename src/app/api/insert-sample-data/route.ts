@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
-export async function POST() {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('Inserting sample bot data from CSV...');
+    logger.info('Inserting sample bot data from CSV...');
     
     // CSVファイルのデータを基にしたサンプルボットデータ
     const sampleBots = [
@@ -113,7 +114,7 @@ export async function POST() {
       .neq('id', '00000000-0000-0000-0000-000000000000');
 
     if (deleteError) {
-      console.log('Delete warning (may be normal if table is empty):', deleteError);
+      logger.warn('Delete warning (may be normal if table is empty)', { error: deleteError });
     }
 
     // サンプルデータを挿入
@@ -123,7 +124,7 @@ export async function POST() {
       .select();
 
     if (error) {
-      console.error('Insert error:', error);
+      logger.error('Insert error', new Error(String(error)));
       return NextResponse.json({ 
         error: 'Failed to insert sample data', 
         details: error 
@@ -138,10 +139,11 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({ 
       error: 'API error', 
       details: error 
     }, { status: 500 });
   }
 } 
+

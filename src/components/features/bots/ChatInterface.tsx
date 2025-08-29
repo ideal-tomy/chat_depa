@@ -3,7 +3,8 @@
 import { Bot } from '@/types';
 import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { PaperAirplaneIcon, StopIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { PaperAirplaneIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { logger } from '@/lib/logger';
 import { supabaseBrowser as supabase } from '@/lib/supabase/browser';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,7 +13,7 @@ interface ChatInterfaceProps {
   bot: Bot;
 }
 
-export default function ChatInterface({ bot }: ChatInterfaceProps) {
+export default function ChatInterface({ bot }: { bot: Bot }): JSX.Element {
   const [session, setSession] = useState<any>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
 
@@ -75,7 +76,7 @@ export default function ChatInterface({ bot }: ChatInterfaceProps) {
       setAnswer(fullResponse);
 
     } catch (error) {
-      console.error('Error sending message:', error);
+      logger.error('Error sending message', new Error(String(error)));
       setAnswer('エラーが発生しました。');
     } finally {
       setIsLoading(false);
@@ -211,3 +212,4 @@ export default function ChatInterface({ bot }: ChatInterfaceProps) {
     </div>
   );
 }
+

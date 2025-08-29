@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 // アカウント設定バックエンドAPIの動作確認用
 export async function GET() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
     
     const apiEndpoints = [
       '/api/account/profile',
@@ -38,7 +38,7 @@ export async function GET() {
     return NextResponse.json(testResults)
 
   } catch (error) {
-    console.error('Test API error:', error)
+    logger.error('Test API error', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
@@ -71,3 +71,4 @@ function getApiMethods(endpoint: string): string[] {
   }
   return methods[endpoint] || ['GET']
 }
+

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { supabaseServer } from '@/lib/supabase/server';
 import { Bot } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category');
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
     const { data: allBots, error } = await query;
 
     if (error) {
-      console.error('Error fetching bots:', error);
+      logger.error('Error fetching bots', new Error(String(error)));
       return NextResponse.json({ 
         error: 'Failed to fetch bots' 
       }, { status: 500 });
@@ -88,7 +89,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[OPTIMIZED_BOTS_ORDER_API_ERROR]', error);
+    logger.error('[OPTIMIZED_BOTS_ORDER_API_ERROR]', new Error(String(error)));
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });

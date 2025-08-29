@@ -43,7 +43,7 @@ export class ChatServiceImpl implements ChatService {
       };
 
       return botResponse;
-    } catch (error) {
+    } catch {
       // エラーが発生した場合、エラーメッセージを含むMessageオブジェクトを返すか、例外を再スローするかを選択できます。
       // ここでは、ユーザーにエラーを通知するために、エラーメッセージを返します。
       const errorResponse: Message = {
@@ -61,7 +61,7 @@ export class ChatServiceImpl implements ChatService {
    * @param sessionId - 履歴を取得するセッションID
    * @returns メッセージの配列
    */
-  async fetchHistory(sessionId: string): Promise<Message[]> {
+  async fetchHistory(): Promise<Message[]> {
     // TODO: 実際のAPIエンドポイントを実装する
     await new Promise(res => setTimeout(res, 800)); // 擬似的なネットワーク遅延
     return [

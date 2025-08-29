@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
-export async function POST() {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('Registering all bots from CSV data...');
+    logger.info('Registering all bots from CSV data...');
     
     // CSVから変換したボットデータ（全117件）- idを除去してSupabase自動生成
     const csvBots = [
@@ -2565,7 +2566,7 @@ export async function POST() {
       }
 ];
 
-    console.log(`Processing ${csvBots.length} bots...`);
+    logger.info(`Processing ${csvBots.length} bots...`);
 
     // 既存データの確認（名前ベースの重複チェック）
     const botNames = csvBots.map(bot => bot.name);
@@ -2575,7 +2576,7 @@ export async function POST() {
       .in('name', botNames);
 
     if (selectError) {
-      console.error('Error checking existing bots:', selectError);
+      logger.error('Error checking existing bots', new Error(String(selectError)));
       return NextResponse.json({ 
         error: 'Failed to check existing data', 
         details: selectError 
@@ -2585,7 +2586,7 @@ export async function POST() {
     const existingNames = existingBots?.map(bot => bot.name) || [];
     const newBots = csvBots.filter(bot => !existingNames.includes(bot.name));
 
-    console.log(`Found ${existingNames.length} existing bots, adding ${newBots.length} new bots`);
+    logger.info(`Found ${existingNames.length} existing bots, adding ${newBots.length} new bots`);
 
     if (newBots.length === 0) {
       return NextResponse.json({
@@ -2603,7 +2604,7 @@ export async function POST() {
       .select();
 
     if (error) {
-      console.error('Insert error:', error);
+      logger.error('Insert error', new Error(String(error)));
       return NextResponse.json({ 
         error: 'Failed to insert bot data', 
         details: error 
@@ -2621,7 +2622,7 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({ 
       error: 'API error', 
       details: error 
@@ -2629,7 +2630,7 @@ export async function POST() {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   return NextResponse.json({
     message: 'CSV Bot Registration API',
     description: 'Use POST method to register all bots from CSV data',
@@ -2637,3 +2638,4 @@ export async function GET() {
     endpoint: '/api/register-csv-bots'
   });
 }
+

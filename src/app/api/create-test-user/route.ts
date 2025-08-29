@@ -1,8 +1,9 @@
 import { supabaseServer } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
-export async function POST() {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const supabase = supabaseServer
 
@@ -38,7 +39,7 @@ export async function POST() {
       })
 
       if (authError) {
-        console.error(`ユーザー作成エラー (${userData.email}):`, authError)
+        logger.error(`ユーザー作成エラー (${userData.email})`, new Error(String(authError)))
         results.push({
           email: userData.email,
           success: false,
@@ -59,7 +60,7 @@ export async function POST() {
           })
 
         if (profileError) {
-          console.error(`プロフィール作成エラー (${userData.email}):`, profileError)
+          logger.error(`プロフィール作成エラー (${userData.email})`, new Error(String(profileError)))
           results.push({
             email: userData.email,
             success: false,
@@ -100,10 +101,11 @@ export async function POST() {
     })
 
   } catch (error) {
-    console.error('テストユーザー作成エラー:', error)
+    logger.error('テストユーザー作成エラー', new Error(String(error)))
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 })
   }
 }
+

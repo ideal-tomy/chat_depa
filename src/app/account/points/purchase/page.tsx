@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { 
   CreditCardIcon,
   CheckIcon,
   ArrowLeftIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
-import { getCurrentUser } from '@/lib/auth';
-import { pointsAPI } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 interface Plan {
   id: string;
@@ -22,10 +20,9 @@ interface Plan {
   is_bonus: boolean;
 }
 
-export default function PointPurchasePage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false); // 初期ロードは不要
-  const [error, setError] = useState<string | null>(null);
+export default function PointPurchasePage(): JSX.Element {
+  const [loading] = useState(false); // 初期ロードは不要
+  const [error] = useState<string | null>(null);
 
   const plans: Plan[] = [
     { id: 'plan-5000', name: '5,000ポイント', description: '初めての方におすすめ', price: 50, points: 5000, bonus_percent: 0, is_bonus: false },
@@ -34,7 +31,7 @@ export default function PointPurchasePage() {
     { id: 'plan-50000', name: '50,000ポイント', description: '最安値プラン', price: 500, points: 50000, bonus_percent: 10, is_bonus: true },
   ];
 
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(plans[0]); // 初期選択は最初のプラン
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(plans[0] || null); // 初期選択は最初のプラン
   const [isProcessing, setIsProcessing] = useState(false);
 
   // 購入処理（現在はダミー実装）
@@ -46,7 +43,7 @@ export default function PointPurchasePage() {
       alert(`${plan.name}の購入機能は現在準備中です。\\n将来のStripe連携で実装予定です。`);
       
     } catch (error) {
-      console.error('購入処理エラー:', error);
+      logger.error('購入処理エラー', new Error(String(error)));
       alert('購入処理中にエラーが発生しました。');
     } finally {
       setIsProcessing(false);

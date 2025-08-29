@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { BotRecommendation } from '@/types';
-import BotCard from '@/components/ui/BotCard';
+
 import { Skeleton } from '@/components/ui/Skeleton';
+import { logger } from '@/lib/logger';
 
 interface RelatedBotsRecommendationProps {
   currentBotId: string;
@@ -48,7 +50,7 @@ export default function RelatedBotsRecommendation({
       const data = await response.json();
       setRecommendations(data.recommendations || []);
     } catch (err) {
-      console.error('Error fetching recommendations:', err);
+      logger.error('Error fetching recommendations', new Error(String(err)));
       setError('関連ボットの取得に失敗しました');
     } finally {
       setLoading(false);
@@ -69,7 +71,7 @@ export default function RelatedBotsRecommendation({
         })
       });
     } catch (error) {
-      console.error('Error recording feedback:', error);
+      logger.error('Error recording feedback', new Error(String(error)));
     }
   };
 
@@ -134,7 +136,7 @@ export default function RelatedBotsRecommendation({
               <div key={rec.id} className="relative">
                 <BotRecommendationCard
                   bot={rec.bot!}
-                  reason={rec.reason}
+                  {...(rec.reason && { reason: rec.reason })}
                   similarityScore={rec.similarity_score}
                   onClick={() => handleBotClick(rec.recommended_bot_id)}
                 />
@@ -150,7 +152,7 @@ export default function RelatedBotsRecommendation({
             <BotRecommendationCard
               key={rec.id}
               bot={rec.bot!}
-              reason={rec.reason}
+              {...(rec.reason && { reason: rec.reason })}
               similarityScore={rec.similarity_score}
               onClick={() => handleBotClick(rec.recommended_bot_id)}
             />
@@ -164,7 +166,7 @@ export default function RelatedBotsRecommendation({
             <BotRecommendationSidebarItem
               key={rec.id}
               bot={rec.bot!}
-              reason={rec.reason}
+              {...(rec.reason && { reason: rec.reason })}
               onClick={() => handleBotClick(rec.recommended_bot_id)}
             />
           ))}
@@ -194,9 +196,11 @@ function BotRecommendationCard({
       <div className="p-4">
         <div className="flex items-start space-x-3">
           <div className="flex-shrink-0">
-            <img 
+            <Image 
               src={bot.imageUrl || '/images/sumple01.png'} 
               alt={bot.name}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-lg object-cover"
             />
           </div>
@@ -240,9 +244,11 @@ function BotRecommendationSidebarItem({
       onClick={onClick}
     >
       <div className="flex items-center space-x-3">
-        <img 
+        <Image 
           src={bot.imageUrl || '/images/sumple01.png'} 
           alt={bot.name}
+          width={40}
+          height={40}
           className="w-10 h-10 rounded-lg object-cover"
         />
         <div className="flex-1 min-w-0">

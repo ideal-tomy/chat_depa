@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('[profile-client] Starting client-based profile API')
+    logger.info('[profile-client] Starting client-based profile API')
     
     // Authorization ヘッダーからトークンを取得
-    const authHeader = request.headers.get('authorization')
+    const authHeader = req.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Authorization header required' }, { status: 401 })
     }
@@ -25,11 +26,11 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     
     if (authError || !user) {
-      console.error('[profile-client] Auth error:', authError)
+      logger.error('[profile-client] Auth error', authError instanceof Error ? authError : new Error('Unknown auth error'))
       return NextResponse.json({ error: 'Invalid token or user not found' }, { status: 401 })
     }
 
-    console.log('[profile-client] User found:', user.id)
+    logger.info('[profile-client] User found', { userId: user.id })
 
     // プロフィール情報を取得
     const { data: profile, error: profileError } = await supabase
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (profileError) {
-      console.error('[profile-client] Profile error:', profileError)
+      logger.error('[profile-client] Profile error', profileError instanceof Error ? profileError : new Error('Unknown profile error'))
       // プロフィールが存在しない場合はデフォルトプロフィールを作成
       if (profileError.code === 'PGRST116') {
         const defaultProfile = {
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
           .single()
           
         if (createError) {
-          console.error('[profile-client] Create profile error:', createError)
+          logger.error('[profile-client] Create profile error', createError instanceof Error ? createError : new Error('Unknown create error'))
           return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
         }
         
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: profileError.message }, { status: 500 })
     }
 
-    console.log('[profile-client] Profile found successfully')
+    logger.info('[profile-client] Profile found successfully')
     return NextResponse.json({
       success: true,
       data: {
@@ -88,11 +89,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-  } catch (error: any) {
-    console.error('[profile-client] Unexpected error:', error)
+  } catch (error) {
+    logger.error('[profile-client] Unexpected error', error instanceof Error ? error : new Error('Unknown error'))
     return NextResponse.json({
-      error: error?.message ?? 'Internal server error',
-      stack: error?.stack
+      error: error instanceof Error ? error.message : 'Internal server error',
+      stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
   }
 }

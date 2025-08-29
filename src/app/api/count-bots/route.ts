@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
-export async function GET() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log('Counting total bots...');
+    logger.info('Counting total bots...');
     
     // 総ボット数をカウント
     const { count, error } = await supabaseServer
@@ -12,7 +13,7 @@ export async function GET() {
       .select('*', { count: 'exact', head: true });
     
     if (error) {
-      console.error('Count error:', error);
+      logger.error('Count error', new Error(String(error)));
       return NextResponse.json({
         error: 'Failed to count bots',
         details: error
@@ -26,7 +27,7 @@ export async function GET() {
       .order('category');
 
     if (categoryError) {
-      console.error('Category count error:', categoryError);
+      logger.error('Category count error', new Error(String(categoryError)));
       return NextResponse.json({
         error: 'Failed to get category data',
         details: categoryError
@@ -47,10 +48,11 @@ export async function GET() {
       uniqueCategories: Object.keys(categoryCount).length
     });
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error', new Error(String(error)));
     return NextResponse.json({
       error: 'API error',
       details: error
     }, { status: 500 });
   }
 }
+

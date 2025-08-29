@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import BotList from '@/components/bots/BotList';
+import { logger } from '@/lib/logger';
+import BotList from '@/components/features/bots/BotList';
 import BotFilter from './BotFilter';
 import CategorySection from '@/components/ui/CategorySection';
 import CategoryCarousel from '@/components/ui/CategoryCarousel';
@@ -36,7 +37,7 @@ interface FilterState {
   sortOrder: string;
 }
 
-export default function BotPageClient() {
+export default function BotPageClient(): JSX.Element {
   const searchParams = useSearchParams();
   const [bots, setBots] = useState<Bot[]>([]);
   const [allBots, setAllBots] = useState<Bot[]>([]);
@@ -97,7 +98,6 @@ export default function BotPageClient() {
           : data
 
         setBots((prev) => {
-          const merged = isLoadMore ? [...prev, ...data] : data;
           const seen = new Set<string>();
           return (filtered as any[]).filter((b: any) => {
             const key = String(b.id);
@@ -111,7 +111,7 @@ export default function BotPageClient() {
         setOffset(totalFetched);
       }
     } catch (error) {
-      console.error("Error fetching bots:", error);
+      logger.error("Error fetching bots", new Error(String(error)));
       setBots([]);
       setHasMore(false);
     } finally {
@@ -130,7 +130,7 @@ export default function BotPageClient() {
       if (error) throw error;
       setAllBots((data || []) as Bot[]);
     } catch (e) {
-      console.error('Error fetching all bots for sections:', e);
+      logger.error('Error fetching all bots for sections', new Error(String(e)));
       setAllBots([]);
     }
   }, []);

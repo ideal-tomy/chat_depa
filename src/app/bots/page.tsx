@@ -1,11 +1,11 @@
-import BotPageClient from '@/components/bots/BotPageClient';
+import BotPageClient from '@/components/features/bots/BotPageClient';
 
 export const metadata = {
   title: 'Bot一覧 | Chatbot Department',
   description: '様々な専門分野のBotをご用意しています。目的に合わせてお選びください。',
 };
 
-export default function BotsPage() {
+export default function BotsPage(): JSX.Element {
   return (
     <main className="bg-gray-50 text-gray-800">
       {/* ヒーローセクション */}

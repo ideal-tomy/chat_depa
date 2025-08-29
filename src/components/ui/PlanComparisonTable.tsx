@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { CheckIcon } from '@heroicons/react/24/solid';
 
 type PlanType = 'monthly' | 'yearly';
-type PlanTier = 'free' | 'basic' | 'premium';
+
 
 interface PlanFeature {
   name: string;
@@ -13,7 +13,7 @@ interface PlanFeature {
   premium: boolean | string;
 }
 
-export default function PlanComparisonTable() {
+export default function PlanComparisonTable(): JSX.Element {
   const [planType, setPlanType] = useState<PlanType>('monthly');
   
   const planPrices = {
@@ -29,11 +29,7 @@ export default function PlanComparisonTable() {
     }
   };
   
-  const planPoints = {
-    free: '100P',
-    basic: '500P',
-    premium: '1,200P'
-  };
+
   
   const features: PlanFeature[] = [
     { name: '利用可能Bot数', free: '制限あり', basic: '無制限', premium: '無制限' },

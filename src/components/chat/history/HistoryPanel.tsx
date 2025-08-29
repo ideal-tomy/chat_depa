@@ -1,14 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useChatService } from '../ChatProvider';
+import { useChatService } from '../../features/chat/ChatProvider';
 import { Message } from '../../../types/types';
+import { logger } from '@/lib/logger';
 
 interface HistoryPanelProps {
   sessionId: string;
 }
 
-export default function HistoryPanel({ sessionId }: HistoryPanelProps) {
+export default function HistoryPanel(props: any): JSX.Element {
   const chatService = useChatService();
   const [history, setHistory] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +21,7 @@ export default function HistoryPanel({ sessionId }: HistoryPanelProps) {
     chatService.fetchHistory(sessionId)
       .then(setHistory)
       .catch((err: unknown) => {
-        console.error('Failed to fetch history:', err);
+        logger.error('Failed to fetch history', new Error(String(err)));
         // ここでエラーメッセージをUIに表示することも可能
       })
       .finally(() => setIsLoading(false));
@@ -44,3 +45,4 @@ export default function HistoryPanel({ sessionId }: HistoryPanelProps) {
     </div>
   );
 }
+
