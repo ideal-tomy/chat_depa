@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import BotCard from './BotCard';
 import { Bot, CarouselProps, CarouselState } from '@/types';
 import { logger } from '@/lib/logger';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const PickUpCarousel: React.FC<CarouselProps> = ({ 
   title = '注目のBot', 
@@ -205,6 +207,39 @@ const PickUpCarousel: React.FC<CarouselProps> = ({
           </svg>
         </button>
       )}
+      
+      {/* CTAボタン */}
+      <div className="text-center mt-6">
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <Image
+            src="/images/sumple04.png"
+            alt="sumple04"
+            width={80}
+            height={80}
+            className="w-20 h-20 object-contain z-10 relative"
+          />
+          <Link 
+            href="/bots" 
+            className="inline-flex items-center bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-10 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-3xl relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6)',
+              backgroundSize: '200% 100%',
+              animation: 'flash 2s ease-in-out infinite'
+            }}
+          >
+            <span className="mr-3">🤖</span>
+            ボット一覧はこちら
+            <span className="ml-3">→</span>
+          </Link>
+          <Image
+            src="/images/uranai01.png"
+            alt="uranai01"
+            width={80}
+            height={80}
+            className="w-20 h-20 object-contain z-10 relative"
+          />
+        </div>
+      </div>
     </div>
   );
 };

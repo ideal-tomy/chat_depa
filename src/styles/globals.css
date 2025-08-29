@@ -4,11 +4,21 @@
 
 /* 人気ボットのパルスアニメーション */
 @keyframes popularPulse {
-  0%, 100% { 
-    transform: scale(1); 
+  0%, 100% {
+    transform: scale(1);
   }
-  50% { 
-    transform: scale(1.05); 
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* フラッシュアニメーション */
+@keyframes flash {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 
