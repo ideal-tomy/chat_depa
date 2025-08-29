@@ -4,12 +4,12 @@ import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     logger.info('[points] Starting points API request')
     
     // Authorization ヘッダーからトークンを取得
-    const authHeader = req.headers.get('authorization')
+    const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       logger.warn('[points] No authorization header, returning 0 points')
       return NextResponse.json({ success: true, data: { current_points: 0, user_id: null } });

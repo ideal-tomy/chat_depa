@@ -22,7 +22,7 @@ export default function HistoryModal({ isOpen, onClose, sessionId }: { isOpen: b
     // モーダルが開かれ、かつ履歴がまだ読み込まれていない場合に取得する
     if (isOpen && history.length === 0) {
       setIsLoading(true);
-      chatService.fetchHistory(sessionId)
+      chatService.fetchHistory(sessionId || '')
         .then(setHistory)
         .catch(err => logger.error('Failed to fetch modal history', new Error(String(err))))
         .finally(() => setIsLoading(false));

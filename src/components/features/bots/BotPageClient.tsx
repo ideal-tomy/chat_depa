@@ -180,7 +180,7 @@ export default function BotPageClient(): JSX.Element {
             <div key={cat}>
               <div className={`mt-2 ${index % 2 === 1 ? 'py-4 bg-gray-100' : ''}`}>
                 <CategorySection title={cat} viewAllLink={`/bots?category=${encodeURIComponent(cat)}`}>
-                  <CategoryCarousel bots={list} />
+                  <CategoryCarousel bots={list} categoryTitle={cat} />
                 </CategorySection>
               </div>
               {/* 最後のセクション以外に仕切り線を追加 */}

@@ -4,12 +4,12 @@ import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 // ボット利用時のポイント消費API
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = supabaseServer
 
     // Authorization ヘッダーからトークンを取得
-    const authHeader = req.headers.get('authorization')
+    const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({
         success: false,
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // リクエストボディを取得
-    const body = await req.json()
+    const body = await request.json()
     const { bot_id, message } = body
 
     // バリデーション

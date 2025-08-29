@@ -13,6 +13,7 @@ export default function HistoryPanel(props: any): JSX.Element {
   const chatService = useChatService();
   const [history, setHistory] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { sessionId } = props;
 
   useEffect(() => {
     if (!sessionId) return;

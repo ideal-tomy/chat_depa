@@ -5,6 +5,8 @@ import { Bot } from '@/types';
 import { getCurrentUser } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { categoryToCharacterType } from '@/lib/bot-classification';
+import { getCategoryIcon } from '@/lib/category-icons';
+import { getPopularBadgeData, getPopularBotStyles } from '@/lib/popularity-calculator';
 
 interface BotCardProps {
   bot: Bot | undefined | null;
@@ -28,19 +30,15 @@ const BotCard: React.FC<BotCardProps> = ({ bot, isLarge = false, isNew = false }
     return null; 
   }
 
-  // 2. 安全にアイコンタイプを取得
+  // 2. カテゴリ別アイコン自動割り当て
   const getCharacterType = () => {
-    // categoryToCharacterType自体が読み込まれているか確認
-    if (typeof categoryToCharacterType !== 'object' || categoryToCharacterType === null) {
-      logger.error("`categoryToCharacterType` is not a valid object.");
+    if (!bot.category) {
       return 'default';
     }
-    // bot.categoryが存在し、かつマッピングオブジェクトにキーが存在するか
-    const categoryKey = bot.category && bot.category in categoryToCharacterType 
-      ? bot.category 
-      : 'default';
-    // 最終的な値が存在するか確認
-    return categoryToCharacterType[categoryKey] || categoryToCharacterType['default'];
+    
+    // 新しいカテゴリ別アイコンシステムを使用
+    const categoryIcon = getCategoryIcon(bot.category);
+    return categoryIcon;
   };
 
   const characterType = getCharacterType();
@@ -85,10 +83,14 @@ const BotCard: React.FC<BotCardProps> = ({ bot, isLarge = false, isNew = false }
     ? "relative flex flex-col w-full h-[280px] sm:h-[320px] rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer isolate p-4 sm:p-6 group"
     : "relative flex flex-col w-full h-[200px] sm:h-[240px] rounded-xl bg-white shadow-md border border-gray-200 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer isolate p-3 sm:p-4 group";
   
+  // 人気バッジデータを取得
+  const popularBadge = getPopularBadgeData(bot);
+
   return (
     <div 
       onClick={handleCardClick}
       className={containerBase}
+      style={popularBadge ? getPopularBotStyles(true) : {}}
     >
       {/* アイコン（上方向中心にはみ出し、背景透過） */}
       <div className={`absolute -top-6 left-3 z-20 ${isLarge ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-14 sm:h-14'}`}>
@@ -103,6 +105,28 @@ const BotCard: React.FC<BotCardProps> = ({ bot, isLarge = false, isNew = false }
           }}
         />
       </div>
+
+      {/* 人気バッジ */}
+      {popularBadge && (
+        <div 
+          className="absolute z-30"
+          style={{
+            position: 'absolute',
+            top: '-12px',
+            right: '-12px',
+            background: 'linear-gradient(135deg, #ffd700, #ffed4e)',
+            color: '#000',
+            padding: '6px 12px',
+            borderRadius: '16px',
+            fontWeight: 'bold',
+            fontSize: '0.875rem',
+            boxShadow: '0 4px 12px rgba(255, 215, 0, 0.4)',
+            animation: 'popularPulse 2s infinite'
+          }}
+        >
+          {popularBadge.text}
+        </div>
+      )}
 
       {/* ヘッダー部分：タイトル + ポイント */}
       <div className="flex items-start gap-2 sm:gap-3 mb-3 pt-10 sm:pt-12">

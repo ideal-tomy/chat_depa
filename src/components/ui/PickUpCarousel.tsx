@@ -175,14 +175,14 @@ const PickUpCarousel: React.FC<CarouselProps> = ({
           
           {/* カルーセルアイテム - 注目のBotは大きく表示 */}
           {bots.map((bot) => (
-            <div key={bot.id} className="w-[450px] sm:w-[500px] md:w-[550px] flex-shrink-0 snap-start -mt-6">
+            <div key={bot.id} className="w-[450px] sm:w-[500px] md:w-[550px] flex-shrink-0 snap-start">
               <div className="transform hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                 <div className="relative overflow-visible">
                   {/* 特別な注目バッジ */}
                   <div className="absolute top-2 right-2 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
                     ⭐ 注目
                   </div>
-                                    <BotCard
+                  <BotCard
                     bot={bot}
                     isLarge={true}
                   />

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const supabase = supabaseServer
 
     // Authorization ヘッダーからトークンを取得
-    const authHeader = req.headers.get('authorization')
+    const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({
         success: false,
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // URLパラメータから取得
-    const url = new URL(req.url)
+    const url = new URL(request.url)
     const limit = parseInt(url.searchParams.get('limit') || '50')
     const offset = parseInt(url.searchParams.get('offset') || '0')
     const type = url.searchParams.get('type') // earned, spent, purchased, manual_grant

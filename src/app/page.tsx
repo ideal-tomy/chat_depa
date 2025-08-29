@@ -7,10 +7,12 @@ import { logger } from '@/lib/logger';
 import PickUpCarousel from '@/components/ui/PickUpCarousel';
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel';
 import DynamicCarousel from '@/components/ui/DynamicCarousel';
+import AnimatedBackground from '@/components/ui/AnimatedBackground';
+import FortuneCategoryCarousel from '@/components/ui/FortuneCategoryCarousel';
 
 // カテゴリマッピング（データベースのカテゴリ名 → 表示用カテゴリ名）
 const categoryMapping: Record<string, string> = {
-  'プレゼン改善系': '占い',
+  'プレゼン改善系': 'ビジネス・契約',
   '数学特化': '学習・教育',
   '言語化トレーニング系': 'コミュニケーション',
   '申請系': '手続き・申請',
@@ -191,8 +193,9 @@ export default function Home(): JSX.Element {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+    <main className="min-h-screen bg-gray-50 relative">
+      <AnimatedBackground />
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {/* おすすめのBot */}
         {pickupBots.length > 0 && (
           <section className="mb-2">
@@ -244,13 +247,21 @@ export default function Home(): JSX.Element {
         {Object.entries(categoryBots).map(([category, bots], index) => (
           bots.length > 0 && (
             <section key={category} className="mb-4">
-              <HorizontalCarousel
-                title={category}
-                bots={bots.slice(0, 10)}
-                autoScroll={false}
-                isLarge={true}
-                isNew={false}
-              />
+              {/* 占いカテゴリの場合は専用カルーセルを使用 */}
+              {category === '占い' ? (
+                <FortuneCategoryCarousel
+                  bots={bots.slice(0, 15)}
+                  categoryTitle={category}
+                />
+              ) : (
+                <HorizontalCarousel
+                  title={category}
+                  bots={bots.slice(0, 10)}
+                  autoScroll={false}
+                  isLarge={true}
+                  isNew={false}
+                />
+              )}
               {/* 最後のセクション以外に仕切り線を追加 */}
               {index < Object.entries(categoryBots).length - 1 && (
                 <div className="border-t border-gray-200 mt-4"></div>

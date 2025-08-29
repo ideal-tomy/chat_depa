@@ -5,9 +5,9 @@ import { Bot } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const userId = searchParams.get('userId');
     const limit = parseInt(searchParams.get('limit') || '50');

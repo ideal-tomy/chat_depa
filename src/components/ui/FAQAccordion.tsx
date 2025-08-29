@@ -14,6 +14,8 @@ interface FAQAccordionProps {
 }
 
 export default function FAQAccordion(props: any): JSX.Element {
+  const { items, title }: { items: FAQItem[]; title?: string } = props;
+  
   return (
     <div className="w-full rounded-lg">
       {title && (

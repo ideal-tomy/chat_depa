@@ -16,6 +16,7 @@ interface Message {
 }
 
 export default function SupportChat(props: any): JSX.Element {
+  const { onClose } = props;
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',

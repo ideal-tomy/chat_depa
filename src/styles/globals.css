@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 人気ボットのパルスアニメーション */
+@keyframes popularPulse {
+  0%, 100% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.05); 
+  }
+}
+
+/* 人気ボットの特別スタイル */
+.popular-bot {
+  border: 2px solid #ffd700;
+  background: linear-gradient(135deg, #fff9e6, #fff);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+  position: relative;
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-weight: bold;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  animation: popularPulse 2s infinite;
+}
+
 :root {
   --primary: #C2281E;
   --primary-dark: #8B0000;

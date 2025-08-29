@@ -76,7 +76,7 @@ class Logger {
     }
   }
 
-  private sendToLogService(): void {
+  private sendToLogService(entry: LogEntry): void {
     // 本番環境でのログ送信処理
     // 例：Sentry、LogRocket、Vercel Analytics等
   }

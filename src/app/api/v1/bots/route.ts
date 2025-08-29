@@ -13,7 +13,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
   try {
     logger.info('[v1/bots] Starting bots API request');
     
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   try {
     logger.info('[v1/bots] Starting bot creation request');
     
-    const body = await req.json();
+    const body = await request.json();
     const { name, description, category, author, points, system_prompt } = body as Partial<Bot>;
 
     // バリデーション

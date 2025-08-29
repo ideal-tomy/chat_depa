@@ -78,7 +78,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<ApiRespons
       }, { status: 401 });
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const { username, avatar_url } = body as { username?: string; avatar_url?: string };
 
     // バリデーション

@@ -9,6 +9,8 @@ interface ChatPageClientProps {
 }
 
 export default function ChatPageClient(props: any): JSX.Element {
+  const { bot } = props;
+  
   if (!bot) {
     return <div>ボット情報の読み込みに失敗しました。</div>;
   }
