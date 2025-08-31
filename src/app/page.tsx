@@ -155,6 +155,23 @@ export default function Home(): JSX.Element {
   return (
     <main className="min-h-screen bg-gray-50 relative">
       <AnimatedBackground />
+      
+      {/* ヒーローセクション */}
+      <section className="relative py-16 px-4 text-center">
+        <div className="container mx-auto relative z-10">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gradient">
+            AI チャットボット
+            <br />
+            新しい対話の世界
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            様々な分野の専門AIボットと
+            <br />
+            今すぐ会話を始めよう
+          </p>
+        </div>
+      </section>
+      
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* おすすめのBot */}
         {pickupBots.length > 0 && (

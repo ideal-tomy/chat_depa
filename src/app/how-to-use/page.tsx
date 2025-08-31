@@ -3,11 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaUserPlus, FaRobot, FaComments, FaQuestionCircle, FaStar, FaClock, FaShieldAlt } from 'react-icons/fa';
+import { FaUserPlus, FaRobot, FaComments, FaQuestionCircle, FaStar, FaClock, FaShieldAlt, FaChevronDown } from 'react-icons/fa';
 
 export default function HowToUsePage(): JSX.Element {
+  const scrollToSection = (sectionId: string): void => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 scroll-smooth">
       {/* ヒーローセクション */}
       <section className="relative py-16 px-4">
         <div className="container mx-auto text-center">
@@ -30,27 +37,36 @@ export default function HowToUsePage(): JSX.Element {
             <br />
             AIアシスタントが利用できます
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Link
               href="/register"
-              className="inline-flex items-center bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="btn-primary inline-flex items-center"
             >
               <FaUserPlus className="mr-2" />
               今すぐ始める
             </Link>
             <Link
               href="/bots"
-              className="inline-flex items-center bg-white hover:bg-gray-50 text-gray-800 font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 shadow-lg hover:shadow-xl border border-gray-200"
+              className="btn-secondary inline-flex items-center"
             >
               <FaRobot className="mr-2" />
               ボット一覧を見る
             </Link>
           </div>
+          
+          {/* スクロールダウンボタン */}
+          <button
+            onClick={() => scrollToSection('steps-guide')}
+            className="mx-auto flex items-center justify-center w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full text-gray-600 hover:text-blue-600 hover:bg-white/40 transition-all duration-300 animate-bounce"
+            aria-label="スクロールして詳細を見る"
+          >
+            <FaChevronDown className="text-xl" />
+          </button>
         </div>
       </section>
 
       {/* 3ステップガイド */}
-      <section className="py-16 px-4 bg-white">
+      <section id="steps-guide" className="py-16 px-4 bg-white">
         <div className="container mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
             📋 利用方法（3ステップ）
@@ -121,7 +137,7 @@ export default function HowToUsePage(): JSX.Element {
       </section>
 
       {/* 機能紹介セクション */}
-      <section className="py-16 px-4 bg-gray-50">
+      <section id="features" className="py-16 px-4 bg-gray-50">
         <div className="container mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
             ✨ 主な機能
@@ -129,14 +145,14 @@ export default function HowToUsePage(): JSX.Element {
           
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* 24時間対応 */}
-            <div className="text-center p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div className="text-center p-8 rounded-2xl bg-white shadow-lg card-hover">
               <div className="flex justify-center mb-6">
                 <Image
                   src="/images/uranai01.png"
                   alt="24時間対応"
                   width={80}
                   height={80}
-                  className="w-20 h-20 object-contain"
+                  className="w-20 h-20 object-contain animate-float"
                 />
               </div>
               <h3 className="text-xl font-bold mb-4 text-gray-800">24時間対応</h3>
@@ -152,14 +168,15 @@ export default function HowToUsePage(): JSX.Element {
             </div>
 
             {/* 多様なボット */}
-            <div className="text-center p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div className="text-center p-8 rounded-2xl bg-white shadow-lg card-hover">
               <div className="flex justify-center mb-6">
                 <Image
                   src="/images/sumple01.png"
                   alt="多様なボット"
                   width={80}
                   height={80}
-                  className="w-20 h-20 object-contain"
+                  className="w-20 h-20 object-contain animate-float"
+                  style={{ animationDelay: '0.5s' }}
                 />
               </div>
               <h3 className="text-xl font-bold mb-4 text-gray-800">多様なボット</h3>
@@ -175,14 +192,15 @@ export default function HowToUsePage(): JSX.Element {
             </div>
 
             {/* 簡単操作 */}
-            <div className="text-center p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div className="text-center p-8 rounded-2xl bg-white shadow-lg card-hover">
               <div className="flex justify-center mb-6">
                 <Image
                   src="/images/sumple03.png"
                   alt="簡単操作"
                   width={80}
                   height={80}
-                  className="w-20 h-20 object-contain"
+                  className="w-20 h-20 object-contain animate-float"
+                  style={{ animationDelay: '1s' }}
                 />
               </div>
               <h3 className="text-xl font-bold mb-4 text-gray-800">簡単操作</h3>
@@ -201,7 +219,7 @@ export default function HowToUsePage(): JSX.Element {
       </section>
 
       {/* 使用例セクション */}
-      <section className="py-16 px-4 bg-white">
+      <section id="examples" className="py-16 px-4 bg-white">
         <div className="container mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
             💡 使用例
@@ -274,7 +292,7 @@ export default function HowToUsePage(): JSX.Element {
       </section>
 
       {/* よくある質問 */}
-      <section className="py-16 px-4 bg-gray-50">
+      <section id="faq" className="py-16 px-4 bg-gray-50">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
             ❓ よくある質問
